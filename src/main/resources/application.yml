@@ -1,0 +1,47 @@
+server:
+  port: 8085
+logging:
+  level:
+    root: INFO
+    org.apache.tomcat.util.net.NioEndpoint: ERROR
+    sun.rmi: ERROR
+    java.io: ERROR
+    javax.management: ERROR
+spring:
+  application:
+    name: bookti
+  jwt:
+    access:
+      secret-key: ${JWT_ACCESS_SECRET}
+      expiration: ${JWT_ACCESS_EXPIRATION}
+    refresh:
+      secret-key: ${JWT_REFRESH_SECRET}
+      expiration: ${JWT_REFRESH_EXPIRATION}
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: ${GOOGLE_CLIENT_ID}
+            client-secret: ${GOOGLE_CLIENT_SECRET}
+            scope:
+              - email
+              - profile
+  sql:
+    init:
+      mode: always
+  jpa:
+    show-sql: false
+    database: postgresql
+    defer-datasource-initialization: true
+    hibernate:
+      ddl-auto: create-drop
+    properties:
+      hibernate:
+        format-sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+  datasource:
+    driverClassName: org.postgresql.Driver
+    url: jdbc:${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
