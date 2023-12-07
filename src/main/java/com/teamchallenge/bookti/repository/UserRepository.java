@@ -1,6 +1,7 @@
-package com.teamchallenge.bookti.registration;
+package com.teamchallenge.bookti.repository;
 
 
+import com.teamchallenge.bookti.model.UserEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

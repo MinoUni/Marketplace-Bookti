@@ -1,5 +1,6 @@
-package com.teamchallenge.bookti.registration;
+package com.teamchallenge.bookti.model;
 
+import com.teamchallenge.bookti.dto.registration.NewUserRegistrationRequest;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -46,12 +47,12 @@ public class UserEntity {
     @Column(name = "avatar_url")
     private String avatarUrl;
 
-    public static UserEntity build(UserDto userDto) {
+    public static UserEntity build(NewUserRegistrationRequest userDetails) {
         return UserEntity.builder()
-                .firstName(userDto.getFirstName())
-                .lastName(userDto.getLastName())
-                .email(userDto.getEmail())
-                .password(userDto.getPassword())
+                .firstName(userDetails.getFirstName())
+                .lastName(userDetails.getLastName())
+                .email(userDetails.getEmail())
+                .password(userDetails.getPassword())
                 .build();
     }
 

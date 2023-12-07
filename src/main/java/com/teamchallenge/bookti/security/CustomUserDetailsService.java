@@ -1,8 +1,8 @@
 package com.teamchallenge.bookti.security;
 
 import com.teamchallenge.bookti.mapper.AuthorizedUserMapper;
-import com.teamchallenge.bookti.registration.UserEntity;
-import com.teamchallenge.bookti.registration.UserRepository;
+import com.teamchallenge.bookti.model.UserEntity;
+import com.teamchallenge.bookti.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;

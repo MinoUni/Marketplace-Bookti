@@ -1,6 +1,6 @@
 package com.teamchallenge.bookti.mapper;
 
-import com.teamchallenge.bookti.registration.UserEntity;
+import com.teamchallenge.bookti.model.UserEntity;
 import com.teamchallenge.bookti.security.AuthorizedUser;
 import lombok.experimental.UtilityClass;
 import org.springframework.security.core.GrantedAuthority;
