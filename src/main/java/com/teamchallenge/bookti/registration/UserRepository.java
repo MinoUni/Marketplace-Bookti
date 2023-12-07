@@ -4,10 +4,12 @@ package com.teamchallenge.bookti.registration;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-@Repository
-public interface UserRepository extends JpaRepository<User, Long> {
+import java.util.Optional;
 
-    User findUserByEmail(String email);
+@Repository
+public interface UserRepository extends JpaRepository<UserEntity, Long> {
+
+    Optional<UserEntity> findUserByEmail(String email);
 
     boolean existsUserByEmail(String email);
 
