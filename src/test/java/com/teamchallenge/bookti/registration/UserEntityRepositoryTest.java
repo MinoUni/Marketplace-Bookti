@@ -1,13 +1,16 @@
 package com.teamchallenge.bookti.registration;
 
+import com.teamchallenge.bookti.model.UserEntity;
+import com.teamchallenge.bookti.repository.UserRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 
 import static org.junit.jupiter.api.Assertions.*;
+
 @DataJpaTest
-class UserRepositoryTest {
+class UserEntityRepositoryTest {
 
     @Autowired
     private TestEntityManager entityManager;
@@ -17,18 +20,17 @@ class UserRepositoryTest {
 
     @Test
     void testThatUserExistsByEmail() {
-        //given
-        User user = User
+        UserEntity userEntity = UserEntity
                 .builder()
                 .firstName("First_name")
                 .lastName("LastName")
                 .email("abc@gmail.com")
                 .password("Password1")
                 .build();
-        entityManager.persist(user);
+        entityManager.persist(userEntity);
         entityManager.flush();
 
-        User nonexistentUser = User
+        UserEntity nonexistentUserEntity = UserEntity
                 .builder()
                 .firstName("First_name")
                 .lastName("LastName")
@@ -36,19 +38,13 @@ class UserRepositoryTest {
                 .password("Password1")
                 .build();
 
-        //when
-        boolean exists = userRepository.existsUserByEmail(user.getEmail());
-        boolean doesNotExist = userRepository.existsUserByEmail(nonexistentUser.getEmail());
-
-        //then
-        assertTrue(exists);
-        assertFalse(doesNotExist);
+        assertTrue(userRepository.existsUserByEmail(userEntity.getEmail()));
+        assertFalse(userRepository.existsUserByEmail(nonexistentUserEntity.getEmail()));
     }
 
     @Test
     void testThatUserSavesCorrectly() {
-        //given
-        User user = User
+        UserEntity userEntity = UserEntity
                 .builder()
                 .firstName("FirstName")
                 .lastName("LastName")
@@ -56,7 +52,7 @@ class UserRepositoryTest {
                 .password("Password1")
                 .build();
 
-        User user1 = User
+        UserEntity userEntity1 = UserEntity
                 .builder()
                 .firstName("FirstName")
                 .lastName("LastName")
@@ -64,13 +60,11 @@ class UserRepositoryTest {
                 .password("Password1")
                 .build();
 
-        //when
-        User userSaved = userRepository.save(user);
-        User user1Saved = userRepository.save(user1);
-        System.out.println(user1Saved.getEmail());
+        UserEntity userEntitySaved = userRepository.save(userEntity);
+        UserEntity userEntity1Saved = userRepository.save(userEntity1);
+        System.out.println(userEntity1Saved.getEmail());
 
-        //then
-        assertEquals(user.getEmail(), userSaved.getEmail());
-        assertEquals(user1.getEmail(), user1Saved.getEmail());
+        assertEquals(userEntity.getEmail(), userEntitySaved.getEmail());
+        assertEquals(userEntity1.getEmail(), userEntity1Saved.getEmail());
     }
 }

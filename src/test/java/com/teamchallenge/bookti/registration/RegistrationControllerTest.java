@@ -1,5 +1,8 @@
 package com.teamchallenge.bookti.registration;
 
+import com.teamchallenge.bookti.controller.RegistrationController;
+import com.teamchallenge.bookti.dto.registration.NewUserRegistrationRequest;
+import com.teamchallenge.bookti.service.impl.DefaultUserService;
 import io.swagger.v3.core.util.Json;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,11 +23,11 @@ class RegistrationControllerTest {
     private MockMvc mockMvc;
 
     @MockBean
-    private UserService userService;
+    private DefaultUserService defaultUserService;
 
     @Test
-    void testRegistration() throws Exception {
-        UserDto userDto = UserDto
+    void whenRegistrationSuccessfulThenDisplayRegistrationResponseWithStatusCreated() throws Exception {
+        NewUserRegistrationRequest newUserRegistrationRequest = NewUserRegistrationRequest
                 .builder()
                 .firstName("FirstName")
                 .lastName("LastName")
@@ -35,7 +38,7 @@ class RegistrationControllerTest {
 
         mockMvc.perform(MockMvcRequestBuilders
                         .post("/registration/register")
-                        .content(Json.pretty(userDto))
+                        .content(Json.pretty(newUserRegistrationRequest))
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated());
