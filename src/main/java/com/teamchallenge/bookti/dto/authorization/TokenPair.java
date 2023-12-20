@@ -1,4 +1,4 @@
-package com.teamchallenge.bookti.dto.registration;
+package com.teamchallenge.bookti.dto.authorization;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -11,13 +11,17 @@ import java.time.LocalDateTime;
 @Builder
 @Data
 @AllArgsConstructor
-public class RegistrationResponse{
+public class TokenPair {
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd hh:mm:ssa")
     private LocalDateTime timestamp;
 
-    @JsonProperty("status_code")
-    private Integer statusCode;
+    @JsonProperty("user_id")
+    private String userId;
 
-    private String message;
+    @JsonProperty("access_token")
+    private String accessToken;
+
+    @JsonProperty("refresh_token")
+    private String refreshToken;
 }
