@@ -1,47 +1,50 @@
 server:
-  port: 8085
-logging:
-  level:
-    root: INFO
-    org.apache.tomcat.util.net.NioEndpoint: ERROR
-    sun.rmi: ERROR
-    java.io: ERROR
-    javax.management: ERROR
+  port: 8080
+
 spring:
   application:
-    name: bookti
-  jwt:
-    access:
-      secret-key: ${JWT_ACCESS_SECRET}
-      expiration: ${JWT_ACCESS_EXPIRATION}
-    refresh:
-      secret-key: ${JWT_REFRESH_SECRET}
-      expiration: ${JWT_REFRESH_EXPIRATION}
-  security:
-    oauth2:
-      client:
-        registration:
-          google:
-            client-id: ${GOOGLE_CLIENT_ID}
-            client-secret: ${GOOGLE_CLIENT_SECRET}
-            scope:
-              - email
-              - profile
+    name: bookti-rs
+  profiles:
+    active: dev
   sql:
     init:
       mode: always
   jpa:
     show-sql: false
-    database: postgresql
     defer-datasource-initialization: true
     hibernate:
       ddl-auto: create-drop
     properties:
       hibernate:
         format-sql: true
-        dialect: org.hibernate.dialect.PostgreSQLDialect
   datasource:
     driverClassName: org.postgresql.Driver
     url: jdbc:${DB_URL}
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
+
+frontend-url: ${FRONTEND_URL}
+
+jwt:
+  access-token:
+    private: ${ACCESS_TOKEN_PRIVATE_KEY_PATH}
+    public: ${ACCESS_TOKEN_PUBLIC_KEY_PATH}
+  refresh-token:
+    private: ${REFRESH_TOKEN_PRIVATE_KEY_PATH}
+    public: ${REFRESH_TOKEN_PUBLIC_KEY_PATH}
+
+application:
+  permit-all-req:
+    - /v2/api-docs/**
+    - /v3/api-docs/**
+    - /swagger-resources/**
+    - /configuration/**
+    - /webjars/**
+    - /swagger-ui/*
+    - /swagger-ui.html
+    - /api/v1/authorize/**
+
+logging:
+  level:
+    root: INFO
+    org.springframework.security: INFO

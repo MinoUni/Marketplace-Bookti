@@ -10,7 +10,7 @@ import java.util.List;
 @UtilityClass
 public class AuthorizedUserMapper {
 
-    public AuthorizedUser map(UserEntity user) {
+    public AuthorizedUser mapFrom(UserEntity user) {
         List<? extends GrantedAuthority> authorities = List.of(); // TODO: Add authorities to user model
         return AuthorizedUser
                 .authorizedUserBuilder(user.getEmail(), user.getPassword(), authorities)

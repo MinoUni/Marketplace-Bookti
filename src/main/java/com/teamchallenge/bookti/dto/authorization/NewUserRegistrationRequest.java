@@ -1,16 +1,14 @@
-package com.teamchallenge.bookti.dto.registration;
+package com.teamchallenge.bookti.dto.authorization;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 
 @AllArgsConstructor
 @Data
-@Builder
 public class NewUserRegistrationRequest {
 
     @JsonProperty("first_name")
