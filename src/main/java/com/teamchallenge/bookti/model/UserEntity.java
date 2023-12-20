@@ -1,6 +1,6 @@
 package com.teamchallenge.bookti.model;
 
-import com.teamchallenge.bookti.dto.registration.NewUserRegistrationRequest;
+import com.teamchallenge.bookti.dto.authorization.NewUserRegistrationRequest;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
