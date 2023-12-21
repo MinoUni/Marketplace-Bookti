@@ -2,8 +2,8 @@ ACCESS_TOKEN_PRIVATE_KEY_PATH: "access-refresh-token-keys/access-token-private.k
 ACCESS_TOKEN_PUBLIC_KEY_PATH: "access-refresh-token-keys/access-token-public.key"
 REFRESH_TOKEN_PRIVATE_KEY_PATH: "access-refresh-token-keys/refresh-token-private.key"
 REFRESH_TOKEN_PUBLIC_KEY_PATH: "access-refresh-token-keys/refresh-token-public.key"
-DRIVER_CLASS_NAME: org.postgresql.Driver
-DB_URL: postgresql://localhost:5432/bookti
-DB_USERNAME: postgres
-DB_PASSWORD: unit1234
+DRIVER_CLASS_NAME: org.h2.Driver
+DB_URL: h2:mem:bookti;DB_CLOSE_DELAY=-1
+DB_USERNAME: sa
+DB_PASSWORD: sa
 FRONTEND_URL: https://marketplace-bookti.vercel.app
