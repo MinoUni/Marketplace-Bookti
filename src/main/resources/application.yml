@@ -5,7 +5,7 @@ spring:
   application:
     name: bookti
   profiles:
-    active: dev_deploy
+    active: dev
   sql:
     init:
       mode: always
