@@ -1,6 +1,7 @@
 package com.teamchallenge.bookti.dto.authorization;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
@@ -12,26 +13,29 @@ import lombok.Data;
 public class NewUserRegistrationRequest {
 
     @JsonProperty("first_name")
-    @NotBlank(message = "Field 'first_name' must not be blank")
+    @NotBlank(message = "Field <first_name> must not be blank")
     private String firstName;
 
     @JsonProperty("last_name")
-    @NotBlank(message = "Field 'last_name' must not be blank")
+    @NotBlank(message = "Field <last_name> must not be blank")
     private String lastName;
 
-    @NotBlank(message = "Field 'email' must not be blank")
+    @Schema(type = "string", example = "mark.javar@gmail.com")
+    @NotBlank(message = "Field <email> must not be blank")
     @Pattern(regexp = "^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$",
             message = "Email must contain at least 1 character before '@' and domain name after '@'")
     private String email;
 
-    @NotBlank(message = "Field 'password' must not be blank")
+    @Schema(type = "string", example = "Javard1rkk")
+    @NotBlank(message = "Field <password> must not be blank")
     @Size(min = 8, max = 20, message = "Password must be from 8 to 20 symbols length")
     @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)[a-zA-Z\\d]{8,20}$",
             message = "Password must contain minimum eight characters, at least one uppercase letter, one lowercase letter and one number")
     private String password;
 
+    @Schema(type = "string", example = "Javard1rkk")
     @JsonProperty("confirm_password")
-    @NotBlank(message = "Field 'confirm_password' must not be blank")
+    @NotBlank(message = "Field <confirm_password> must not be blank")
     @Size(min = 8, max = 20, message = "Password must be from 8 to 20 symbols length")
     @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)[a-zA-Z\\d]{8,20}$",
             message = "Password must contain minimum eight characters, at least one uppercase letter, one lowercase letter and one number")

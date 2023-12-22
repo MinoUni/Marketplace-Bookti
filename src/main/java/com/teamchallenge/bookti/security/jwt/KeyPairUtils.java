@@ -1,6 +1,6 @@
 package com.teamchallenge.bookti.security.jwt;
 
-import com.teamchallenge.bookti.exception.KeyPaiException;
+import com.teamchallenge.bookti.exception.KeyPairException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -84,13 +84,13 @@ public class KeyPairUtils {
             return new KeyPair(publicKey, privateKey);
         } catch (NoSuchAlgorithmException e) {
             log.error("No provider to support provided algorithm: {}", e.getMessage());
-            throw new KeyPaiException(e.getMessage());
+            throw new KeyPairException(e.getMessage());
         } catch (IOException e) {
             log.error("Failed to read a file: {}", e.getMessage());
-            throw new KeyPaiException(e.getMessage());
+            throw new KeyPairException(e.getMessage());
         } catch (InvalidKeySpecException e) {
             log.error("Invalid KeySpec: {}", e.getMessage());
-            throw new KeyPaiException(e.getMessage());
+            throw new KeyPairException(e.getMessage());
         }
     }
 
@@ -115,10 +115,10 @@ public class KeyPairUtils {
             return keyPair;
         } catch (NoSuchAlgorithmException e) {
             log.error("No provider to support provided algorithm: {}", e.getMessage());
-            throw new KeyPaiException(e.getMessage());
+            throw new KeyPairException(e.getMessage());
         } catch (IOException e) {
             log.error("Failed to read a file: {}", e.getMessage());
-            throw new KeyPaiException(e.getMessage());
+            throw new KeyPairException(e.getMessage());
         }
     }
 

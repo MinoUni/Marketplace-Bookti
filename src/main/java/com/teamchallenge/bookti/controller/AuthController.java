@@ -10,12 +10,14 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -24,6 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @RequiredArgsConstructor
+@Tag(name = "Authorization mappings", description = "PERMIT_ALL")
 @RequestMapping("/api/v1/authorize")
 @RestController
 public class AuthController {
@@ -68,9 +71,8 @@ public class AuthController {
     @PostMapping(path = "/signup")
     public ResponseEntity<TokenPair> signup(@Valid @RequestBody NewUserRegistrationRequest newUserRegistrationRequest) {
         var createdUser = userService.create(newUserRegistrationRequest);
-        var authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(createdUser.getEmail(), createdUser.getPassword())
-        );
+        Authentication authentication = UsernamePasswordAuthenticationToken
+                .authenticated(createdUser, createdUser.getPassword(), createdUser.getAuthorities());
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(tokenGeneratorService.generateTokenPair(authentication));

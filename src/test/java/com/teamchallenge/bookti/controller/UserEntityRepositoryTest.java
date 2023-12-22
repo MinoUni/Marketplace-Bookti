@@ -1,4 +1,4 @@
-package com.teamchallenge.bookti.registration;
+package com.teamchallenge.bookti.controller;
 
 import com.teamchallenge.bookti.model.UserEntity;
 import com.teamchallenge.bookti.repository.UserRepository;
