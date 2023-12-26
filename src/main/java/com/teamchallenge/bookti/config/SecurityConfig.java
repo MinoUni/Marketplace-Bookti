@@ -13,7 +13,6 @@ import com.teamchallenge.bookti.security.jwt.JwtToAuthorizedUserConverter;
 import com.teamchallenge.bookti.security.jwt.KeyPairUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -45,7 +44,7 @@ import java.util.List;
 @EnableMethodSecurity
 @RequiredArgsConstructor
 @Configuration(proxyBeanMethods = false)
-@EnableConfigurationProperties(PermitAllRequestProperties.class)
+@EnableConfigurationProperties(ApplicationProperties.class)
 public class SecurityConfig {
 
     private final CustomUserDetailsService customUserDetailsService;
@@ -53,9 +52,7 @@ public class SecurityConfig {
     private final CustomRestAuthenticationEntryPoint restAuthenticationEntryPoint;
     private final CustomAccessDeniedHandler accessDeniedHandler;
     private final KeyPairUtils keyPairUtils;
-    private final PermitAllRequestProperties requestProp;
-    @Value("${frontend-url}")
-    private String clientDomain;
+    private final ApplicationProperties applicationProperties;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -73,7 +70,7 @@ public class SecurityConfig {
                         .accessDeniedHandler(accessDeniedHandler)
                 )
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers(requestProp.getPermitAllReq()).permitAll()
+                        .requestMatchers(applicationProperties.getPermitAllReq()).permitAll()
                         .anyRequest().authenticated()
                 )
                 .oauth2ResourceServer(oauth2 -> oauth2
@@ -149,7 +146,7 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration cors = new CorsConfiguration();
-        cors.setAllowedOrigins(List.of(clientDomain));
+        cors.setAllowedOrigins(applicationProperties.getAllowedOrigins());
         cors.setAllowedMethods(List.of("GET", "POST", "DELETE", "PATCH", "PUT", "OPTIONS"));
         cors.setAllowedHeaders(List.of("X-Requested-With", "Origin", "Content-Type", "Accept", "Authorization"));
         cors.setExposedHeaders(List.of("Content-Type", "Cache-Control", "Content-Language", "Content-Length", "Last-Modified"));

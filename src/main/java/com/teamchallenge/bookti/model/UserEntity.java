@@ -32,11 +32,8 @@ public class UserEntity {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @Column(name = "first_name", nullable = false)
-    private String firstName;
-
-    @Column(name = "last_name", nullable = false)
-    private String lastName;
+    @Column(name = "full_name", nullable = false)
+    private String fullName;
 
     @Column(nullable = false, unique = true)
     private String email;
@@ -49,8 +46,7 @@ public class UserEntity {
 
     public static UserEntity build(NewUserRegistrationRequest userDetails) {
         return UserEntity.builder()
-                .firstName(userDetails.getFirstName())
-                .lastName(userDetails.getLastName())
+                .fullName(userDetails.getFullName())
                 .email(userDetails.getEmail())
                 .password(userDetails.getPassword())
                 .build();

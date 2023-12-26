@@ -34,8 +34,6 @@ spring:
           starttls:
             enable: true
 
-frontend-url: ${FRONTEND_URL}
-
 jwt:
   access-token:
     private: ${ACCESS_TOKEN_PRIVATE_KEY_PATH}
@@ -54,8 +52,11 @@ application:
     - /swagger-ui/*
     - /swagger-ui.html
     - /api/v1/authorize/**
-
+  allowed-origins:
+    - https://marketplace-bookti.vercel.app
+    - http://localhost:5173
 logging:
   level:
     root: INFO
-    org.springframework.security: INFO
+    org.springframework.security: DEBUG
+    net.ttddyy.dsproxy.listener: DEBUG

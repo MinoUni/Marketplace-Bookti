@@ -6,4 +6,3 @@ DRIVER_CLASS_NAME: org.postgresql.Driver
 DB_URL: postgresql://localhost:5432/bookti
 DB_USERNAME: postgres
 DB_PASSWORD: unit1234
-FRONTEND_URL: https://marketplace-bookti.vercel.app
