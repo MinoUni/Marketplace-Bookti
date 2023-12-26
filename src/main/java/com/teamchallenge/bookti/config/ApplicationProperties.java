@@ -7,11 +7,13 @@ import java.util.List;
 
 @Getter
 @ConfigurationProperties(prefix = "application")
-public class PermitAllRequestProperties {
+public class ApplicationProperties {
 
     private final String[] permitAllReq;
+    private final List<String> allowedOrigins;
 
-    public PermitAllRequestProperties(List<String> permitAllReq) {
+    public ApplicationProperties(List<String> permitAllReq, List<String> allowedOrigins) {
         this.permitAllReq = permitAllReq.toArray(String[]::new);
+        this.allowedOrigins = allowedOrigins;
     }
 }

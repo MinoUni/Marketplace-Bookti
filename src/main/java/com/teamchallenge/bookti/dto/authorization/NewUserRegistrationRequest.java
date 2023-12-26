@@ -12,18 +12,14 @@ import lombok.Data;
 @Data
 public class NewUserRegistrationRequest {
 
-    @JsonProperty("first_name")
-    @NotBlank(message = "Field <first_name> must not be blank")
-    private String firstName;
-
-    @JsonProperty("last_name")
-    @NotBlank(message = "Field <last_name> must not be blank")
-    private String lastName;
+    @JsonProperty("full_name")
+    @NotBlank(message = "Field <full_name> must not be blank")
+    private String fullName;
 
     @Schema(type = "string", example = "mark.javar@gmail.com")
     @NotBlank(message = "Field <email> must not be blank")
-    @Pattern(regexp = "^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$",
-            message = "Email must contain at least 1 character before '@' and domain name after '@'")
+    @Pattern(regexp = "^(?=.{1,64}@)[A-Za-z0-9_-]+(\\.[A-Za-z0-9_-]+)*@[^-][A-Za-z0-9-]+(\\.[A-Za-z0-9-]+)*(\\.[A-Za-z]{2,})$",
+            message = "Invalid email")
     private String email;
 
     @Schema(type = "string", example = "Javard1rkk")

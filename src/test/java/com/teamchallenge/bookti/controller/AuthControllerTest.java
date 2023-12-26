@@ -47,8 +47,7 @@ class AuthControllerTest {
     @DisplayName("When calling /signup, expect that new User with access & refresh token pair will be created with status code 201")
     void shouldReturnTokenPairDTOWithStatusCode201() throws Exception {
         NewUserRegistrationRequest userDetails = new NewUserRegistrationRequest(
-                "FirstName",
-                "LastName",
+                "fullName",
                 "abc@gmail.com",
                 "Password1",
                 "Password1"
@@ -78,11 +77,10 @@ class AuthControllerTest {
     }
 
     @Test
-    @DisplayName("When calling /signup, expect that passwords in req not matches and PasswordIsNotMatchesException will thrown with status code 400")
+    @DisplayName("When calling /signup, expect that passwords in req not matches with status code 400")
     void shouldReturnErrorResponseWithPasswordIsNotMatchesExceptionWithStatusCode400() throws Exception {
         NewUserRegistrationRequest userDetails = new NewUserRegistrationRequest(
                 "FirstName",
-                "LastName",
                 "abc@gmail.com",
                 "Password1",
                 "PassNoWord2"
@@ -106,7 +104,6 @@ class AuthControllerTest {
     void shouldReturnErrorResponseValidationExceptionWithStatusCode400() throws Exception {
         NewUserRegistrationRequest userDetails = new NewUserRegistrationRequest(
                 "",
-                "LastName",
                 "abcgmail.com",
                 "Password1",
                 "PassNoWord2"
@@ -127,7 +124,6 @@ class AuthControllerTest {
     void shouldReturnErrorResponseWithUserAlreadyExistsExceptionWithStatusCode409() throws Exception {
         NewUserRegistrationRequest userDetails = new NewUserRegistrationRequest(
                 "first_name",
-                "LastName",
                 "abc@gmail.com",
                 "Password1",
                 "Password1"
