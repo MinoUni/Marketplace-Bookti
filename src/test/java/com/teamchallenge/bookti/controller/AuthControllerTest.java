@@ -2,10 +2,10 @@ package com.teamchallenge.bookti.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.teamchallenge.bookti.Application;
-import com.teamchallenge.bookti.dto.authorization.NewUserRegistrationRequest;
-import com.teamchallenge.bookti.dto.authorization.TokenPair;
+import com.teamchallenge.bookti.dto.authorization.*;
 import com.teamchallenge.bookti.exception.PasswordIsNotMatchesException;
 import com.teamchallenge.bookti.exception.UserAlreadyExistsException;
+import com.teamchallenge.bookti.exception.UserNotFoundException;
 import com.teamchallenge.bookti.security.AuthorizedUser;
 import com.teamchallenge.bookti.security.jwt.TokenGeneratorService;
 import com.teamchallenge.bookti.service.impl.DefaultUserService;
@@ -141,4 +141,38 @@ class AuthControllerTest {
         verify(userService, times(1)).create(userDetails);
     }
 
+    @Test
+    @DisplayName("when calling /login/resetPassword, expect that user with email from request already exists and mail will be sent with status code 201")
+    void shouldReturnPasswordResetResponseWithStatusCode201() throws Exception {
+         //TODO test
+    }
+
+    @Test
+    @DisplayName("when calling /login/resetPassword, expect that user with email from request does not exists and status code 404 will be thrown")
+    void shouldReturnErrorResponseWithUserNotFoundExceptionWithStatusCode404() throws Exception {
+        PasswordResetRequest passwordResetRequest = new PasswordResetRequest("a@gmail.com");
+        when(userService.findUserByEmail(passwordResetRequest.getEmail())).thenThrow(UserNotFoundException.class);
+
+        mockMvc.perform(post("/api/v1/authorize/login/resetPassword")
+                        .contentType(APPLICATION_JSON)
+                        .content(jsonMapper.writeValueAsString(passwordResetRequest)))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("timestamp").exists())
+                .andExpect(jsonPath("status_code").value("404"));
+    }
+
+    @Test
+    @DisplayName("when calling /login/resetPassword with invalid request body, expect validation failed with status code 400")
+    void shouldReturnErrorResponseWithValidationExceptionWithStatusCode400() throws Exception {
+        PasswordResetRequest passwordResetRequest = new PasswordResetRequest("abc123");
+        mockMvc.perform(post("/api/v1/authorize/login/resetPassword")
+                        .contentType(APPLICATION_JSON)
+                        .content(jsonMapper.writeValueAsString(passwordResetRequest)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("timestamp").exists())
+                .andExpect(jsonPath("status_code").value("400"))
+                .andExpect(jsonPath("message").value("Validation failed"));
+
+        verify(userService, never()).findUserByEmail(passwordResetRequest.getEmail());
+    }
 }

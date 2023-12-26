@@ -42,9 +42,9 @@ public interface UserService {
      * @return {@link UserInfo user} DTO
      * @throws UserNotFoundException if user with provided id not found
      */
-    UserEntity findUserByEmail (String email);
+    UserInfo findUserByEmail (String email);
 
-    void createPasswordResetTokenForUser(UserEntity user, String token);
+    PasswordResetToken createPasswordResetTokenForUser(UserInfo user, String token);
 
     PasswordResetToken getPasswordResetToken(String token);
 

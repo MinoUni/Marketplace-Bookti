@@ -3,10 +3,9 @@ package com.teamchallenge.bookti.controller;
 import com.teamchallenge.bookti.dto.ErrorResponse;
 import com.teamchallenge.bookti.dto.authorization.*;
 import com.teamchallenge.bookti.dto.user.UserInfo;
-import com.teamchallenge.bookti.model.UserEntity;
 import com.teamchallenge.bookti.security.jwt.TokenGeneratorService;
+import com.teamchallenge.bookti.service.EmailService;
 import com.teamchallenge.bookti.service.UserService;
-import com.teamchallenge.bookti.service.impl.EmailServiceImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -23,6 +22,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
@@ -37,7 +37,7 @@ public class AuthController {
     private final TokenGeneratorService tokenGeneratorService;
     private final AuthenticationManager authenticationManager;
     private final JavaMailSender mailSender;
-    private final EmailServiceImpl emailService;
+    private final EmailService emailService;
 
     @Operation(
             summary = "User signup",
@@ -118,15 +118,14 @@ public class AuthController {
     }
 
     @PostMapping(path = "/login/resetPassword")
-    public ResponseEntity<String> sendResetPasswordEmail(@Valid @RequestBody PasswordResetRequest passwordResetRequest, HttpServletRequest request) {
-        UserEntity user = userService.findUserByEmail(passwordResetRequest.getEmail());
-        UserInfo userInfo = UserInfo.mapFrom(user);
+    public ResponseEntity<PasswordResetResponse> sendResetPasswordEmail(@Valid @RequestBody PasswordResetRequest passwordResetRequest, HttpServletRequest request) {
+        UserInfo user = userService.findUserByEmail(passwordResetRequest.getEmail());
         String token = UUID.randomUUID().toString();
         userService.createPasswordResetTokenForUser(user, token);
         mailSender.send(emailService.constructResetTokenEmail(request.getRequestURL().toString(),
-                token, userInfo));
+                token, user));
         return ResponseEntity.status(HttpStatus.OK)
-                .body(token);
+                .body(new PasswordResetResponse(LocalDateTime.now(), String.valueOf(user.getId()), token));
     }
 }
 

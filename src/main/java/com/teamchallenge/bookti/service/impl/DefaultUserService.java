@@ -4,6 +4,7 @@ import com.teamchallenge.bookti.dto.authorization.NewUserRegistrationRequest;
 import com.teamchallenge.bookti.dto.authorization.PasswordResetToken;
 import com.teamchallenge.bookti.dto.user.UserInfo;
 import com.teamchallenge.bookti.exception.PasswordIsNotMatchesException;
+import com.teamchallenge.bookti.exception.PasswordResetTokenNotFoundException;
 import com.teamchallenge.bookti.exception.UserAlreadyExistsException;
 import com.teamchallenge.bookti.exception.UserNotFoundException;
 import com.teamchallenge.bookti.mapper.AuthorizedUserMapper;
@@ -45,29 +46,33 @@ public class DefaultUserService implements UserService {
     @Override
     public UserInfo findById(UUID id) {
         var user = userRepository.findById(id)
-                    .orElseThrow(() -> new UserNotFoundException(MessageFormat.format("User with id <{0}> not found.", id)));
+                .orElseThrow(() -> new UserNotFoundException(MessageFormat.format("User with id <{0}> not found.", id)));
         return UserInfo.mapFrom(user);
     }
 
     @Override
-    public UserEntity findUserByEmail(String email) {
-        return userRepository.findByEmail(email)
+    public UserInfo findUserByEmail(String email) {
+        UserEntity user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UserNotFoundException(MessageFormat.format("User with email <{0}> not found.", email)));
+        return UserInfo.mapFrom(user);
     }
 
     @Override
-    public void createPasswordResetTokenForUser(UserEntity user, String token) {
-        PasswordResetToken passwordResetToken = new PasswordResetToken(user, token);
-        passwordTokenRepository.save(passwordResetToken);
+    public PasswordResetToken createPasswordResetTokenForUser(UserInfo user, String token) {
+        UserEntity userEntity = userRepository.findById(user.getId())
+                .orElseThrow(() -> new UserNotFoundException(MessageFormat.format("User with id <{0}> not found.", user.getId())));
+        PasswordResetToken passwordResetToken = new PasswordResetToken(userEntity, token);
+        return passwordTokenRepository.save(passwordResetToken);
     }
 
     @Override
     public PasswordResetToken getPasswordResetToken(String token) {
-        return passwordTokenRepository.findByToken(token);
+        return passwordTokenRepository.findByToken(token)
+                .orElseThrow(() -> new PasswordResetTokenNotFoundException(MessageFormat.format("Password reset token <{0}> not found.", token)));
     }
 
     @Override
     public Optional<UserEntity> getUserByPasswordResetToken(String token) {
-        return Optional.ofNullable(passwordTokenRepository.findByToken(token) .getUser());
+        return Optional.ofNullable(passwordTokenRepository.findByToken(token).get().getUser());
     }
 }
