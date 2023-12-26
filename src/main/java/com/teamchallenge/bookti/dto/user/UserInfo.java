@@ -17,11 +17,8 @@ public class UserInfo {
 
     private String email;
 
-    @JsonProperty("first_name")
-    private String firstName;
-
-    @JsonProperty("last_name")
-    private String lastName;
+    @JsonProperty("full_name")
+    private String fullName;
 
     @JsonProperty("avatar_url")
     private String avatarUrl;
@@ -31,8 +28,7 @@ public class UserInfo {
                 .builder()
                 .id(user.getId())
                 .email(user.getEmail())
-                .firstName(user.getFirstName())
-                .lastName(user.getLastName())
+                .fullName(user.getFullName())
                 .avatarUrl(user.getAvatarUrl())
                 .build();
     }
