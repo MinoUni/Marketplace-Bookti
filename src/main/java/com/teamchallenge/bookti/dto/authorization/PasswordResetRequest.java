@@ -4,18 +4,31 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 @Data
-@NoArgsConstructor
 @AllArgsConstructor
 public class PasswordResetRequest {
-    @JsonProperty("email")
-    @Schema(type = "string", example = "mark.javar@gmail.com")
-    @NotBlank(message = "Field <email> must not be blank")
-    @Pattern(regexp = "^(?=.{1,64}@)[A-Za-z0-9_-]+(\\.[A-Za-z0-9_-]+)*@[^-][A-Za-z0-9-]+(\\.[A-Za-z0-9-]+)*(\\.[A-Za-z]{2,})$",
-            message = "Invalid email")
-    private String email;
+
+    @Schema(type = "string", example = "Javard1rkk")
+    @NotBlank(message = "Field <password> must not be blank")
+    @Size(min = 8, max = 20, message = "Password must be from 8 to 20 symbols length")
+    @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)[a-zA-Z\\d]{8,20}$",
+            message = "Password must contain minimum eight characters, at least one uppercase letter, one lowercase letter and one number")
+    private String password;
+
+    @Schema(type = "string", example = "Javard1rkk")
+    @JsonProperty("confirm_password")
+    @NotBlank(message = "Field <confirm_password> must not be blank")
+    @Size(min = 8, max = 20, message = "Password must be from 8 to 20 symbols length")
+    @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)[a-zA-Z\\d]{8,20}$",
+            message = "Password must contain minimum eight characters, at least one uppercase letter, one lowercase letter and one number")
+    private String confirmPassword;
+
+    @Schema(type = "string", example = "4183d7d1-7f9e-44a0-9cb9-ece3d001a0d0")
+    @JsonProperty("reset_token")
+    @NotBlank(message = "Field <reset_token> must not be blank")
+    private String resetToken;
 }

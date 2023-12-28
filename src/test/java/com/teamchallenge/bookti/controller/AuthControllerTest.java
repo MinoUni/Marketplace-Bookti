@@ -150,12 +150,12 @@ class AuthControllerTest {
     @Test
     @DisplayName("when calling /login/resetPassword, expect that user with email from request does not exists and status code 404 will be thrown")
     void shouldReturnErrorResponseWithUserNotFoundExceptionWithStatusCode404() throws Exception {
-        PasswordResetRequest passwordResetRequest = new PasswordResetRequest("a@gmail.com");
-        when(userService.findUserByEmail(passwordResetRequest.getEmail())).thenThrow(UserNotFoundException.class);
+        MailResetPasswordRequest mailResetPasswordRequest = new MailResetPasswordRequest("a@gmail.com");
+        when(userService.findUserByEmail(mailResetPasswordRequest.getEmail())).thenThrow(UserNotFoundException.class);
 
         mockMvc.perform(post("/api/v1/authorize/login/resetPassword")
                         .contentType(APPLICATION_JSON)
-                        .content(jsonMapper.writeValueAsString(passwordResetRequest)))
+                        .content(jsonMapper.writeValueAsString(mailResetPasswordRequest)))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("timestamp").exists())
                 .andExpect(jsonPath("status_code").value("404"));
@@ -164,15 +164,15 @@ class AuthControllerTest {
     @Test
     @DisplayName("when calling /login/resetPassword with invalid request body, expect validation failed with status code 400")
     void shouldReturnErrorResponseWithValidationExceptionWithStatusCode400() throws Exception {
-        PasswordResetRequest passwordResetRequest = new PasswordResetRequest("abc123");
+        MailResetPasswordRequest mailResetPasswordRequest = new MailResetPasswordRequest("abc123");
         mockMvc.perform(post("/api/v1/authorize/login/resetPassword")
                         .contentType(APPLICATION_JSON)
-                        .content(jsonMapper.writeValueAsString(passwordResetRequest)))
+                        .content(jsonMapper.writeValueAsString(mailResetPasswordRequest)))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("timestamp").exists())
                 .andExpect(jsonPath("status_code").value("400"))
                 .andExpect(jsonPath("message").value("Validation failed"));
 
-        verify(userService, never()).findUserByEmail(passwordResetRequest.getEmail());
+        verify(userService, never()).findUserByEmail(mailResetPasswordRequest.getEmail());
     }
 }

@@ -3,6 +3,7 @@ package com.teamchallenge.bookti.controller;
 import com.teamchallenge.bookti.dto.ErrorResponse;
 import com.teamchallenge.bookti.dto.authorization.*;
 import com.teamchallenge.bookti.dto.user.UserInfo;
+import com.teamchallenge.bookti.model.PasswordResetToken;
 import com.teamchallenge.bookti.security.jwt.TokenGeneratorService;
 import com.teamchallenge.bookti.service.EmailService;
 import com.teamchallenge.bookti.service.UserService;
@@ -11,12 +12,10 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -36,7 +35,6 @@ public class AuthController {
     private final UserService userService;
     private final TokenGeneratorService tokenGeneratorService;
     private final AuthenticationManager authenticationManager;
-    private final JavaMailSender mailSender;
     private final EmailService emailService;
 
     @Operation(
@@ -118,14 +116,27 @@ public class AuthController {
     }
 
     @PostMapping(path = "/login/resetPassword")
-    public ResponseEntity<PasswordResetResponse> sendResetPasswordEmail(@Valid @RequestBody PasswordResetRequest passwordResetRequest, HttpServletRequest request) {
-        UserInfo user = userService.findUserByEmail(passwordResetRequest.getEmail());
+    public ResponseEntity<MailResetPasswordResponse> sendResetPasswordEmail(@Valid @RequestBody MailResetPasswordRequest mailResetPasswordRequest) {
+        UserInfo user = userService.findUserByEmail(mailResetPasswordRequest.getEmail());
         String token = UUID.randomUUID().toString();
         userService.createPasswordResetTokenForUser(user, token);
-        mailSender.send(emailService.constructResetTokenEmail(request.getRequestURL().toString(),
-                token, user));
+        emailService.sendResetPasswordEmail(token, user);
         return ResponseEntity.status(HttpStatus.OK)
-                .body(new PasswordResetResponse(LocalDateTime.now(), String.valueOf(user.getId()), token));
+                .body(new MailResetPasswordResponse(LocalDateTime.now(), String.valueOf(user.getId()), token));
+    }
+
+    @PostMapping(path = "/login/resetPassword/savePassword")
+    public ResponseEntity<TokenPair> resetPassword(@Valid @RequestBody PasswordResetRequest passwordResetRequest) {
+        PasswordResetToken passwordResetToken = userService.getPasswordResetToken(passwordResetRequest.getResetToken());
+        passwordResetToken.validate(passwordResetToken);
+        UserInfo user = userService.getUserByPasswordResetToken(passwordResetRequest.getResetToken());
+        userService.changeUserPassword(user.getId(), passwordResetRequest.getPassword());
+        var authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(user.getEmail(), passwordResetRequest.getPassword())
+        );
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(tokenGeneratorService.generateTokenPair(authentication));
     }
 }
 

@@ -6,7 +6,9 @@ import com.teamchallenge.bookti.service.EmailService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
+
 import java.text.MessageFormat;
 
 @RequiredArgsConstructor
@@ -18,12 +20,19 @@ public class EmailServiceImpl implements EmailService {
 
     private final ApplicationProperties applicationProperties;
 
+    private final JavaMailSender mailSender;
+
     @Override
-    public SimpleMailMessage constructResetTokenEmail(String contextPath, String token, UserInfo user) {
+    public void sendResetPasswordEmail(String token, UserInfo userInfo) {
+        mailSender.send(constructResetTokenEmail(token, userInfo));
+    }
+
+    private SimpleMailMessage constructResetTokenEmail(String token, UserInfo user) {
         //TODO update message with locale
-        String url = contextPath + "?token=" + token;
+        String domainName = applicationProperties.getAllowedOrigins().get(0);
+        String url = domainName + "/login/resetPassword?resetToken=" + token;
         String message = MessageFormat.format("Dear {0}!\nYou have received this email to change your forgotten password on {1}. Follow this link to continue: {2}",
-                user.getFullName(), applicationProperties.getAllowedOrigins().get(0), url);
+                user.getFullName(), domainName, url);
         return constructEmail("Reset Password", message, user);
     }
 
@@ -35,4 +44,5 @@ public class EmailServiceImpl implements EmailService {
         email.setFrom(mailAddress);
         return email;
     }
+
 }

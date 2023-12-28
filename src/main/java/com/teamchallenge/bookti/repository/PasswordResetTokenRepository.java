@@ -1,6 +1,6 @@
 package com.teamchallenge.bookti.repository;
 
-import com.teamchallenge.bookti.dto.authorization.PasswordResetToken;
+import com.teamchallenge.bookti.model.PasswordResetToken;
 import com.teamchallenge.bookti.model.UserEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;

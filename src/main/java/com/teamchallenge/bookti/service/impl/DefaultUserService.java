@@ -1,7 +1,7 @@
 package com.teamchallenge.bookti.service.impl;
 
 import com.teamchallenge.bookti.dto.authorization.NewUserRegistrationRequest;
-import com.teamchallenge.bookti.dto.authorization.PasswordResetToken;
+import com.teamchallenge.bookti.model.PasswordResetToken;
 import com.teamchallenge.bookti.dto.user.UserInfo;
 import com.teamchallenge.bookti.exception.PasswordIsNotMatchesException;
 import com.teamchallenge.bookti.exception.PasswordResetTokenNotFoundException;
@@ -18,7 +18,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.text.MessageFormat;
-import java.util.Optional;
 import java.util.UUID;
 
 @RequiredArgsConstructor
@@ -58,6 +57,14 @@ public class DefaultUserService implements UserService {
     }
 
     @Override
+    public void changeUserPassword(UUID userId, String newPassword) {
+        UserEntity user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException(MessageFormat.format("User with id <{0}> not found.", userId)));
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+    }
+
+    @Override
     public PasswordResetToken createPasswordResetTokenForUser(UserInfo user, String token) {
         UserEntity userEntity = userRepository.findById(user.getId())
                 .orElseThrow(() -> new UserNotFoundException(MessageFormat.format("User with id <{0}> not found.", user.getId())));
@@ -72,7 +79,8 @@ public class DefaultUserService implements UserService {
     }
 
     @Override
-    public Optional<UserEntity> getUserByPasswordResetToken(String token) {
-        return Optional.ofNullable(passwordTokenRepository.findByToken(token).get().getUser());
+    public UserInfo getUserByPasswordResetToken(String passwordResetToken) {
+        UserEntity user = getPasswordResetToken(passwordResetToken).getUser();
+        return UserInfo.mapFrom(user);
     }
 }

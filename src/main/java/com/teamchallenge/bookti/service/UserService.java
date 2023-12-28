@@ -1,7 +1,7 @@
 package com.teamchallenge.bookti.service;
 
 import com.teamchallenge.bookti.dto.authorization.NewUserRegistrationRequest;
-import com.teamchallenge.bookti.dto.authorization.PasswordResetToken;
+import com.teamchallenge.bookti.model.PasswordResetToken;
 import com.teamchallenge.bookti.dto.user.UserInfo;
 import com.teamchallenge.bookti.exception.PasswordIsNotMatchesException;
 import com.teamchallenge.bookti.exception.UserAlreadyExistsException;
@@ -9,7 +9,6 @@ import com.teamchallenge.bookti.exception.UserNotFoundException;
 import com.teamchallenge.bookti.model.UserEntity;
 import com.teamchallenge.bookti.security.AuthorizedUser;
 
-import java.util.Optional;
 import java.util.UUID;
 
 
@@ -44,9 +43,11 @@ public interface UserService {
      */
     UserInfo findUserByEmail (String email);
 
+    public void changeUserPassword(UUID userId, String newPassword);
+
     PasswordResetToken createPasswordResetTokenForUser(UserInfo user, String token);
 
     PasswordResetToken getPasswordResetToken(String token);
 
-    Optional<UserEntity> getUserByPasswordResetToken(String token);
+    UserInfo getUserByPasswordResetToken(String passwordResetToken);
 }
