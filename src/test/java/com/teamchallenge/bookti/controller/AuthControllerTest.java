@@ -7,21 +7,30 @@ import com.teamchallenge.bookti.dto.authorization.TokenPair;
 import com.teamchallenge.bookti.exception.PasswordIsNotMatchesException;
 import com.teamchallenge.bookti.exception.UserAlreadyExistsException;
 import com.teamchallenge.bookti.security.AuthorizedUser;
-import com.teamchallenge.bookti.security.jwt.TokenGeneratorService;
+import com.teamchallenge.bookti.security.jwt.TokenManager;
 import com.teamchallenge.bookti.service.impl.DefaultUserService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.MockedStatic;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
 import java.util.UUID;
 
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.anyList;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -41,11 +50,11 @@ class AuthControllerTest {
     @MockBean
     private DefaultUserService userService;
     @MockBean
-    private TokenGeneratorService tokenService;
+    private TokenManager tokenManager;
 
     @Test
-    @DisplayName("When calling /signup, expect that new User with access & refresh token pair will be created with status code 201")
-    void shouldReturnTokenPairDTOWithStatusCode201() throws Exception {
+    @DisplayName("When calling /signup, expect that request is valid, then response with TokenPair.class and status code 201")
+    void whenUserSignUpRequestIsValidThanResponseWithTokenPairAndStatusCode201() throws Exception {
         NewUserRegistrationRequest userDetails = new NewUserRegistrationRequest(
                 "fullName",
                 "abc@gmail.com",
@@ -56,89 +65,132 @@ class AuthControllerTest {
                 .authorizedUserBuilder(userDetails.getEmail(), userDetails.getPassword(), List.of())
                 .id(UUID.randomUUID())
                 .build();
+        var tokenPair = TokenPair.builder()
+                .userId(user.getId().toString())
+                .accessToken("access_token")
+                .refreshToken("refresh_token")
+                .build();
+        var authentication = new UsernamePasswordAuthenticationToken(user, user.getPassword(), user.getAuthorities());
 
-        when(userService.create(userDetails)).thenReturn(user);
-        when(tokenService.generateTokenPair(any(Authentication.class)))
-                .thenReturn(TokenPair.builder()
-                        .userId(user.getId().toString())
-                        .accessToken("access_token")
-                        .refreshToken("refresh_token")
-                        .build());
+        try (MockedStatic<UsernamePasswordAuthenticationToken> mock = mockStatic(UsernamePasswordAuthenticationToken.class)) {
 
-        mockMvc.perform(post("/api/v1/authorize/signup")
-                        .contentType(APPLICATION_JSON)
-                        .content(jsonMapper.writeValueAsString(userDetails)))
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("user_id").value(user.getId().toString()))
-                .andExpect(jsonPath("access_token").exists())
-                .andExpect(jsonPath("refresh_token").exists());
+            when(userService.create(eq(userDetails))).thenReturn(user);
 
-        verify(userService, times(1)).create(userDetails);
+            mock.when(() -> UsernamePasswordAuthenticationToken.authenticated(user, user.getPassword(), user.getAuthorities()))
+                    .thenReturn(authentication);
+
+            when(tokenManager.generateTokenPair(eq(authentication)))
+                    .thenReturn(tokenPair);
+
+            mockMvc.perform(post("/api/v1/authorize/signup")
+                            .contentType(APPLICATION_JSON)
+                            .content(jsonMapper.writeValueAsString(userDetails)))
+                    .andExpect(status().isCreated())
+                    .andExpect(jsonPath("user_id").value(user.getId().toString()))
+                    .andExpect(jsonPath("access_token").exists())
+                    .andExpect(jsonPath("refresh_token").exists());
+
+            verify(userService, times(1)).create(eq(userDetails));
+            mock.verify(
+                    () -> UsernamePasswordAuthenticationToken.authenticated(user, user.getPassword(), user.getAuthorities()),
+                    times(1)
+            );
+            verify(tokenManager, times(1)).generateTokenPair(eq(authentication));
+        }
     }
 
     @Test
-    @DisplayName("When calling /signup, expect that passwords in req not matches with status code 400")
-    void shouldReturnErrorResponseWithPasswordIsNotMatchesExceptionWithStatusCode400() throws Exception {
+    @DisplayName("When calling /signup, expect that passwords in request not matches, than response with ErrorResponse.class and status code 409")
+    void whenUserSignUpRequestWithNotEqualsPasswordsThanResponseWithErrorResponseAndStatusCode409() throws Exception {
         NewUserRegistrationRequest userDetails = new NewUserRegistrationRequest(
                 "FirstName",
                 "abc@gmail.com",
                 "Password1",
                 "PassNoWord2"
         );
-        when(userService.create(userDetails))
-                .thenThrow(new PasswordIsNotMatchesException("Password is not matches"));
+        var user = AuthorizedUser
+                .authorizedUserBuilder(userDetails.getEmail(), userDetails.getPassword(), List.of())
+                .id(UUID.randomUUID())
+                .build();
+        var authentication = new UsernamePasswordAuthenticationToken(user, user.getPassword(), user.getAuthorities());
 
-        mockMvc.perform(post("/api/v1/authorize/signup")
-                        .contentType(APPLICATION_JSON)
-                        .content(jsonMapper.writeValueAsString(userDetails)))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("timestamp").exists())
-                .andExpect(jsonPath("status_code").value("400"))
-                .andExpect(jsonPath("message").value("Password is not matches"));
+        try (MockedStatic<UsernamePasswordAuthenticationToken> mock = mockStatic(UsernamePasswordAuthenticationToken.class)) {
+            when(userService.create(userDetails))
+                    .thenThrow(new PasswordIsNotMatchesException("Password is not matches"));
 
-        verify(userService, times(1)).create(userDetails);
+            mockMvc.perform(post("/api/v1/authorize/signup")
+                            .contentType(APPLICATION_JSON)
+                            .content(jsonMapper.writeValueAsString(userDetails)))
+                    .andExpect(status().isBadRequest())
+                    .andExpect(jsonPath("timestamp").exists())
+                    .andExpect(jsonPath("status_code").value("400"))
+                    .andExpect(jsonPath("message").value("Password is not matches"));
+
+            verify(userService, times(1)).create(eq(userDetails));
+            mock.verify(
+                    () -> UsernamePasswordAuthenticationToken.authenticated(user, user.getPassword(), user.getAuthorities()),
+                    never()
+            );
+            verify(tokenManager, never()).generateTokenPair(eq(authentication));
+        }
     }
 
     @Test
-    @DisplayName("When calling /signup with invalid request body, expect validation failed with status code 400")
-    void shouldReturnErrorResponseValidationExceptionWithStatusCode400() throws Exception {
-        NewUserRegistrationRequest userDetails = new NewUserRegistrationRequest(
-                "",
-                "abcgmail.com",
-                "Password1",
-                "PassNoWord2"
-        );
-        mockMvc.perform(post("/api/v1/authorize/signup")
-                        .contentType(APPLICATION_JSON)
-                        .content(jsonMapper.writeValueAsString(userDetails)))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("timestamp").exists())
-                .andExpect(jsonPath("status_code").value("400"))
-                .andExpect(jsonPath("message").value("Validation failed"));
+    @DisplayName("When calling /signup, expect that request fail validation, than response with ErrorResponse.class and status code 400")
+    void whenUserSignupRequestThatIsInvalidThanResponseWithErrorResponseAndStatusCode400() throws Exception {
+        NewUserRegistrationRequest userDetails = new NewUserRegistrationRequest("", "invalidEmail", "12345", "54321");
+        var user = AuthorizedUser
+                .authorizedUserBuilder(userDetails.getEmail(), userDetails.getPassword(), List.of())
+                .id(UUID.randomUUID())
+                .build();
+        var authentication = new UsernamePasswordAuthenticationToken(user, user.getPassword(), user.getAuthorities());
 
-        verify(userService, never()).create(userDetails);
+        try (MockedStatic<UsernamePasswordAuthenticationToken> mock = mockStatic(UsernamePasswordAuthenticationToken.class)) {
+            mockMvc.perform(post("/api/v1/authorize/signup")
+                            .contentType(APPLICATION_JSON)
+                            .content(jsonMapper.writeValueAsString(userDetails)))
+                    .andExpect(status().isBadRequest())
+                    .andExpect(jsonPath("timestamp").exists())
+                    .andExpect(jsonPath("status_code").value("400"))
+                    .andExpect(jsonPath("message").value("Validation failed"));
+
+            verify(userService, never()).create(eq(userDetails));
+            mock.verify(
+                    () -> UsernamePasswordAuthenticationToken.authenticated(user, user.getPassword(), user.getAuthorities()),
+                    never()
+            );
+            verify(tokenManager, never()).generateTokenPair(eq(authentication));
+        }
     }
 
     @Test
-    @DisplayName("when calling /signup, expect that user already exists and status code 409 will be thrown")
-    void shouldReturnErrorResponseWithUserAlreadyExistsExceptionWithStatusCode409() throws Exception {
+    @DisplayName("when calling /signup, expect that user already exists, than response with ErrorResponse.class and status code 409")
+    void whenUserSignUpRequestThatAlreadyExistsThanResponseWithErrorResponseAndStatusCode409() throws Exception {
         NewUserRegistrationRequest userDetails = new NewUserRegistrationRequest(
                 "first_name",
                 "abc@gmail.com",
                 "Password1",
                 "Password1"
         );
+        try (MockedStatic<UsernamePasswordAuthenticationToken> mock = mockStatic(UsernamePasswordAuthenticationToken.class)) {
+            when(userService.create(userDetails))
+                    .thenThrow(new UserAlreadyExistsException(String.format("User <%s> already exists", userDetails.getEmail())));
 
-        when(userService.create(userDetails)).thenThrow(UserAlreadyExistsException.class);
+            mockMvc.perform(post("/api/v1/authorize/signup")
+                            .contentType(APPLICATION_JSON)
+                            .content(jsonMapper.writeValueAsString(userDetails)))
+                    .andExpect(status().isConflict())
+                    .andExpect(jsonPath("timestamp").exists())
+                    .andExpect(jsonPath("status_code").value("409"))
+                    .andExpect(jsonPath("message").value(String.format("User <%s> already exists", userDetails.getEmail())));
 
-        mockMvc.perform(post("/api/v1/authorize/signup")
-                        .contentType(APPLICATION_JSON)
-                        .content(jsonMapper.writeValueAsString(userDetails)))
-                .andExpect(status().isConflict())
-                .andExpect(jsonPath("timestamp").exists())
-                .andExpect(jsonPath("status_code").value("409"));
-
-        verify(userService, times(1)).create(userDetails);
+            verify(userService, times(1)).create(userDetails);
+            mock.verify(
+                    () -> UsernamePasswordAuthenticationToken.authenticated(any(AuthorizedUser.class), any(String.class), anyList()),
+                    never()
+            );
+            verify(tokenManager, never()).generateTokenPair(any(Authentication.class));
+        }
     }
 
 }
