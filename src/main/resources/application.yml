@@ -33,6 +33,7 @@ jwt:
 
 application:
   permit-all-req:
+    - /actuator/**
     - /v2/api-docs/**
     - /v3/api-docs/**
     - /swagger-resources/**
@@ -47,5 +48,10 @@ application:
 logging:
   level:
     root: INFO
-    org.springframework.security: DEBUG
-    net.ttddyy.dsproxy.listener: DEBUG
+    org.springframework.security: INFO
+    net.ttddyy.dsproxy.listener: INFO
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
