@@ -5,7 +5,9 @@ import com.teamchallenge.bookti.Application;
 import com.teamchallenge.bookti.dto.authorization.NewUserRegistrationRequest;
 import com.teamchallenge.bookti.dto.authorization.TokenPair;
 import com.teamchallenge.bookti.dto.authorization.UserLoginRequest;
+import com.teamchallenge.bookti.dto.authorization.UserTokenPair;
 import com.teamchallenge.bookti.exception.PasswordIsNotMatchesException;
+import com.teamchallenge.bookti.exception.RefreshTokenAlreadyRevokedException;
 import com.teamchallenge.bookti.exception.UserAlreadyExistsException;
 import com.teamchallenge.bookti.security.AuthorizedUser;
 import com.teamchallenge.bookti.security.jwt.TokenManager;
@@ -15,6 +17,7 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -23,6 +26,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationProvider;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
@@ -58,6 +62,9 @@ class AuthControllerTest {
     private TokenManager tokenManager;
     @MockBean
     private AuthenticationManager authenticationManager;
+    @MockBean
+    @Qualifier("jwtRefreshTokenAuthenticationProvider")
+    private JwtAuthenticationProvider refreshTokenProvider;
 
     @Test
     @Tag("signup")
@@ -274,4 +281,91 @@ class AuthControllerTest {
         verify(authenticationManager, never()).authenticate(any(Authentication.class));
         verify(tokenManager, never()).generateTokenPair(any(Authentication.class));
     }
+
+    @Test
+    @Tag("refreshToken")
+    @DisplayName("when calling /token/refresh, expect that request is valid, than response with TokenPair.class and status code 200")
+    void whenUserRefreshTokenRequestIsValidThenResponseWithTokenPairAndStatusCode200() throws Exception {
+        UserTokenPair request = new UserTokenPair(UUID.randomUUID().toString(), "refresh_token");
+        var user = AuthorizedUser
+                .authorizedUserBuilder("email", "password", List.of())
+                .id(UUID.fromString(request.getUserId()))
+                .build();
+        TokenPair tokenPair = TokenPair
+                .builder()
+                .userId(request.getUserId())
+                .accessToken("access_token")
+                .refreshToken("refresh_token")
+                .build();
+        Authentication authentication = new UsernamePasswordAuthenticationToken(user, user.getPassword(), user.getAuthorities());
+
+        when(refreshTokenProvider.authenticate(any(Authentication.class)))
+                .thenReturn(authentication);
+        when(tokenManager.isRefreshTokenRevoked(eq(request.getRefreshToken())))
+                .thenReturn(Boolean.FALSE);
+        when(tokenManager.generateTokenPair(any(Authentication.class)))
+                .thenReturn(tokenPair);
+
+        mockMvc.perform(post("/api/v1/authorize/token/refresh")
+                        .contentType(APPLICATION_JSON)
+                        .content(jsonMapper.writeValueAsString(request)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("user_id").value(user.getId().toString()))
+                .andExpect(jsonPath("access_token").exists())
+                .andExpect(jsonPath("refresh_token").exists());
+
+        verify(refreshTokenProvider, times(1)).authenticate(any(Authentication.class));
+        verify(tokenManager, times(1)).isRefreshTokenRevoked(eq(request.getRefreshToken()));
+        verify(tokenManager, times(1)).generateTokenPair(any(Authentication.class));
+    }
+
+    @Test
+    @Tag("refreshToken")
+    @DisplayName("when calling /token/refresh, expect that refresh token invalid, then response with ErrorResponse.class and status code 401")
+    void whenUserRefreshTokenRequestIsInvalidThanResponseWithErrorResponseAndStatusCode401() throws Exception {
+        UserTokenPair request = new UserTokenPair(UUID.randomUUID().toString(), "refresh_token");
+
+        when(refreshTokenProvider.authenticate(any(Authentication.class)))
+                .thenThrow(new BadCredentialsException("Bad credentials"));
+
+        mockMvc.perform(post("/api/v1/authorize/token/refresh")
+                        .contentType(APPLICATION_JSON)
+                        .content(jsonMapper.writeValueAsString(request)))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("status_code").value(HttpStatus.UNAUTHORIZED.value()))
+                .andExpect(jsonPath("message").value("Bad credentials"));
+
+        verify(refreshTokenProvider, times(1)).authenticate(any(Authentication.class));
+        verify(tokenManager, never()).isRefreshTokenRevoked(eq(request.getRefreshToken()));
+        verify(tokenManager, never()).generateTokenPair(any(Authentication.class));
+    }
+
+    @Test
+    @Tag("refreshToken")
+    @DisplayName("when calling /token/refresh, expect that refresh token revoked, than response with ErrorResponse.class and status code 409")
+    void whenUserRefreshTokenRequestWithRevokedTokenThanResponseWIthErrorResponseAndStatusCode409() throws Exception {
+        UserTokenPair request = new UserTokenPair(UUID.randomUUID().toString(), "refresh_token");
+        var user = AuthorizedUser
+                .authorizedUserBuilder("email", "password", List.of())
+                .id(UUID.fromString(request.getUserId()))
+                .build();
+        Authentication authentication = new UsernamePasswordAuthenticationToken(user, user.getPassword(), user.getAuthorities());
+
+        when(refreshTokenProvider.authenticate(any(Authentication.class)))
+                .thenReturn(authentication);
+        when(tokenManager.isRefreshTokenRevoked(eq(request.getRefreshToken())))
+                .thenThrow(new RefreshTokenAlreadyRevokedException("Token revoked"));
+
+        mockMvc.perform(post("/api/v1/authorize/token/refresh")
+                        .contentType(APPLICATION_JSON)
+                        .content(jsonMapper.writeValueAsString(request)))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("status_code").value(HttpStatus.CONFLICT.value()))
+                .andExpect(jsonPath("message").value("Token revoked"));
+
+        verify(refreshTokenProvider, times(1)).authenticate(any(Authentication.class));
+        verify(tokenManager, times(1)).isRefreshTokenRevoked(eq(request.getRefreshToken()));
+        verify(tokenManager, never()).generateTokenPair(any(Authentication.class));
+    }
+
 }
