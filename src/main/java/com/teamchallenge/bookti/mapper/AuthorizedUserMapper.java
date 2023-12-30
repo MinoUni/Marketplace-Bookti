@@ -15,8 +15,7 @@ public class AuthorizedUserMapper {
         return AuthorizedUser
                 .authorizedUserBuilder(user.getEmail(), user.getPassword(), authorities)
                 .id(user.getId())
-                .firstName(user.getFirstName())
-                .lastName(user.getLastName())
+                .fullName(user.getFullName())
                 .avatarUrl(user.getAvatarUrl())
                 .build();
     }

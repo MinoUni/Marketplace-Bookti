@@ -1,7 +1,6 @@
-package com.teamchallenge.bookti.controller;
+package com.teamchallenge.bookti.repository;
 
 import com.teamchallenge.bookti.model.UserEntity;
-import com.teamchallenge.bookti.repository.UserRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -10,7 +9,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import static org.junit.jupiter.api.Assertions.*;
 
 @DataJpaTest
-class UserEntityRepositoryTest {
+class UserRepositoryTest {
 
     @Autowired
     private TestEntityManager entityManager;
@@ -22,8 +21,7 @@ class UserEntityRepositoryTest {
     void testThatUserExistsByEmail() {
         UserEntity userEntity = UserEntity
                 .builder()
-                .firstName("First_name")
-                .lastName("LastName")
+                .fullName("First_name")
                 .email("abc@gmail.com")
                 .password("Password1")
                 .build();
@@ -32,8 +30,7 @@ class UserEntityRepositoryTest {
 
         UserEntity nonexistentUserEntity = UserEntity
                 .builder()
-                .firstName("First_name")
-                .lastName("LastName")
+                .fullName("First_name")
                 .email("ABC@gmail.com")
                 .password("Password1")
                 .build();
@@ -46,16 +43,14 @@ class UserEntityRepositoryTest {
     void testThatUserSavesCorrectly() {
         UserEntity userEntity = UserEntity
                 .builder()
-                .firstName("FirstName")
-                .lastName("LastName")
+                .fullName("FirstName")
                 .email("abc@gmail.com")
                 .password("Password1")
                 .build();
 
         UserEntity userEntity1 = UserEntity
                 .builder()
-                .firstName("FirstName")
-                .lastName("LastName")
+                .fullName("FirstName")
                 .email("abc")
                 .password("Password1")
                 .build();

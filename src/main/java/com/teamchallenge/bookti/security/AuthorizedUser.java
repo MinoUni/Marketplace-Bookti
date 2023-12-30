@@ -18,8 +18,7 @@ public class AuthorizedUser extends User {
     @Setter(AccessLevel.NONE)
     @Getter(AccessLevel.NONE)
     private String email;
-    private String firstName;
-    private String lastName;
+    private String fullName;
     private String avatarUrl;
 
     public AuthorizedUser(String username, String password, Collection<? extends GrantedAuthority> authorities) {
@@ -72,13 +71,8 @@ public class AuthorizedUser extends User {
             return this;
         }
 
-        public AuthorizedUserBuilder firstName(String firstName) {
-            this.authorizedUser.setFirstName(firstName);
-            return this;
-        }
-
-        public AuthorizedUserBuilder lastName(String lastName) {
-            this.authorizedUser.setLastName(lastName);
+        public AuthorizedUserBuilder fullName(String fullName) {
+            this.authorizedUser.setFullName(fullName);
             return this;
         }
 

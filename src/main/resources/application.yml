@@ -5,7 +5,7 @@ spring:
   application:
     name: bookti
   profiles:
-    active: dev_deploy
+    active: dev
   sql:
     init:
       mode: always
@@ -22,8 +22,6 @@ spring:
     url: jdbc:${DB_URL}
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
-
-frontend-url: ${FRONTEND_URL}
 
 jwt:
   access-token:
@@ -43,8 +41,11 @@ application:
     - /swagger-ui/*
     - /swagger-ui.html
     - /api/v1/authorize/**
-
+  allowed-origins:
+    - https://marketplace-bookti.vercel.app
+    - http://localhost:5173
 logging:
   level:
     root: INFO
-    org.springframework.security: INFO
+    org.springframework.security: DEBUG
+    net.ttddyy.dsproxy.listener: DEBUG
