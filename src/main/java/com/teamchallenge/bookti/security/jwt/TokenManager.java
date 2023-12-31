@@ -30,12 +30,11 @@ public class TokenManager {
     @Getter
     private final Map<String, UUID> revokedTokens = new ConcurrentHashMap<>();
     private final JwtEncoder accessTokenEncoder;
-    @Qualifier("jwtRefreshTokenEncoder")
     private final JwtEncoder refreshTokenEncoder;
     private final String issuer;
 
     public TokenManager(JwtEncoder accessTokenEncoder,
-                        JwtEncoder refreshTokenEncoder,
+                        @Qualifier("jwtRefreshTokenEncoder") JwtEncoder refreshTokenEncoder,
                         @Value("${spring.application.name}") String issuer) {
         this.accessTokenEncoder = accessTokenEncoder;
         this.refreshTokenEncoder = refreshTokenEncoder;

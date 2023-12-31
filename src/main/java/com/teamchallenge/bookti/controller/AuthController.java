@@ -43,13 +43,12 @@ public class AuthController {
     private final UserService userService;
     private final TokenManager tokenManager;
     private final AuthenticationManager authenticationManager;
-    @Qualifier("jwtRefreshTokenAuthenticationProvider")
     private final JwtAuthenticationProvider refreshTokenProvider;
 
     public AuthController(UserService userService,
                           TokenManager tokenManager,
                           AuthenticationManager authenticationManager,
-                          JwtAuthenticationProvider refreshTokenProvider) {
+                          @Qualifier("jwtRefreshTokenAuthenticationProvider") JwtAuthenticationProvider refreshTokenProvider) {
         this.userService = userService;
         this.tokenManager = tokenManager;
         this.authenticationManager = authenticationManager;
@@ -172,10 +171,10 @@ public class AuthController {
     @PostMapping("/token/refresh")
     public ResponseEntity<TokenPair> refreshToken(@RequestBody UserTokenPair refreshToken) throws BadCredentialsException, RefreshTokenAlreadyRevokedException {
         String token = refreshToken.getRefreshToken();
-        Authentication authentication = refreshTokenProvider.authenticate(new BearerTokenAuthenticationToken(token));
         if (tokenManager.isRefreshTokenRevoked(token)) {
             throw new RefreshTokenAlreadyRevokedException(MessageFormat.format("Token <{0} is revoked>", token));
         }
+        Authentication authentication = refreshTokenProvider.authenticate(new BearerTokenAuthenticationToken(token));
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(tokenManager.generateTokenPair(authentication));
