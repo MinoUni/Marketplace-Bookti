@@ -292,10 +292,10 @@ class AuthControllerTest {
                 .build();
         Authentication authentication = new UsernamePasswordAuthenticationToken(user, user.getPassword(), user.getAuthorities());
 
-        when(refreshTokenProvider.authenticate(any(Authentication.class)))
-                .thenReturn(authentication);
         when(tokenManager.isRefreshTokenRevoked(eq(request.getRefreshToken())))
                 .thenReturn(Boolean.FALSE);
+        when(refreshTokenProvider.authenticate(any(Authentication.class)))
+                .thenReturn(authentication);
         when(tokenManager.generateTokenPair(any(Authentication.class)))
                 .thenReturn(tokenPair);
 
@@ -307,8 +307,8 @@ class AuthControllerTest {
                 .andExpect(jsonPath("access_token").exists())
                 .andExpect(jsonPath("refresh_token").exists());
 
-        verify(refreshTokenProvider, times(1)).authenticate(any(Authentication.class));
         verify(tokenManager, times(1)).isRefreshTokenRevoked(eq(request.getRefreshToken()));
+        verify(refreshTokenProvider, times(1)).authenticate(any(Authentication.class));
         verify(tokenManager, times(1)).generateTokenPair(any(Authentication.class));
     }
 
@@ -318,6 +318,8 @@ class AuthControllerTest {
     void whenUserRefreshTokenRequestIsInvalidThanResponseWithErrorResponseAndStatusCode401() throws Exception {
         UserTokenPair request = new UserTokenPair(UUID.randomUUID().toString(), "refresh_token");
 
+        when(tokenManager.isRefreshTokenRevoked(eq(request.getRefreshToken())))
+                .thenReturn(Boolean.FALSE);
         when(refreshTokenProvider.authenticate(any(Authentication.class)))
                 .thenThrow(new BadCredentialsException("Bad credentials"));
 
@@ -329,7 +331,7 @@ class AuthControllerTest {
                 .andExpect(jsonPath("message").value("Bad credentials"));
 
         verify(refreshTokenProvider, times(1)).authenticate(any(Authentication.class));
-        verify(tokenManager, never()).isRefreshTokenRevoked(eq(request.getRefreshToken()));
+        verify(tokenManager, times(1)).isRefreshTokenRevoked(eq(request.getRefreshToken()));
         verify(tokenManager, never()).generateTokenPair(any(Authentication.class));
     }
 
@@ -338,14 +340,7 @@ class AuthControllerTest {
     @DisplayName("when calling /token/refresh, expect that refresh token revoked, than response with ErrorResponse.class and status code 409")
     void whenUserRefreshTokenRequestWithRevokedTokenThanResponseWIthErrorResponseAndStatusCode409() throws Exception {
         UserTokenPair request = new UserTokenPair(UUID.randomUUID().toString(), "refresh_token");
-        var user = AuthorizedUser
-                .authorizedUserBuilder("email", "password", List.of())
-                .id(UUID.fromString(request.getUserId()))
-                .build();
-        Authentication authentication = new UsernamePasswordAuthenticationToken(user, user.getPassword(), user.getAuthorities());
 
-        when(refreshTokenProvider.authenticate(any(Authentication.class)))
-                .thenReturn(authentication);
         when(tokenManager.isRefreshTokenRevoked(eq(request.getRefreshToken())))
                 .thenThrow(new RefreshTokenAlreadyRevokedException("Token revoked"));
 
@@ -356,7 +351,7 @@ class AuthControllerTest {
                 .andExpect(jsonPath("status_code").value(HttpStatus.CONFLICT.value()))
                 .andExpect(jsonPath("message").value("Token revoked"));
 
-        verify(refreshTokenProvider, times(1)).authenticate(any(Authentication.class));
+        verify(refreshTokenProvider, never()).authenticate(any(Authentication.class));
         verify(tokenManager, times(1)).isRefreshTokenRevoked(eq(request.getRefreshToken()));
         verify(tokenManager, never()).generateTokenPair(any(Authentication.class));
     }
