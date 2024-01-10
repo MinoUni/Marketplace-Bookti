@@ -21,12 +21,10 @@ public class AuthorizedUser extends User {
     private String fullName;
     private String avatarUrl;
 
-    public AuthorizedUser(String username, String password, Collection<? extends GrantedAuthority> authorities) {
+    public AuthorizedUser(String username,
+                          String password,
+                          Collection<? extends GrantedAuthority> authorities) {
         super(username, password, authorities);
-    }
-
-    public AuthorizedUser(String username, String password, boolean enabled, boolean accountNonExpired, boolean credentialsNonExpired, boolean accountNonLocked, Collection<? extends GrantedAuthority> authorities) {
-        super(username, password, enabled, accountNonExpired, credentialsNonExpired, accountNonLocked, authorities);
     }
 
     public String getEmail() {
@@ -37,32 +35,12 @@ public class AuthorizedUser extends User {
         return new AuthorizedUserBuilder(username, password, authorities);
     }
 
-    public static AuthorizedUserBuilder authorizedUserBuilder(String username,
-                                                              String password,
-                                                              boolean enabled,
-                                                              boolean accountNonExpired,
-                                                              boolean credentialsNonExpired,
-                                                              boolean accountNonLocked,
-                                                              Collection<? extends GrantedAuthority> authorities) {
-        return new AuthorizedUserBuilder(username, password, enabled, accountNonExpired, credentialsNonExpired, accountNonLocked, authorities);
-    }
-
     public static final class AuthorizedUserBuilder {
 
         private final AuthorizedUser authorizedUser;
 
         public AuthorizedUserBuilder(String username, String password, Collection<? extends GrantedAuthority> authorities) {
             this.authorizedUser = new AuthorizedUser(username, password, authorities);
-        }
-
-        public AuthorizedUserBuilder(String username,
-                                     String password,
-                                     boolean enabled,
-                                     boolean accountNonExpired,
-                                     boolean credentialsNonExpired,
-                                     boolean accountNonLocked,
-                                     Collection<? extends GrantedAuthority> authorities) {
-            this.authorizedUser = new AuthorizedUser(username, password, enabled, accountNonExpired, credentialsNonExpired, accountNonLocked, authorities);
         }
 
         public AuthorizedUserBuilder id(UUID id) {
