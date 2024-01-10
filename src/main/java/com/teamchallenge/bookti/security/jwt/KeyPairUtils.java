@@ -52,6 +52,7 @@ public class KeyPairUtils {
 
     private KeyPair getAccessTokenKeyPair() {
         if (Objects.isNull(accessTokenKeyPair)) {
+            log.info("Access token pair is null, creating a new one...");
             this.accessTokenKeyPair = getKeyPair(accessTokenPublicKeyPath, accessTokenPrivateKeyPath);
         }
         return accessTokenKeyPair;
@@ -59,6 +60,7 @@ public class KeyPairUtils {
 
     private KeyPair getRefreshTokenKeyPair() {
         if (Objects.isNull(refreshTokenKeyPair)) {
+            log.info("Refresh token pair is null, creating a new one...");
             this.refreshTokenKeyPair = getKeyPair(refreshTokenPublicKeyPath, refreshTokenPrivateKeyPath);
         }
         return refreshTokenKeyPair;
@@ -67,10 +69,14 @@ public class KeyPairUtils {
     private KeyPair getKeyPair(String publicKeyPath, String privateKeyPath) {
         File publicKeyFile = new File(publicKeyPath);
         File privateKeyFile = new File(privateKeyPath);
+
         if (!publicKeyFile.exists() && !privateKeyFile.exists()) {
+            log.info("Generating new public and private keys: {}, {}", publicKeyPath, privateKeyPath);
             return generateKeyPair(publicKeyPath, privateKeyPath);
         }
+
         try {
+            log.info("Public and private keys found, start loading...: {}, {}", publicKeyPath, privateKeyPath);
             KeyFactory keyFactory = KeyFactory.getInstance("RSA");
 
             byte[] publicKeyBytes = Files.readAllBytes(publicKeyFile.toPath());
@@ -100,7 +106,6 @@ public class KeyPairUtils {
             dir.mkdirs();
         }
         try {
-            log.info("Generating new public and private keys: {}, {}", publicKeyPath, privateKeyPath);
             KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
             keyPairGenerator.initialize(2048);
             KeyPair keyPair = keyPairGenerator.generateKeyPair();
