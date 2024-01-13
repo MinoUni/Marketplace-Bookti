@@ -1,6 +1,6 @@
 spring:
   application:
-    name: bookti-rs
+    name: bookti-test
   sql:
     init:
       mode: always
@@ -23,8 +23,6 @@ spring:
     host: 127.0.0.1
     port: 3025
     protocol: smtp
-
-frontend-url: https://marketplace-bookti.vercel.app
 
 jwt:
   access-token:

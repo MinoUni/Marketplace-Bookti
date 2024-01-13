@@ -31,7 +31,3 @@ build/
 
 ### VS Code ###
 .vscode/
-
-### APP Ignore ###
-src/main/resources/application-dev_deploy.yml
-Dockerfile
