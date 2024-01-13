@@ -1,16 +1,23 @@
 package com.teamchallenge.bookti.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.icegreen.greenmail.configuration.GreenMailConfiguration;
+import com.icegreen.greenmail.junit5.GreenMailExtension;
+import com.icegreen.greenmail.util.ServerSetupTest;
 import com.teamchallenge.bookti.Application;
 import com.teamchallenge.bookti.dto.authorization.*;
+import com.teamchallenge.bookti.dto.user.UserInfo;
 import com.teamchallenge.bookti.exception.PasswordIsNotMatchesException;
 import com.teamchallenge.bookti.exception.UserAlreadyExistsException;
 import com.teamchallenge.bookti.exception.UserNotFoundException;
+import com.teamchallenge.bookti.model.PasswordResetToken;
+import com.teamchallenge.bookti.model.UserEntity;
 import com.teamchallenge.bookti.security.AuthorizedUser;
 import com.teamchallenge.bookti.security.jwt.TokenGeneratorService;
 import com.teamchallenge.bookti.service.impl.DefaultUserService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -42,6 +49,11 @@ class AuthControllerTest {
     private DefaultUserService userService;
     @MockBean
     private TokenGeneratorService tokenService;
+
+    @RegisterExtension
+    static GreenMailExtension greenMail = new GreenMailExtension(ServerSetupTest.SMTP)
+            .withConfiguration(GreenMailConfiguration.aConfig().withUser("testSender", "password"))
+            .withPerMethodLifecycle(false);
 
     @Test
     @DisplayName("When calling /signup, expect that new User with access & refresh token pair will be created with status code 201")
@@ -143,8 +155,23 @@ class AuthControllerTest {
 
     @Test
     @DisplayName("when calling /login/resetPassword, expect that user with email from request already exists and mail will be sent with status code 201")
-    void shouldReturnPasswordResetResponseWithStatusCode201() throws Exception {
-         //TODO test
+    void shouldReturnMailResetPasswordResponseWithStatusCode200() throws Exception {
+        String mail = "a@gmail.com";
+        MailResetPasswordRequest mailResetPasswordRequest = new MailResetPasswordRequest(mail);
+        UserInfo userInfo = new UserInfo(UUID.randomUUID(), mail, "fullName", null);
+        when(userService.findUserByEmail(mailResetPasswordRequest.getEmail())).thenReturn(userInfo);
+
+        String token = UUID.randomUUID().toString();
+        UserEntity user = UserEntity.builder().id(userInfo.getId()).email(userInfo.getEmail()).fullName(userInfo.getFullName()).password("Password1").build();
+        PasswordResetToken resetToken = new PasswordResetToken(user, token);
+        when(userService.createPasswordResetTokenForUser(userInfo, token)).thenReturn(resetToken);
+
+        mockMvc.perform(post("/api/v1/authorize/login/resetPassword")
+                        .contentType(APPLICATION_JSON)
+                        .content(jsonMapper.writeValueAsString(mailResetPasswordRequest)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("user_id").value(userInfo.getId().toString()))
+                .andExpect(jsonPath("reset_token").exists());
     }
 
     @Test

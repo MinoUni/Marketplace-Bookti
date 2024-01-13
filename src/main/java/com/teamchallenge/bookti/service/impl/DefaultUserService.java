@@ -62,12 +62,16 @@ public class DefaultUserService implements UserService {
                 .orElseThrow(() -> new UserNotFoundException(MessageFormat.format("User with id <{0}> not found.", userId)));
         user.setPassword(passwordEncoder.encode(newPassword));
         userRepository.save(user);
+        passwordTokenRepository.deletePasswordResetTokenByUserId(user);
     }
 
     @Override
     public PasswordResetToken createPasswordResetTokenForUser(UserInfo user, String token) {
         UserEntity userEntity = userRepository.findById(user.getId())
                 .orElseThrow(() -> new UserNotFoundException(MessageFormat.format("User with id <{0}> not found.", user.getId())));
+        if (passwordTokenRepository.findByUser(userEntity) != null) {
+            passwordTokenRepository.deletePasswordResetTokenByUserId(userEntity);
+        }
         PasswordResetToken passwordResetToken = new PasswordResetToken(userEntity, token);
         return passwordTokenRepository.save(passwordResetToken);
     }

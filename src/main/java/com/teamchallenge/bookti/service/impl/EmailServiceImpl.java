@@ -4,7 +4,6 @@ import com.teamchallenge.bookti.config.ApplicationProperties;
 import com.teamchallenge.bookti.dto.user.UserInfo;
 import com.teamchallenge.bookti.service.EmailService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
@@ -15,7 +14,6 @@ import java.text.MessageFormat;
 @Service
 public class EmailServiceImpl implements EmailService {
 
-    @Value("${gmail-username:javadoubts}")
     private String mailAddress;
 
     private final ApplicationProperties applicationProperties;
@@ -30,7 +28,7 @@ public class EmailServiceImpl implements EmailService {
     private SimpleMailMessage constructResetTokenEmail(String token, UserInfo user) {
         //TODO update message with locale
         String domainName = applicationProperties.getAllowedOrigins().get(0);
-        String url = domainName + "/login/resetPassword?resetToken=" + token;
+        String url = domainName + "/api/v1/authorize/login/resetPassword?resetToken=" + token;
         String message = MessageFormat.format("Dear {0}!\nYou have received this email to change your forgotten password on {1}. Follow this link to continue: {2}",
                 user.getFullName(), domainName, url);
         return constructEmail("Reset Password", message, user);

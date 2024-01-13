@@ -115,6 +115,40 @@ public class AuthController {
                 .body(tokenGeneratorService.generateTokenPair(authentication));
     }
 
+    @Operation(
+            summary = "Send reset password link by email",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Email is sent successfully",
+                            content = {
+                                    @Content(
+                                            mediaType = APPLICATION_JSON_VALUE,
+                                            schema = @Schema(implementation = MailResetPasswordResponse.class)
+                                    )
+                            }
+                    ),
+                    @ApiResponse(
+                            responseCode = "400",
+                            description = "Bad request or Email was not sent",
+                            content = {
+                                    @Content(
+                                            mediaType = APPLICATION_JSON_VALUE,
+                                            schema = @Schema(implementation = ErrorResponse.class))
+                            }
+                    ),
+                    @ApiResponse(
+                            responseCode = "404",
+                            description = "User not found",
+                            content = {
+                                    @Content(
+                                            mediaType = APPLICATION_JSON_VALUE,
+                                            schema = @Schema(implementation = ErrorResponse.class)
+                                    )
+                            }
+                    )
+            }
+    )
     @PostMapping(path = "/login/resetPassword")
     public ResponseEntity<MailResetPasswordResponse> sendResetPasswordEmail(@Valid @RequestBody MailResetPasswordRequest mailResetPasswordRequest) {
         UserInfo user = userService.findUserByEmail(mailResetPasswordRequest.getEmail());
@@ -125,6 +159,40 @@ public class AuthController {
                 .body(new MailResetPasswordResponse(LocalDateTime.now(), String.valueOf(user.getId()), token));
     }
 
+    @Operation(
+            summary = "Reset user password",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Password updated",
+                            content = {
+                                    @Content(
+                                            mediaType = APPLICATION_JSON_VALUE,
+                                            schema = @Schema(implementation = TokenPair.class)
+                                    )
+                            }
+                    ),
+                    @ApiResponse(
+                            responseCode = "400",
+                            description = "Bad request or Validation failed",
+                            content = {
+                                    @Content(
+                                            mediaType = APPLICATION_JSON_VALUE,
+                                            schema = @Schema(implementation = ErrorResponse.class))
+                            }
+                    ),
+                    @ApiResponse(
+                            responseCode = "404",
+                            description = "User not found",
+                            content = {
+                                    @Content(
+                                            mediaType = APPLICATION_JSON_VALUE,
+                                            schema = @Schema(implementation = ErrorResponse.class)
+                                    )
+                            }
+                    )
+            }
+    )
     @PostMapping(path = "/login/resetPassword/savePassword")
     public ResponseEntity<TokenPair> resetPassword(@Valid @RequestBody PasswordResetRequest passwordResetRequest) {
         PasswordResetToken passwordResetToken = userService.getPasswordResetToken(passwordResetRequest.getResetToken());
