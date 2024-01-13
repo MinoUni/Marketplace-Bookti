@@ -323,7 +323,7 @@ public class AuthController {
         );
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(tokenGeneratorService.generateTokenPair(authentication));
+                .body(tokenManager.generateTokenPair(authentication));
     }
 }
 
