@@ -6,7 +6,6 @@ import com.teamchallenge.bookti.dto.ErrorResponse;
 import com.teamchallenge.bookti.dto.authorization.*;
 import com.teamchallenge.bookti.dto.user.UserInfo;
 import com.teamchallenge.bookti.model.PasswordResetToken;
-import com.teamchallenge.bookti.security.jwt.TokenGeneratorService;
 import com.teamchallenge.bookti.service.EmailService;
 import com.teamchallenge.bookti.exception.PasswordIsNotMatchesException;
 import com.teamchallenge.bookti.exception.RefreshTokenAlreadyRevokedException;
