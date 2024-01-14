@@ -1,21 +1,30 @@
 package com.teamchallenge.bookti.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.icegreen.greenmail.configuration.GreenMailConfiguration;
+import com.icegreen.greenmail.junit5.GreenMailExtension;
+import com.icegreen.greenmail.util.ServerSetupTest;
 import com.teamchallenge.bookti.Application;
-import com.teamchallenge.bookti.dto.authorization.NewUserRegistrationRequest;
-import com.teamchallenge.bookti.dto.authorization.TokenPair;
-import com.teamchallenge.bookti.dto.authorization.UserLoginRequest;
-import com.teamchallenge.bookti.dto.authorization.UserTokenPair;
+
+import com.teamchallenge.bookti.dto.authorization.*;
+import com.teamchallenge.bookti.dto.user.UserInfo;
+
 import com.teamchallenge.bookti.exception.PasswordIsNotMatchesException;
 import com.teamchallenge.bookti.exception.RefreshTokenAlreadyRevokedException;
 import com.teamchallenge.bookti.exception.UserAlreadyExistsException;
+import com.teamchallenge.bookti.exception.UserNotFoundException;
+import com.teamchallenge.bookti.model.PasswordResetToken;
+import com.teamchallenge.bookti.model.UserEntity;
 import com.teamchallenge.bookti.security.AuthorizedUser;
 import com.teamchallenge.bookti.security.jwt.TokenManager;
 import com.teamchallenge.bookti.service.impl.DefaultUserService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.mockito.MockedStatic;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -58,6 +67,11 @@ class AuthControllerTest {
     @MockBean
     @Qualifier("jwtRefreshTokenAuthenticationProvider")
     private JwtAuthenticationProvider refreshTokenProvider;
+
+    @RegisterExtension
+    static GreenMailExtension greenMail = new GreenMailExtension(ServerSetupTest.SMTP)
+            .withConfiguration(GreenMailConfiguration.aConfig().withUser("testSender", "password"))
+            .withPerMethodLifecycle(false);
 
     @Test
     @Tag("signup")
@@ -429,5 +443,55 @@ class AuthControllerTest {
 
         verify(refreshTokenProvider, times(1)).authenticate(any(Authentication.class));
         verify(tokenManager, times(1)).revokeToken(eq(authentication));
+    }
+      
+      @Test
+    @DisplayName("when calling /login/resetPassword, expect that user with email from request already exists and mail will be sent with status code 201")
+    void shouldReturnMailResetPasswordResponseWithStatusCode200() throws Exception {
+        String mail = "a@gmail.com";
+        MailResetPasswordRequest mailResetPasswordRequest = new MailResetPasswordRequest(mail);
+        UserInfo userInfo = new UserInfo(UUID.randomUUID(), mail, "fullName", null);
+        when(userService.findUserByEmail(mailResetPasswordRequest.getEmail())).thenReturn(userInfo);
+
+        String token = UUID.randomUUID().toString();
+        UserEntity user = UserEntity.builder().id(userInfo.getId()).email(userInfo.getEmail()).fullName(userInfo.getFullName()).password("Password1").build();
+        PasswordResetToken resetToken = new PasswordResetToken(user, token);
+        when(userService.createPasswordResetTokenForUser(userInfo, token)).thenReturn(resetToken);
+
+        mockMvc.perform(post("/api/v1/authorize/login/resetPassword")
+                        .contentType(APPLICATION_JSON)
+                        .content(jsonMapper.writeValueAsString(mailResetPasswordRequest)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("user_id").value(userInfo.getId().toString()))
+                .andExpect(jsonPath("reset_token").exists());
+    }
+
+    @Test
+    @DisplayName("when calling /login/resetPassword, expect that user with email from request does not exists and status code 404 will be thrown")
+    void shouldReturnErrorResponseWithUserNotFoundExceptionWithStatusCode404() throws Exception {
+        MailResetPasswordRequest mailResetPasswordRequest = new MailResetPasswordRequest("a@gmail.com");
+        when(userService.findUserByEmail(mailResetPasswordRequest.getEmail())).thenThrow(UserNotFoundException.class);
+
+        mockMvc.perform(post("/api/v1/authorize/login/resetPassword")
+                        .contentType(APPLICATION_JSON)
+                        .content(jsonMapper.writeValueAsString(mailResetPasswordRequest)))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("timestamp").exists())
+                .andExpect(jsonPath("status_code").value("404"));
+    }
+
+    @Test
+    @DisplayName("when calling /login/resetPassword with invalid request body, expect validation failed with status code 400")
+    void shouldReturnErrorResponseWithValidationExceptionWithStatusCode400() throws Exception {
+        MailResetPasswordRequest mailResetPasswordRequest = new MailResetPasswordRequest("abc123");
+        mockMvc.perform(post("/api/v1/authorize/login/resetPassword")
+                        .contentType(APPLICATION_JSON)
+                        .content(jsonMapper.writeValueAsString(mailResetPasswordRequest)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("timestamp").exists())
+                .andExpect(jsonPath("status_code").value("400"))
+                .andExpect(jsonPath("message").value("Validation failed"));
+
+        verify(userService, never()).findUserByEmail(mailResetPasswordRequest.getEmail());
     }
 }
