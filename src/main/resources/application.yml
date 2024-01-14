@@ -19,9 +19,20 @@ spring:
         format-sql: true
   datasource:
     driverClassName: ${DRIVER_CLASS_NAME}
-    url: jdbc:${DB_URL}
-    username: ${DB_USERNAME}
-    password: ${DB_PASSWORD}
+    url: jdbc:postgresql://localhost:5432/bookti
+    username: postgres
+    password: password
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: bookti398@gmail.com
+    password: phcy xfsp gdxp tjdm
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
 
 jwt:
   access-token:

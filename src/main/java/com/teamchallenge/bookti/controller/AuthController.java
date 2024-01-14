@@ -2,10 +2,11 @@ package com.teamchallenge.bookti.controller;
 
 import com.teamchallenge.bookti.dto.AppResponse;
 import com.teamchallenge.bookti.dto.ErrorResponse;
-import com.teamchallenge.bookti.dto.authorization.NewUserRegistrationRequest;
-import com.teamchallenge.bookti.dto.authorization.TokenPair;
-import com.teamchallenge.bookti.dto.authorization.UserLoginRequest;
-import com.teamchallenge.bookti.dto.authorization.UserTokenPair;
+
+import com.teamchallenge.bookti.dto.authorization.*;
+import com.teamchallenge.bookti.dto.user.UserInfo;
+import com.teamchallenge.bookti.model.PasswordResetToken;
+import com.teamchallenge.bookti.service.EmailService;
 import com.teamchallenge.bookti.exception.PasswordIsNotMatchesException;
 import com.teamchallenge.bookti.exception.RefreshTokenAlreadyRevokedException;
 import com.teamchallenge.bookti.exception.UserAlreadyExistsException;
@@ -24,6 +25,10 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+
+import java.time.LocalDateTime;
+import java.util.UUID;
+
 import org.springframework.security.oauth2.server.resource.authentication.BearerTokenAuthenticationToken;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationProvider;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -43,15 +48,18 @@ public class AuthController {
     private final UserService userService;
     private final TokenManager tokenManager;
     private final AuthenticationManager authenticationManager;
+    private final EmailService emailService;
     private final JwtAuthenticationProvider refreshTokenProvider;
 
     public AuthController(UserService userService,
                           TokenManager tokenManager,
                           AuthenticationManager authenticationManager,
+                          EmailService emailService,
                           @Qualifier("jwtRefreshTokenAuthenticationProvider") JwtAuthenticationProvider refreshTokenProvider) {
         this.userService = userService;
         this.tokenManager = tokenManager;
         this.authenticationManager = authenticationManager;
+        this.emailService = emailService;
         this.refreshTokenProvider = refreshTokenProvider;
     }
 
@@ -223,6 +231,98 @@ public class AuthController {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(resp);
+    }
+
+    @Operation(
+            summary = "Send reset password link by email",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Email is sent successfully",
+                            content = {
+                                    @Content(
+                                            mediaType = APPLICATION_JSON_VALUE,
+                                            schema = @Schema(implementation = MailResetPasswordResponse.class)
+                                    )
+                            }
+                    ),
+                    @ApiResponse(
+                            responseCode = "400",
+                            description = "Bad request or Email was not sent",
+                            content = {
+                                    @Content(
+                                            mediaType = APPLICATION_JSON_VALUE,
+                                            schema = @Schema(implementation = ErrorResponse.class))
+                            }
+                    ),
+                    @ApiResponse(
+                            responseCode = "404",
+                            description = "User not found",
+                            content = {
+                                    @Content(
+                                            mediaType = APPLICATION_JSON_VALUE,
+                                            schema = @Schema(implementation = ErrorResponse.class)
+                                    )
+                            }
+                    )
+            }
+    )
+    @PostMapping(path = "/login/resetPassword")
+    public ResponseEntity<MailResetPasswordResponse> sendResetPasswordEmail(@Valid @RequestBody MailResetPasswordRequest mailResetPasswordRequest) {
+        UserInfo user = userService.findUserByEmail(mailResetPasswordRequest.getEmail());
+        String token = UUID.randomUUID().toString();
+        userService.createPasswordResetTokenForUser(user, token);
+        emailService.sendResetPasswordEmail(token, user);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(new MailResetPasswordResponse(LocalDateTime.now(), String.valueOf(user.getId()), token));
+    }
+
+    @Operation(
+            summary = "Reset user password",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Password updated",
+                            content = {
+                                    @Content(
+                                            mediaType = APPLICATION_JSON_VALUE,
+                                            schema = @Schema(implementation = TokenPair.class)
+                                    )
+                            }
+                    ),
+                    @ApiResponse(
+                            responseCode = "400",
+                            description = "Bad request or Validation failed",
+                            content = {
+                                    @Content(
+                                            mediaType = APPLICATION_JSON_VALUE,
+                                            schema = @Schema(implementation = ErrorResponse.class))
+                            }
+                    ),
+                    @ApiResponse(
+                            responseCode = "404",
+                            description = "User not found",
+                            content = {
+                                    @Content(
+                                            mediaType = APPLICATION_JSON_VALUE,
+                                            schema = @Schema(implementation = ErrorResponse.class)
+                                    )
+                            }
+                    )
+            }
+    )
+    @PostMapping(path = "/login/resetPassword/savePassword")
+    public ResponseEntity<TokenPair> resetPassword(@Valid @RequestBody PasswordResetRequest passwordResetRequest) {
+        PasswordResetToken passwordResetToken = userService.getPasswordResetToken(passwordResetRequest.getResetToken());
+        passwordResetToken.validate(passwordResetToken);
+        UserInfo user = userService.getUserByPasswordResetToken(passwordResetRequest.getResetToken());
+        userService.changeUserPassword(user.getId(), passwordResetRequest.getPassword());
+        var authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(user.getEmail(), passwordResetRequest.getPassword())
+        );
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(tokenManager.generateTokenPair(authentication));
     }
 }
 
