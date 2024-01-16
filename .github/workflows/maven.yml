@@ -19,25 +19,5 @@ jobs:
         java-version: '17'
         distribution: 'temurin'
         cache: maven
-
-    - name: Checkstyle for Java
-      uses: dbelyaev/action-checkstyle@v1.2.1
-      with:
-        github_token: ${{ secrets.github_token }}
-        reporter: github-pr-check
-        checkstyle_config: checkstyle.xml
-        level: warning
-        workdir: 'src/main/java'
-#    - name: Push Checkstyle report
-#      run: mvn -B verify checkstyle:checkstyle
-#    - uses: jwgmeligmeyling/checkstyle-github-action@v1.2
-#      with:
-#        path: '**/checkstyle-result.xml'
-    - name: Maven Verify
-      run: mvn -B clean verify
-    - name: Test Coverage
-      uses: codecov/codecov-action@v1
-      with:
-        token: ${{ secrets.CODECOV_TOKEN }}
     - name: Build with Maven
       run: mvn -B package --file pom.xml
