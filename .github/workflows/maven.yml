@@ -27,6 +27,7 @@ jobs:
         reporter: github-pr-check
         checkstyle_config: checkstyle.xml
         level: warning
+        workdir: 'src/main/java'
 #    - name: Push Checkstyle report
 #      run: mvn -B verify checkstyle:checkstyle
 #    - uses: jwgmeligmeyling/checkstyle-github-action@v1.2

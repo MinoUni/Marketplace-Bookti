@@ -228,6 +228,7 @@
                 <version>${checkstyle-maven-plugin.version}</version>
                 <configuration>
                     <configLocation>checkstyle.xml</configLocation>
+<!--                    <sourceDirectories>src</sourceDirectories>-->
                     <consoleOutput>true</consoleOutput>
                     <failsOnError>true</failsOnError>
                     <violationSeverity>warning</violationSeverity>
