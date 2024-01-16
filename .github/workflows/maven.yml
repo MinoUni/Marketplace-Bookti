@@ -21,7 +21,7 @@ jobs:
         cache: maven
     - name: Push Checkstyle report
       run: mvn -B verify checkstyle:checkstyle
-      uses: jwgmeligmeyling/checkstyle-github-action@v1.2
+    - uses: jwgmeligmeyling/checkstyle-github-action@v1.2
       with:
         path: '**/checkstyle-result.xml'
     - name: Maven Verify
