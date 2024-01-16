@@ -8,14 +8,22 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * Request that contains field 'email'.
+ *
+ * @author Katherine Sokol
+ * */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class MailResetPasswordRequest {
-    @JsonProperty("email")
-    @Schema(type = "string", example = "mark.javar@gmail.com")
-    @NotBlank(message = "Field <email> must not be blank")
-    @Pattern(regexp = "^(?=.{1,64}@)[A-Za-z0-9_-]+(\\.[A-Za-z0-9_-]+)*@[^-][A-Za-z0-9-]+(\\.[A-Za-z0-9-]+)*(\\.[A-Za-z]{2,})$",
-            message = "Invalid email")
-    private String email;
+  @JsonProperty("email")
+  @Schema(type = "string", example = "mark.javar@gmail.com")
+  @NotBlank(message = "Field <email> must not be blank")
+  @Pattern(regexp = """
+      ^(?=.{1,64}@)[A-Za-z0-9_-]+(\\.[A-Za-z0-9_-]+)*
+      @[^-][A-Za-z0-9-]+(\\.[A-Za-z0-9-]+)*(\\.[A-Za-z]{2,})$
+      """,
+      message = "Invalid email")
+  private String email;
 }
