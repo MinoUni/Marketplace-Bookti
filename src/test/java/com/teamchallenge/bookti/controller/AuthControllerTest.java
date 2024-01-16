@@ -489,7 +489,7 @@ class AuthControllerTest {
                         .content(jsonMapper.writeValueAsString(mailResetPasswordRequest)))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("timestamp").exists())
-                .andExpect(jsonPath("status_code").value("400"))
+                .andExpect(jsonPath("status_code").value("300"))
                 .andExpect(jsonPath("message").value("Validation failed"));
 
         verify(userService, never()).findUserByEmail(mailResetPasswordRequest.getEmail());

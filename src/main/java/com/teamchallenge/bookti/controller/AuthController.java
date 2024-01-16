@@ -50,7 +50,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "Authorization mappings", description = "PERMIT_ALL")
 @RequestMapping("/api/v1/authorize")
 @RestController
-public class AuthController{
+public class AuthController {
 
   private final UserService userService;
   private final TokenManager tokenManager;
