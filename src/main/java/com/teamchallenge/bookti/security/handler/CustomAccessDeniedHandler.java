@@ -9,21 +9,29 @@ import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 
+/**
+ * Class that handles exceptions caused by denied access.
+ *
+ * @author Maksym Reva
+ */
 @Component
 @Slf4j
 public class CustomAccessDeniedHandler implements AccessDeniedHandler {
 
-    private final HandlerExceptionResolver resolver;
+  private final HandlerExceptionResolver resolver;
 
-    public CustomAccessDeniedHandler(@Qualifier("handlerExceptionResolver") HandlerExceptionResolver resolver) {
-        this.resolver = resolver;
-    }
+  public CustomAccessDeniedHandler(
+      @Qualifier("handlerExceptionResolver") HandlerExceptionResolver resolver) {
+    this.resolver = resolver;
+  }
 
-    @Override
-    public void handle(HttpServletRequest request,
-                       HttpServletResponse response,
-                       AccessDeniedException accessDeniedException) {
-        log.error("Denied access with AccessDeniedException. Details: {}", accessDeniedException.getMessage());
-        resolver.resolveException(request, response, null, accessDeniedException);
-    }
+  @Override
+  public void handle(HttpServletRequest request,
+                     HttpServletResponse response,
+                     AccessDeniedException accessDeniedException) {
+    log.error(
+        "Denied access with AccessDeniedException. Details: {}", accessDeniedException.getMessage()
+    );
+    resolver.resolveException(request, response, null, accessDeniedException);
+  }
 }

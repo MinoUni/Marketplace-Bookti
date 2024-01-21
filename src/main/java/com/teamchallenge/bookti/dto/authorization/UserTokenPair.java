@@ -6,16 +6,21 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
+/**
+ * UserTokenPair that contains fields 'userId' and 'refreshToken'.
+ *
+ * @author Maksym Reva
+ */
 @Getter
 @Setter
 @AllArgsConstructor
 public class UserTokenPair {
 
-    @JsonProperty("user_id")
-    @NotBlank(message = "Property <user_id> can't be blank")
-    private String userId;
+  @JsonProperty("user_id")
+  @NotBlank(message = "Property <user_id> can't be blank")
+  private String userId;
 
-    @JsonProperty("refresh_token")
-    @NotBlank(message = "Property <refresh_token> can't be blank")
-    private String refreshToken;
+  @JsonProperty("refresh_token")
+  @NotBlank(message = "Property <refresh_token> can't be blank")
+  private String refreshToken;
 }

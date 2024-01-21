@@ -7,6 +7,8 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import java.util.Objects;
+import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -15,9 +17,11 @@ import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.proxy.HibernateProxy;
 
-import java.util.Objects;
-import java.util.UUID;
-
+/**
+ * UserEntity is Entity Class witch contains information about user from database.
+ *
+ * @author Maksym Reva
+ */
 @Builder
 @Getter
 @Setter
@@ -28,43 +32,61 @@ import java.util.UUID;
 @Table(name = "users")
 public class UserEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.UUID)
+  private UUID id;
 
-    @Column(name = "full_name", nullable = false)
-    private String fullName;
+  @Column(name = "full_name", nullable = false)
+  private String fullName;
 
-    @Column(nullable = false, unique = true)
-    private String email;
+  @Column(nullable = false, unique = true)
+  private String email;
 
-    @Column(nullable = false)
-    private String password;
+  @Column(nullable = false)
+  private String password;
 
-    @Column(name = "avatar_url")
-    private String avatarUrl;
+  @Column(name = "avatar_url")
+  private String avatarUrl;
 
-    public static UserEntity build(NewUserRegistrationRequest userDetails) {
-        return UserEntity.builder()
-                .fullName(userDetails.getFullName())
-                .email(userDetails.getEmail())
-                .password(userDetails.getPassword())
-                .build();
+  /**
+   * Builds {@link UserEntity} from {@link NewUserRegistrationRequest}.
+   *
+   * @param userDetails {@link NewUserRegistrationRequest}
+   * @return {@link UserEntity}
+   */
+  public static UserEntity build(NewUserRegistrationRequest userDetails) {
+    return UserEntity.builder()
+        .fullName(userDetails.getFullName())
+        .email(userDetails.getEmail())
+        .password(userDetails.getPassword())
+        .build();
+  }
+
+  @Override
+  public final boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
     }
-
-    @Override
-    public final boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null) return false;
-        Class<?> oEffectiveClass = o instanceof HibernateProxy ? ((HibernateProxy) o).getHibernateLazyInitializer().getPersistentClass() : o.getClass();
-        Class<?> thisEffectiveClass = this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass() : this.getClass();
-        if (thisEffectiveClass != oEffectiveClass) return false;
-        UserEntity that = (UserEntity) o;
-        return getId() != null && Objects.equals(getId(), that.getId());
+    if (obj == null) {
+      return false;
     }
-
-    @Override
-    public final int hashCode() {
-        return this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass().hashCode() : getClass().hashCode();
+    Class<?> objEffectiveClass = obj instanceof HibernateProxy
+        ? ((HibernateProxy) obj).getHibernateLazyInitializer().getPersistentClass() :
+        obj.getClass();
+    Class<?> thisEffectiveClass = this instanceof HibernateProxy
+        ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass() :
+        this.getClass();
+    if (thisEffectiveClass != objEffectiveClass) {
+      return false;
     }
+    UserEntity that = (UserEntity) obj;
+    return getId() != null && Objects.equals(getId(), that.getId());
+  }
+
+  @Override
+  public final int hashCode() {
+    return this instanceof HibernateProxy
+        ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass().hashCode() :
+        getClass().hashCode();
+  }
 }
