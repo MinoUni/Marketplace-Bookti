@@ -1,12 +1,14 @@
 package com.teamchallenge.bookti.security;
 
 import java.util.Collection;
+import java.util.Map;
 import java.util.UUID;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.User;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.util.Assert;
 
 /**
@@ -16,7 +18,7 @@ import org.springframework.util.Assert;
  */
 @Setter
 @Getter
-public class AuthorizedUser extends User {
+public class AuthorizedUser extends User implements OAuth2User {
 
   private UUID id;
   @Setter(AccessLevel.NONE)
@@ -24,6 +26,7 @@ public class AuthorizedUser extends User {
   private String email;
   private String fullName;
   private String avatarUrl;
+  private Map<String, Object> attributes;
 
   public AuthorizedUser(String username,
                         String password,
@@ -38,6 +41,16 @@ public class AuthorizedUser extends User {
   public static AuthorizedUserBuilder authorizedUserBuilder(
       String username, String password, Collection<? extends GrantedAuthority> authorities) {
     return new AuthorizedUserBuilder(username, password, authorities);
+  }
+
+  @Override
+  public Map<String, Object> getAttributes() {
+    return attributes;
+  }
+
+  @Override
+  public String getName() {
+    return email;
   }
 
   /**
@@ -73,6 +86,11 @@ public class AuthorizedUser extends User {
 
     public AuthorizedUserBuilder avatarUrl(String avatarUrl) {
       this.authorizedUser.setAvatarUrl(avatarUrl);
+      return this;
+    }
+
+    public AuthorizedUserBuilder attributes(Map<String, Object> attributes) {
+      this.authorizedUser.setAttributes(attributes);
       return this;
     }
 

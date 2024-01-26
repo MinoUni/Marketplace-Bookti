@@ -4,6 +4,10 @@ import com.teamchallenge.bookti.security.CustomUserDetailsService;
 import com.teamchallenge.bookti.security.handler.CustomAccessDeniedHandler;
 import com.teamchallenge.bookti.security.handler.CustomRestAuthenticationEntryPoint;
 import com.teamchallenge.bookti.security.jwt.JwtToAuthorizedUserConverter;
+import com.teamchallenge.bookti.security.oauth2.handler.FailureHandler;
+import com.teamchallenge.bookti.security.oauth2.handler.SuccessHandler;
+import com.teamchallenge.bookti.security.oauth2.repository.CustomAuthorizationRequestRepository;
+import com.teamchallenge.bookti.security.oauth2.service.CustomOauth2UserService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -18,7 +22,6 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
@@ -42,6 +45,11 @@ public class SecurityConfig {
   private final CustomRestAuthenticationEntryPoint restAuthenticationEntryPoint;
   private final CustomAccessDeniedHandler accessDeniedHandler;
   private final ApplicationProperties applicationProperties;
+  private final PasswordEncoder passwordEncoder;
+  private final SuccessHandler successHandler;
+  private final FailureHandler failureHandler;
+  private final CustomOauth2UserService userService;
+  private final CustomAuthorizationRequestRepository authorizationRequestRepository;
 
   /**
    * Creates {@link SecurityFilterChain} with needed configurations.
@@ -53,31 +61,42 @@ public class SecurityConfig {
   @Bean
   public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
     return http
-        .httpBasic(AbstractHttpConfigurer::disable)
-        .formLogin(AbstractHttpConfigurer::disable)
-        .csrf(AbstractHttpConfigurer::disable)
-        .sessionManagement(session -> session
-            .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-        )
-        .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-        .authenticationProvider(authenticationProvider())
-        .exceptionHandling(exception -> exception
-            .authenticationEntryPoint(restAuthenticationEntryPoint)
-            .accessDeniedHandler(accessDeniedHandler)
-        )
-        .authorizeHttpRequests(authorize -> authorize
-            .requestMatchers(applicationProperties.getPermitAllReq()).permitAll()
-            .anyRequest().authenticated()
-        )
-        .oauth2ResourceServer(oauth2 -> oauth2
-            .jwt(jwt -> jwt.jwtAuthenticationConverter(jwtToUserConverter))
-        )
-        .build();
-  }
-
-  @Bean
-  public PasswordEncoder passwordEncoder() {
-    return new BCryptPasswordEncoder(10);
+            .httpBasic(AbstractHttpConfigurer::disable)
+            .formLogin(AbstractHttpConfigurer::disable)
+            .csrf(AbstractHttpConfigurer::disable)
+            .sessionManagement(session -> session
+              .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+            )
+            .cors(cors -> cors
+              .configurationSource(corsConfigurationSource())
+            )
+            .authenticationProvider(authenticationProvider())
+            .exceptionHandling(exception -> exception
+              .authenticationEntryPoint(restAuthenticationEntryPoint)
+              .accessDeniedHandler(accessDeniedHandler)
+            )
+            .authorizeHttpRequests(authorize -> authorize
+              .requestMatchers(applicationProperties.getPermitAllReq()).permitAll()
+              .anyRequest().authenticated()
+            )
+            .oauth2ResourceServer(oauth2 -> oauth2
+              .jwt(jwt -> jwt.jwtAuthenticationConverter(jwtToUserConverter))
+            )
+            .oauth2Login(oauth2 -> oauth2
+              .authorizationEndpoint(authEndpoint -> authEndpoint
+                .baseUri("/oauth2/authorize")
+                .authorizationRequestRepository(authorizationRequestRepository)
+              )
+              .redirectionEndpoint(redirectEndpoint -> redirectEndpoint
+                .baseUri("/oauth2/callback/*")
+              )
+              .userInfoEndpoint(userInfoEndpoint -> userInfoEndpoint
+                .userService(userService)
+              )
+              .successHandler(successHandler)
+              .failureHandler(failureHandler)
+            )
+            .build();
   }
 
   /**
@@ -89,7 +108,7 @@ public class SecurityConfig {
   public AuthenticationProvider authenticationProvider() {
     DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider();
     authenticationProvider.setUserDetailsService(customUserDetailsService);
-    authenticationProvider.setPasswordEncoder(passwordEncoder());
+    authenticationProvider.setPasswordEncoder(passwordEncoder);
     return authenticationProvider;
   }
 
@@ -109,10 +128,15 @@ public class SecurityConfig {
     CorsConfiguration cors = new CorsConfiguration();
     cors.setAllowedOrigins(applicationProperties.getAllowedOrigins());
     cors.setAllowedMethods(List.of("GET", "POST", "DELETE", "PATCH", "PUT", "OPTIONS"));
-    cors.setAllowedHeaders(List.of(
-        "X-Requested-With", "Origin", "Content-Type", "Accept", "Authorization"));
-    cors.setExposedHeaders(List.of(
-        "Content-Type", "Cache-Control", "Content-Language", "Content-Length", "Last-Modified"));
+    cors.setAllowedHeaders(
+        List.of("X-Requested-With", "Origin", "Content-Type", "Accept", "Authorization"));
+    cors.setExposedHeaders(
+        List.of(
+            "Content-Type",
+            "Cache-Control",
+            "Content-Language",
+            "Content-Length",
+            "Last-Modified"));
     UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
     source.registerCorsConfiguration("/**", cors);
     return source;

@@ -1,4 +1,6 @@
 spring:
+  profiles:
+    active: test
   application:
     name: bookti-test
   sql:
@@ -23,7 +25,17 @@ spring:
     host: 127.0.0.1
     port: 3025
     protocol: smtp
-
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: ${GOOGLE_CLIENT_ID}
+            client-secret: ${GOOGLE_CLIENT_SECRET}
+            redirect-uri: "{baseUrl}/oauth2/callback/{registrationId}"
+            scope:
+              - email
+              - profile
 jwt:
   access-token:
     private: "access-refresh-token-keys/access-token-private.key"
@@ -33,8 +45,10 @@ jwt:
     public: "access-refresh-token-keys/refresh-token-public.key"
 
 application:
+  authorized-redirect-uris: https://marketplace-bookti.vercel.app/oauth2/redirect,http://localhost:5173/oauth2/redirect
   permit-all-req:
     - /api/v1/authorize/**
+    - /oauth2/**
   allowed-origins:
     - https://marketplace-bookti.vercel.app
     - http://localhost:5173
