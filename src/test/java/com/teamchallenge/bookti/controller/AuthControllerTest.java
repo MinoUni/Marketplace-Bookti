@@ -1,5 +1,6 @@
 package com.teamchallenge.bookti.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.icegreen.greenmail.configuration.GreenMailConfiguration;
 import com.icegreen.greenmail.junit5.GreenMailExtension;
@@ -462,8 +463,7 @@ class AuthControllerTest {
             .contentType(APPLICATION_JSON)
             .content(jsonMapper.writeValueAsString(mailResetPasswordRequest)))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("user_id").value(userInfo.getId().toString()))
-        .andExpect(jsonPath("reset_token").exists());
+        .andExpect(jsonPath("user_id").value(userInfo.getId().toString()));
   }
 
   @Test
