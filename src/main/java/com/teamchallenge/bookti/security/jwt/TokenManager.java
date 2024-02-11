@@ -1,6 +1,5 @@
 package com.teamchallenge.bookti.security.jwt;
 
-import com.teamchallenge.bookti.config.JwtConfig;
 import com.teamchallenge.bookti.dto.authorization.TokenPair;
 import com.teamchallenge.bookti.exception.RefreshTokenAlreadyRevokedException;
 import com.teamchallenge.bookti.security.AuthorizedUser;
@@ -127,7 +126,6 @@ public class TokenManager {
   private String generateAccessToken(Authentication authentication) {
     AuthorizedUser user = (AuthorizedUser) authentication.getPrincipal();
     Instant now = Instant.now();
-    // TODO: Include user scopes, roles, not include sensitive info
     String scope = user
         .getAuthorities()
         .stream()

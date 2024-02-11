@@ -82,7 +82,7 @@ public class UserController {
       }
   )
   @GetMapping(path = "/{id}")
-  @PreAuthorize("isAuthenticated() and authentication.principal.id == #id")
+  @PreAuthorize("isAuthenticated() and hasRole('ROLE_USER') and authentication.principal.id == #id")
   public ResponseEntity<UserInfo> getUserInfo(@PathVariable UUID id) {
     return ResponseEntity
         .status(HttpStatus.OK)
