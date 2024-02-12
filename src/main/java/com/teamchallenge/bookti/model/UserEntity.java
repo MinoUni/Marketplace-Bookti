@@ -5,6 +5,7 @@ import static com.teamchallenge.bookti.model.Role.ROLE_USER;
 import com.teamchallenge.bookti.dto.authorization.NewUserRegistrationRequest;
 
 import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
 
 import jakarta.persistence.Column;
@@ -14,6 +15,7 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -57,6 +59,10 @@ public class UserEntity {
   @Column
   @Enumerated(EnumType.STRING)
   private Role role;
+
+  @ToString.Exclude
+  @OneToMany(mappedBy = "owner")
+  private Set<Book> books;
 
   /**
    * Builds {@link UserEntity} from {@link NewUserRegistrationRequest}.

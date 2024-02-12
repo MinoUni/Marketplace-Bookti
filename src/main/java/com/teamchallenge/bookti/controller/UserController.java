@@ -26,7 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
  * @author Maksym Reva
  */
 @RestController
-@Tag(name = "User mappings", description = "AUTHORIZATION_REQUIRED")
+@Tag(name = "User endpoints", description = "AUTHORIZATION_REQUIRED")
 @RequestMapping("/api/v1/users")
 @RequiredArgsConstructor
 public class UserController {
