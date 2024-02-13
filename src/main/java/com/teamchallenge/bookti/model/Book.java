@@ -1,5 +1,6 @@
 package com.teamchallenge.bookti.model;
 
+import com.teamchallenge.bookti.dto.book.BookProfile;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -40,11 +41,14 @@ public class Book {
   @GeneratedValue(strategy = GenerationType.UUID)
   private UUID id;
 
-  @Column private String title;
+  @Column
+  private String title;
 
-  @Column private String author;
+  @Column
+  private String author;
 
-  @Column private String genre;
+  @Column
+  private String genre;
 
   @Column(columnDefinition = "TEXT")
   private String description;
@@ -52,7 +56,8 @@ public class Book {
   @Column(name = "image_url")
   private String imageUrl; // todo: import cloudinary api
 
-  @Column private String language;
+  @Column
+  private String language;
 
   @Column(name = "publication_date", columnDefinition = "DATE")
   private LocalDate publicationDate;
@@ -65,6 +70,28 @@ public class Book {
   private UserEntity owner;
 
   // todo: Add 'comments' relationship 1:n
+
+  /**
+   * Method to build book entity from book DTO.
+   *
+   * @param bookProfile book DTO
+   * @param imageUrl image url
+   * @param user user entity
+   * @return book entity
+   */
+  public static Book build(BookProfile bookProfile, String imageUrl, UserEntity user) {
+    return Book.builder()
+        .title(bookProfile.getTitle())
+        .author(bookProfile.getAuthor())
+        .genre(bookProfile.getGenre())
+        .description(bookProfile.getDescription())
+        .imageUrl(imageUrl)
+        .language(bookProfile.getLanguage())
+        .publicationDate(bookProfile.getPublicationDate())
+        .tradeFormat(bookProfile.getTradeFormat())
+        .owner(user)
+        .build();
+  }
 
   @Override
   public final boolean equals(Object o) {
