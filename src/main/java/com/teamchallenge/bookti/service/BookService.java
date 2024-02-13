@@ -2,19 +2,17 @@ package com.teamchallenge.bookti.service;
 
 import com.teamchallenge.bookti.dto.book.BookDetails;
 import com.teamchallenge.bookti.dto.book.BookProfile;
+import java.util.UUID;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.UUID;
-
 /**
- * Interface that describes books management
+ * Interface that describes books management.
  *
  * @author MinoUni
  * @version 1.0
  */
-// todo: Implement interface
 public interface BookService {
 
   /**

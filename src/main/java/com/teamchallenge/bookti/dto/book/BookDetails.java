@@ -3,13 +3,12 @@ package com.teamchallenge.bookti.dto.book;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.teamchallenge.bookti.model.Book;
+import java.time.LocalDate;
+import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import java.time.LocalDate;
-import java.util.UUID;
 
 /**
  * DTO that represents book details.
@@ -48,6 +47,19 @@ public class BookDetails {
 
   private String description;
 
+  /**
+   * Constructor to include only book-specific information.
+   *
+   * @param id book identifier
+   * @param title title
+   * @param author author
+   * @param genre genre
+   * @param publicationDate publication date
+   * @param language language
+   * @param tradeFormat trade format
+   * @param imageUrl image url
+   * @param description description
+   */
   public BookDetails(
       UUID id,
       String title,

@@ -10,6 +10,12 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
+/**
+ * Enum to map authorities(permissions) into groups(roles).
+ *
+ * @author MinoUni
+ * @version 1.0
+ */
 @RequiredArgsConstructor
 @Getter
 public enum Role {
