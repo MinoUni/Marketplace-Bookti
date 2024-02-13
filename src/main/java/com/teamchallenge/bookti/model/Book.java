@@ -1,14 +1,18 @@
 package com.teamchallenge.bookti.model;
 
+import static jakarta.persistence.FetchType.LAZY;
+
 import com.teamchallenge.bookti.dto.book.BookProfile;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import java.time.LocalDate;
+import java.util.Objects;
+import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -16,10 +20,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.proxy.HibernateProxy;
-
-import java.time.LocalDate;
-import java.util.Objects;
-import java.util.UUID;
 
 /**
  * Class that describes Book entity.
@@ -53,8 +53,11 @@ public class Book {
   @Column(columnDefinition = "TEXT")
   private String description;
 
+  @Column(name = "image_name")
+  private String imageName;
+
   @Column(name = "image_url")
-  private String imageUrl; // todo: import cloudinary api
+  private String imageUrl;
 
   @Column
   private String language;
@@ -65,8 +68,8 @@ public class Book {
   @Column(name = "trade_format")
   private String tradeFormat;
 
-  @ManyToOne
-  @JoinColumn(name = "user_id", nullable = false)
+  @ToString.Exclude
+  @ManyToOne(fetch = LAZY, optional = false)
   private UserEntity owner;
 
   // todo: Add 'comments' relationship 1:n
@@ -79,12 +82,16 @@ public class Book {
    * @param user user entity
    * @return book entity
    */
-  public static Book build(BookProfile bookProfile, String imageUrl, UserEntity user) {
+  public static Book build(BookProfile bookProfile,
+                           String imageUrl,
+                           String imageName,
+                           UserEntity user) {
     return Book.builder()
         .title(bookProfile.getTitle())
         .author(bookProfile.getAuthor())
         .genre(bookProfile.getGenre())
         .description(bookProfile.getDescription())
+        .imageName(imageName)
         .imageUrl(imageUrl)
         .language(bookProfile.getLanguage())
         .publicationDate(bookProfile.getPublicationDate())
@@ -101,7 +108,7 @@ public class Book {
     if (o == null) {
       return false;
     }
-    Class<?> oEffectiveClass =
+    Class<?> objEffectiveClass =
         o instanceof HibernateProxy
             ? ((HibernateProxy) o).getHibernateLazyInitializer().getPersistentClass()
             : o.getClass();
@@ -109,7 +116,7 @@ public class Book {
         this instanceof HibernateProxy
             ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass()
             : this.getClass();
-    if (thisEffectiveClass != oEffectiveClass) {
+    if (thisEffectiveClass != objEffectiveClass) {
       return false;
     }
     Book book = (Book) o;
