@@ -20,7 +20,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 /**
@@ -104,7 +109,7 @@ public class BookController {
       @RequestPart("book_details")
       final BookProfile bookProfile,
       @RequestPart("image") final MultipartFile imageFile) {
-    return ResponseEntity.status(CREATED).body(bookService.create(bookProfile));
+    return ResponseEntity.status(CREATED).body(bookService.create(bookProfile, imageFile));
   }
 
   /**
