@@ -13,6 +13,13 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
+    - name: Env vars
+      env:
+        google-client-id: ${{ secrets.GOOGLE_CLIENT_ID }}
+        google-client-secret: ${{ secrets.GOOGLE_CLIENT_SECRET }}
+        cloudinary-name: ${{ secrets.CLOUDINARY_NAME }}
+        cloudinary-api-secret: ${{ secrets.CLOUDINARY_API_SECRET }}
+        cloudinary-api-key: ${{ secrets.CLOUDINARY_API_KEY }}
     - name: Set up JDK 17
       uses: actions/setup-java@v3
       with:
