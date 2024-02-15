@@ -8,6 +8,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 /**
@@ -25,8 +26,9 @@ public interface BookRepository extends JpaRepository<Book, UUID> {
         b.id, b.title, b.author, b.genre, b.publicationDate,
         b. language, b.tradeFormat, b.imageUrl, b.description)
         FROM Book b
+        WHERE b.id = :id
       """)
-  Optional<BookDetails> findBookById(UUID id);
+  Optional<BookDetails> findBookById(@Param("id") UUID id);
 
   @Query(
       """
