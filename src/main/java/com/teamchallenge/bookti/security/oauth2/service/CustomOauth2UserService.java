@@ -1,5 +1,7 @@
 package com.teamchallenge.bookti.security.oauth2.service;
 
+import static com.teamchallenge.bookti.model.Role.ROLE_USER;
+
 import com.teamchallenge.bookti.exception.Oauth2AuthenticationProcessingException;
 import com.teamchallenge.bookti.mapper.AuthorizedUserMapper;
 import com.teamchallenge.bookti.model.UserEntity;
@@ -92,6 +94,7 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
             .password(passwordEncoder.encode(UUID.randomUUID().toString()))
             .fullName(userInfo.getFullName())
             .avatarUrl(userInfo.getAvatarUrl())
+            .role(ROLE_USER)
             .build();
     return userRepository.save(user);
   }

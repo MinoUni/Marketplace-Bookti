@@ -51,6 +51,11 @@ jwt:
     private: "access-refresh-token-keys/refresh-token-private.key"
     public: "access-refresh-token-keys/refresh-token-public.key"
 
+cloudinary:
+  cloud-name: ${CLOUDINARY_NAME}
+  api-key: ${CLOUDINARY_API_KEY}
+  api-secret: ${CLOUDINARY_API_SECRET}
+
 application:
   authorized-redirect-uris: https://marketplace-bookti.vercel.app/oauth2/redirect,http://localhost:5173/oauth2/redirect
   permit-all-req:

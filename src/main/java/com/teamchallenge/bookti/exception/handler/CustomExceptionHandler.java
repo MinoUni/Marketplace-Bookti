@@ -2,8 +2,14 @@ package com.teamchallenge.bookti.exception.handler;
 
 import static java.util.stream.Collectors.collectingAndThen;
 import static java.util.stream.Collectors.toList;
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
+import static org.springframework.http.HttpStatus.CONFLICT;
+import static org.springframework.http.HttpStatus.FORBIDDEN;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
+import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 
 import com.teamchallenge.bookti.dto.ErrorResponse;
+import com.teamchallenge.bookti.exception.BookNotFoundException;
 import com.teamchallenge.bookti.exception.PasswordIsNotMatchesException;
 import com.teamchallenge.bookti.exception.PasswordResetTokenIsExpiredException;
 import com.teamchallenge.bookti.exception.PasswordResetTokenNotFoundException;
@@ -68,15 +74,15 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
   @ExceptionHandler(UserAlreadyExistsException.class)
   public ResponseEntity<ErrorResponse> handleUserAlreadyExistException(
       UserAlreadyExistsException e) {
-    ErrorResponse errorResponse = new ErrorResponse(HttpStatus.CONFLICT.value(), e.getMessage());
-    return ResponseEntity.status(HttpStatus.CONFLICT).body(errorResponse);
+    ErrorResponse errorResponse = new ErrorResponse(CONFLICT.value(), e.getMessage());
+    return ResponseEntity.status(CONFLICT).body(errorResponse);
   }
 
   @ExceptionHandler(PasswordIsNotMatchesException.class)
   public ResponseEntity<ErrorResponse> handlePasswordIsNotMatchesException(
       PasswordIsNotMatchesException e) {
-    ErrorResponse errorResponse = new ErrorResponse(HttpStatus.BAD_REQUEST.value(), e.getMessage());
-    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+    ErrorResponse errorResponse = new ErrorResponse(BAD_REQUEST.value(), e.getMessage());
+    return ResponseEntity.status(BAD_REQUEST).body(errorResponse);
   }
 
   /**
@@ -88,28 +94,28 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
   @ExceptionHandler(AuthenticationException.class)
   public ResponseEntity<ErrorResponse> handleAuthenticationException(AuthenticationException e) {
     ErrorResponse errorResponse = new ErrorResponse(
-        HttpStatus.UNAUTHORIZED.value(), e.getMessage()
+        UNAUTHORIZED.value(), e.getMessage()
     );
-    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
+    return ResponseEntity.status(UNAUTHORIZED).body(errorResponse);
   }
 
   @ExceptionHandler(AccessDeniedException.class)
   public ResponseEntity<ErrorResponse> handleAccessDeniedException(AccessDeniedException e) {
-    ErrorResponse errorResponse = new ErrorResponse(HttpStatus.FORBIDDEN.value(), e.getMessage());
-    return ResponseEntity.status(HttpStatus.FORBIDDEN).body(errorResponse);
+    ErrorResponse errorResponse = new ErrorResponse(FORBIDDEN.value(), e.getMessage());
+    return ResponseEntity.status(FORBIDDEN).body(errorResponse);
   }
 
   @ExceptionHandler(UserNotFoundException.class)
   public ResponseEntity<ErrorResponse> handleUserNotFoundException(UserNotFoundException e) {
-    ErrorResponse errorResponse = new ErrorResponse(HttpStatus.NOT_FOUND.value(), e.getMessage());
-    return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
+    ErrorResponse errorResponse = new ErrorResponse(NOT_FOUND.value(), e.getMessage());
+    return ResponseEntity.status(NOT_FOUND).body(errorResponse);
   }
 
   @ExceptionHandler(RefreshTokenAlreadyRevokedException.class)
   public ResponseEntity<ErrorResponse> handleRefreshTokenAlreadyRevokedException(
       RefreshTokenAlreadyRevokedException e) {
-    ErrorResponse errorResponse = new ErrorResponse(HttpStatus.CONFLICT.value(), e.getMessage());
-    return ResponseEntity.status(HttpStatus.CONFLICT).body(errorResponse);
+    ErrorResponse errorResponse = new ErrorResponse(CONFLICT.value(), e.getMessage());
+    return ResponseEntity.status(CONFLICT).body(errorResponse);
   }
 
   /**
@@ -121,28 +127,34 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
   @ExceptionHandler(BadCredentialsException.class)
   public ResponseEntity<ErrorResponse> handleBadCredentialsException(BadCredentialsException e) {
     ErrorResponse errorResponse = new ErrorResponse(
-        HttpStatus.UNAUTHORIZED.value(), e.getMessage()
+        UNAUTHORIZED.value(), e.getMessage()
     );
-    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
+    return ResponseEntity.status(UNAUTHORIZED).body(errorResponse);
   }
 
   @ExceptionHandler(PasswordResetTokenNotFoundException.class)
   public ResponseEntity<ErrorResponse> handlePasswordResetTokenNotFoundException(
       PasswordResetTokenNotFoundException e) {
-    ErrorResponse errorResponse = new ErrorResponse(HttpStatus.NOT_FOUND.value(), e.getMessage());
-    return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
+    ErrorResponse errorResponse = new ErrorResponse(NOT_FOUND.value(), e.getMessage());
+    return ResponseEntity.status(NOT_FOUND).body(errorResponse);
   }
 
   @ExceptionHandler(PasswordResetTokenIsExpiredException.class)
   public ResponseEntity<ErrorResponse> handlePasswordResetTokenIsExpiredException(
       PasswordResetTokenIsExpiredException e) {
-    ErrorResponse errorResponse = new ErrorResponse(HttpStatus.NOT_FOUND.value(), e.getMessage());
-    return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
+    ErrorResponse errorResponse = new ErrorResponse(NOT_FOUND.value(), e.getMessage());
+    return ResponseEntity.status(NOT_FOUND).body(errorResponse);
   }
 
   @ExceptionHandler(MailException.class)
   public ResponseEntity<ErrorResponse> handleMailException(MailException e) {
-    ErrorResponse errorResponse = new ErrorResponse(HttpStatus.BAD_REQUEST.value(), e.getMessage());
-    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+    ErrorResponse errorResponse = new ErrorResponse(BAD_REQUEST.value(), e.getMessage());
+    return ResponseEntity.status(BAD_REQUEST).body(errorResponse);
+  }
+
+  @ExceptionHandler(BookNotFoundException.class)
+  public ResponseEntity<ErrorResponse> handleBookNotFoundException(BookNotFoundException e) {
+    ErrorResponse errorResponse = new ErrorResponse(NOT_FOUND.value(), e.getMessage());
+    return ResponseEntity.status(NOT_FOUND).body(errorResponse);
   }
 }
