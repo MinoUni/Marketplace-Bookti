@@ -73,8 +73,8 @@ public class TokenManager {
     return TokenPair
         .builder()
         .userId(String.valueOf(user.getId()))
-        .accessToken(generateAccessToken(authentication))
         .refreshToken(validateRefreshToken(authentication))
+        .accessToken(generateAccessToken(authentication))
         .build();
   }
 
