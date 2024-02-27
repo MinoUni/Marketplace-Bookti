@@ -22,7 +22,4 @@ public class MailResetPasswordResponse {
 
   @JsonProperty("user_id")
   private String userId;
-
-  @JsonProperty("reset_token")
-  private String resetToken;
 }

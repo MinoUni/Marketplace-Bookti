@@ -32,10 +32,10 @@ public class EmailServiceImpl implements EmailService {
   private SimpleMailMessage constructResetTokenEmail(String token, UserInfo user) {
     //TODO update message with locale
     String domainName = applicationProperties.getAllowedOrigins().get(0);
-    String url = domainName + "/api/v1/authorize/login/resetPassword?resetToken=" + token;
+    String url = domainName + "/renamePassword?resetToken=" + token;
     String message = MessageFormat.format("""
             Dear {0}!
-            You have received this email to change your forgotten password on {1}. 
+            You have received this email to change your forgotten password on {1}.
             Follow this link to continue: {2}
             """,
         user.getFullName(), domainName, url);

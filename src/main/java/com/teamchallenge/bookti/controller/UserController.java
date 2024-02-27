@@ -26,7 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
  * @author Maksym Reva
  */
 @RestController
-@Tag(name = "User mappings", description = "AUTHORIZATION_REQUIRED")
+@Tag(name = "User endpoints", description = "AUTHORIZATION_REQUIRED")
 @RequestMapping("/api/v1/users")
 @RequiredArgsConstructor
 public class UserController {
@@ -82,7 +82,7 @@ public class UserController {
       }
   )
   @GetMapping(path = "/{id}")
-  @PreAuthorize("isAuthenticated() and authentication.principal.id == #id")
+  @PreAuthorize("isAuthenticated() and hasRole('ROLE_USER') and authentication.principal.id == #id")
   public ResponseEntity<UserInfo> getUserInfo(@PathVariable UUID id) {
     return ResponseEntity
         .status(HttpStatus.OK)

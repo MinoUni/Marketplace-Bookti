@@ -1,13 +1,19 @@
 package com.teamchallenge.bookti.model;
 
+import static com.teamchallenge.bookti.model.Role.ROLE_USER;
+
 import com.teamchallenge.bookti.dto.authorization.NewUserRegistrationRequest;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -51,6 +57,14 @@ public class UserEntity {
   @Column(nullable = false)
   private String city;
 
+  @Column
+  @Enumerated(EnumType.STRING)
+  private Role role;
+
+  @ToString.Exclude
+  @OneToMany(mappedBy = "owner")
+  private Set<Book> books;
+
   /**
    * Builds {@link UserEntity} from {@link NewUserRegistrationRequest}.
    *
@@ -63,6 +77,7 @@ public class UserEntity {
         .email(userDetails.getEmail())
         .password(userDetails.getPassword())
         .city(userDetails.getCity())
+        .role(ROLE_USER)
         .build();
   }
 
@@ -74,12 +89,14 @@ public class UserEntity {
     if (obj == null) {
       return false;
     }
-    Class<?> objEffectiveClass = obj instanceof HibernateProxy
-        ? ((HibernateProxy) obj).getHibernateLazyInitializer().getPersistentClass() :
-        obj.getClass();
-    Class<?> thisEffectiveClass = this instanceof HibernateProxy
-        ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass() :
-        this.getClass();
+    Class<?> objEffectiveClass =
+        obj instanceof HibernateProxy
+            ? ((HibernateProxy) obj).getHibernateLazyInitializer().getPersistentClass()
+            : obj.getClass();
+    Class<?> thisEffectiveClass =
+        this instanceof HibernateProxy
+            ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass()
+            : this.getClass();
     if (thisEffectiveClass != objEffectiveClass) {
       return false;
     }
@@ -90,7 +107,7 @@ public class UserEntity {
   @Override
   public final int hashCode() {
     return this instanceof HibernateProxy
-        ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass().hashCode() :
-        getClass().hashCode();
+        ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass().hashCode()
+        : getClass().hashCode();
   }
 }

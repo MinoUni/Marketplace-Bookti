@@ -349,7 +349,7 @@ public class AuthController {
     emailService.sendResetPasswordEmail(token, user);
     return ResponseEntity.status(HttpStatus.OK)
         .body(new MailResetPasswordResponse(
-            LocalDateTime.now(), String.valueOf(user.getId()), token)
+            LocalDateTime.now(), String.valueOf(user.getId()))
         );
   }
 
