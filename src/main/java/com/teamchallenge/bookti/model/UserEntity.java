@@ -48,6 +48,9 @@ public class UserEntity {
   @Column(name = "avatar_url")
   private String avatarUrl;
 
+  @Column(nullable = false)
+  private String city;
+
   /**
    * Builds {@link UserEntity} from {@link NewUserRegistrationRequest}.
    *
@@ -59,6 +62,7 @@ public class UserEntity {
         .fullName(userDetails.getFullName())
         .email(userDetails.getEmail())
         .password(userDetails.getPassword())
+        .city(userDetails.getCity())
         .build();
   }
 

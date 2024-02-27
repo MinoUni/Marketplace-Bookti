@@ -24,6 +24,7 @@ class UserRepositoryTest {
                 .fullName("First_name")
                 .email("abc@gmail.com")
                 .password("Password1")
+                .city("city")
                 .build();
         entityManager.persist(userEntity);
         entityManager.flush();
@@ -33,6 +34,7 @@ class UserRepositoryTest {
                 .fullName("First_name")
                 .email("ABC@gmail.com")
                 .password("Password1")
+                .city("city")
                 .build();
 
         assertTrue(userRepository.existsUserByEmail(userEntity.getEmail()));
@@ -46,6 +48,7 @@ class UserRepositoryTest {
                 .fullName("FirstName")
                 .email("abc@gmail.com")
                 .password("Password1")
+                .city("city")
                 .build();
 
         UserEntity userEntity1 = UserEntity
@@ -53,6 +56,7 @@ class UserRepositoryTest {
                 .fullName("FirstName")
                 .email("abc")
                 .password("Password1")
+                .city("city")
                 .build();
 
         UserEntity userEntitySaved = userRepository.save(userEntity);

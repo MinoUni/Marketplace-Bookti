@@ -50,5 +50,8 @@ public class NewUserRegistrationRequest {
           """)
   private String confirmPassword;
 
+  @NotBlank(message = "Field <city> must not be blank")
+  private String city;
+
 }
 

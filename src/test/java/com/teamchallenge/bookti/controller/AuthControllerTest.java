@@ -81,7 +81,8 @@ class AuthControllerTest {
         "fullName",
         "abc@gmail.com",
         "Password1",
-        "Password1"
+        "Password1",
+        "city"
     );
     var user = AuthorizedUser
         .authorizedUserBuilder(userDetails.getEmail(), userDetails.getPassword(), List.of())
@@ -129,7 +130,8 @@ class AuthControllerTest {
         "FirstName",
         "abc@gmail.com",
         "Password1",
-        "PassNoWord2"
+        "PassNoWord2",
+        "city"
     );
     var user = AuthorizedUser
         .authorizedUserBuilder(userDetails.getEmail(), userDetails.getPassword(), List.of())
@@ -162,7 +164,13 @@ class AuthControllerTest {
   @Tag("signup")
   @DisplayName("When calling /signup, expect that request fail validation, than response with ErrorResponse.class and status code 400")
   void whenUserSignupRequestThatIsInvalidThanResponseWithErrorResponseAndStatusCode400() throws Exception {
-    NewUserRegistrationRequest userDetails = new NewUserRegistrationRequest("", "invalidEmail", "12345", "54321");
+    NewUserRegistrationRequest userDetails = new NewUserRegistrationRequest(
+        "",
+        "invalidEmail",
+        "12345",
+        "54321",
+        ""
+    );
     var user = AuthorizedUser
         .authorizedUserBuilder(userDetails.getEmail(), userDetails.getPassword(), List.of())
         .id(UUID.randomUUID())
@@ -195,7 +203,8 @@ class AuthControllerTest {
         "first_name",
         "abc@gmail.com",
         "Password1",
-        "Password1"
+        "Password1",
+        "city"
     );
     try (MockedStatic<UsernamePasswordAuthenticationToken> mock = mockStatic(UsernamePasswordAuthenticationToken.class)) {
       when(userService.create(userDetails))
