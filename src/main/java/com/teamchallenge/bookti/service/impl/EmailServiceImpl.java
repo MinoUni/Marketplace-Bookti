@@ -35,7 +35,7 @@ public class EmailServiceImpl implements EmailService {
     String url = domainName + "/renamePassword?resetToken=" + token;
     String message = MessageFormat.format("""
             Dear {0}!
-            You have received this email to change your forgotten password on {1}. 
+            You have received this email to change your forgotten password on {1}.
             Follow this link to continue: {2}
             """,
         user.getFullName(), domainName, url);

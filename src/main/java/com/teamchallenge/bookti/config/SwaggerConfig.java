@@ -19,8 +19,8 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 @OpenAPIDefinition(
     info = @Info(
-        title = "AdBazaar Backend API Documentation",
-        description = "AdBazaar Backend endpoints description",
+        title = "Bookti Backend API Documentation",
+        description = "Bookti backend endpoints description",
         version = "1.0",
         contact = @Contact(
             name = "MinoUni",
