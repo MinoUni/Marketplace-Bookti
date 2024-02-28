@@ -96,7 +96,7 @@ class AuthControllerTest {
       "When calling /signup, expect that request is valid, then response with TokenPair.class and status code 201")
   void whenUserSignUpRequestIsValidThenResponseWithTokenPairAndStatusCode201() throws Exception {
     NewUserRegistrationRequest userDetails =
-        new NewUserRegistrationRequest("fullName", "abc@gmail.com", "Password1", "Password1");
+        new NewUserRegistrationRequest("fullName", "abc@gmail.com", "Password1", "Password1", "city");
     var user =
         AuthorizedUser.authorizedUserBuilder(
                 userDetails.getEmail(), userDetails.getPassword(), List.of())
@@ -127,7 +127,7 @@ class AuthControllerTest {
       mockMvc
           .perform(
               post("/api/v1/authorize/signup")
-                      
+
                   .contentType(APPLICATION_JSON)
                   .content(jsonMapper.writeValueAsString(userDetails)))
           .andExpect(status().isCreated())
@@ -152,7 +152,7 @@ class AuthControllerTest {
   void whenUserSignUpRequestWithNotEqualsPasswordsThenResponseWithErrorResponseAndStatusCode409()
       throws Exception {
     NewUserRegistrationRequest userDetails =
-        new NewUserRegistrationRequest("FirstName", "abc@gmail.com", "Password1", "PassNoWord2");
+        new NewUserRegistrationRequest("FirstName", "abc@gmail.com", "Password1", "PassNoWord2", "city");
     var user =
         AuthorizedUser.authorizedUserBuilder(
                 userDetails.getEmail(), userDetails.getPassword(), List.of())
@@ -193,7 +193,7 @@ class AuthControllerTest {
   void whenUserSignupRequestThatIsInvalidThenResponseWithErrorResponseAndStatusCode400()
       throws Exception {
     NewUserRegistrationRequest userDetails =
-        new NewUserRegistrationRequest("", "invalidEmail", "12345", "54321");
+        new NewUserRegistrationRequest("", "invalidEmail", "12345", "54321", "");
     var user =
         AuthorizedUser.authorizedUserBuilder(
                 userDetails.getEmail(), userDetails.getPassword(), List.of())
@@ -231,7 +231,7 @@ class AuthControllerTest {
   void whenUserSignUpRequestThatAlreadyExistsThenResponseWithErrorResponseAndStatusCode409()
       throws Exception {
     NewUserRegistrationRequest userDetails =
-        new NewUserRegistrationRequest("first_name", "abc@gmail.com", "Password1", "Password1");
+        new NewUserRegistrationRequest("first_name", "abc@gmail.com", "Password1", "Password1", "city");
     try (MockedStatic<UsernamePasswordAuthenticationToken> mock =
         mockStatic(UsernamePasswordAuthenticationToken.class)) {
       when(userService.create(userDetails))

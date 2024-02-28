@@ -54,6 +54,9 @@ public class UserEntity {
   @Column(name = "avatar_url")
   private String avatarUrl;
 
+  @Column(nullable = false)
+  private String city;
+
   @Column
   @Enumerated(EnumType.STRING)
   private Role role;
@@ -73,6 +76,7 @@ public class UserEntity {
         .fullName(userDetails.getFullName())
         .email(userDetails.getEmail())
         .password(userDetails.getPassword())
+        .city(userDetails.getCity())
         .role(ROLE_USER)
         .build();
   }
