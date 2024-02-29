@@ -39,7 +39,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 @RequiredArgsConstructor
 @Configuration(proxyBeanMethods = false)
 @EnableConfigurationProperties(ApplicationProperties.class)
-public class SecurityConfig {
+class SecurityConfig {
 
   private final CustomUserDetailsService customUserDetailsService;
   private final JwtToAuthorizedUserConverter jwtToUserConverter;
