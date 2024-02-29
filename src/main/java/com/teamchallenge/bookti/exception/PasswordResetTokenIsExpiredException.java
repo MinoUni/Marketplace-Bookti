@@ -1,7 +1,7 @@
 package com.teamchallenge.bookti.exception;
 
 /**
- * Exception that appears when {@link com.teamchallenge.bookti.model.PasswordResetToken} is expired.
+ * Exception that appears when password reset token is expired.
  *
  * @author Katherine Sokol
  */

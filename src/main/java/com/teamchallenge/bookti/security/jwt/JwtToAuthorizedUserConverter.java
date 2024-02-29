@@ -1,7 +1,7 @@
 package com.teamchallenge.bookti.security.jwt;
 
-import com.teamchallenge.bookti.mapper.AuthorizedUserMapper;
-import com.teamchallenge.bookti.repository.UserRepository;
+import com.teamchallenge.bookti.utils.AuthorizedUserMapper;
+import com.teamchallenge.bookti.user.UserRepository;
 import java.text.MessageFormat;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;

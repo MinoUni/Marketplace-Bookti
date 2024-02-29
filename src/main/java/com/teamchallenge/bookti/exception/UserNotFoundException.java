@@ -1,7 +1,9 @@
 package com.teamchallenge.bookti.exception;
 
+import com.teamchallenge.bookti.user.UserEntity;
+
 /**
- * Exception that appears when {@link com.teamchallenge.bookti.model.UserEntity} not found
+ * Exception that appears when {@link UserEntity} not found
  * in database.
  *
  * @author Maksym Reva

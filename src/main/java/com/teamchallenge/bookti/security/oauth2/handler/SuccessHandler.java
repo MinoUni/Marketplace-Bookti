@@ -3,7 +3,7 @@ package com.teamchallenge.bookti.security.oauth2.handler;
 import static com.teamchallenge.bookti.security.oauth2.repository.CustomAuthorizationRequestRepository.REDIRECT_URI_PARAM_COOKIE_NAME;
 
 import com.teamchallenge.bookti.exception.BadRequestException;
-import com.teamchallenge.bookti.repository.UserRepository;
+import com.teamchallenge.bookti.user.UserRepository;
 import com.teamchallenge.bookti.security.jwt.TokenManager;
 import com.teamchallenge.bookti.security.oauth2.repository.CustomAuthorizationRequestRepository;
 import com.teamchallenge.bookti.security.oauth2.utils.CookieUtils;
