@@ -14,7 +14,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
  * @author MinoUni
  */
 @Configuration
-public class ApplicationConfig {
+class ApplicationConfig {
 
   @Value("${cloudinary.cloud-name}")
   private String cloudName;

@@ -1,7 +1,9 @@
 package com.teamchallenge.bookti.exception;
 
+import com.teamchallenge.bookti.user.UserEntity;
+
 /**
- * Exception that appears when {@link com.teamchallenge.bookti.model.UserEntity} already exists
+ * Exception that appears when {@link UserEntity} already exists
  * in database.
  *
  * @author Katherine Sokol

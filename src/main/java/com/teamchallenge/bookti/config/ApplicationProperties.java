@@ -11,7 +11,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  */
 @Getter
 @ConfigurationProperties(prefix = "application")
-public class ApplicationProperties {
+class ApplicationProperties {
 
   private final String[] permitAllReq;
   private final List<String> allowedOrigins;

@@ -26,7 +26,7 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtAut
  */
 @Configuration
 @RequiredArgsConstructor
-public class JwtConfig {
+class JwtConfig {
 
   private final KeyPairUtils keyPairUtils;
   private final JwtToAuthorizedUserConverter jwtToUserConverter;

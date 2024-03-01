@@ -1,6 +1,6 @@
 package com.teamchallenge.bookti.security.jwt;
 
-import com.teamchallenge.bookti.dto.authorization.TokenPair;
+import com.teamchallenge.bookti.user.TokenPair;
 import com.teamchallenge.bookti.exception.RefreshTokenAlreadyRevokedException;
 import com.teamchallenge.bookti.security.AuthorizedUser;
 import java.text.MessageFormat;
@@ -73,8 +73,8 @@ public class TokenManager {
     return TokenPair
         .builder()
         .userId(String.valueOf(user.getId()))
-        .accessToken(generateAccessToken(authentication))
         .refreshToken(validateRefreshToken(authentication))
+        .accessToken(generateAccessToken(authentication))
         .build();
   }
 
