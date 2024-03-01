@@ -1,7 +1,7 @@
 package com.teamchallenge.bookti.utils;
 
-import com.teamchallenge.bookti.user.UserEntity;
 import com.teamchallenge.bookti.security.AuthorizedUser;
+import com.teamchallenge.bookti.user.UserEntity;
 import java.util.Map;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 
