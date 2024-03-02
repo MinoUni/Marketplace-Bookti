@@ -20,7 +20,7 @@ interface BookRepository extends JpaRepository<Book, UUID> {
 
   @Query(
       """
-        SELECT new com.teamchallenge.bookti.dto.book.BookDetails(
+        SELECT new com.teamchallenge.bookti.book.BookDetails(
         b.id, b.title, b.author, b.genre, b.publicationDate,
         b. language, b.tradeFormat, b.imageUrl, b.description)
         FROM Book b
@@ -30,7 +30,7 @@ interface BookRepository extends JpaRepository<Book, UUID> {
 
   @Query(
       """
-        SELECT new com.teamchallenge.bookti.dto.book.BookDetails(
+        SELECT new com.teamchallenge.bookti.book.BookDetails(
         b.id, b.title, b.author, b.genre, b.publicationDate,
         b. language, b.tradeFormat, b.imageUrl, b.description)
         FROM Book b
