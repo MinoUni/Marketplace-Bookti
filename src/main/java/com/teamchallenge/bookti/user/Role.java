@@ -6,7 +6,6 @@ import static com.teamchallenge.bookti.user.Authority.USER_WRITE;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;

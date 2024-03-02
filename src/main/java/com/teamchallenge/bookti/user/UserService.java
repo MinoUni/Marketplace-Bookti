@@ -1,20 +1,20 @@
 package com.teamchallenge.bookti.user;
 
+import static com.teamchallenge.bookti.user.Role.ROLE_USER;
+
 import com.teamchallenge.bookti.exception.PasswordIsNotMatchesException;
 import com.teamchallenge.bookti.exception.PasswordResetTokenNotFoundException;
 import com.teamchallenge.bookti.exception.UserAlreadyExistsException;
 import com.teamchallenge.bookti.exception.UserNotFoundException;
-import com.teamchallenge.bookti.utils.AuthorizedUserMapper;
 import com.teamchallenge.bookti.security.AuthorizedUser;
-
+import com.teamchallenge.bookti.utils.AuthorizedUserMapper;
 import java.text.MessageFormat;
 import java.util.UUID;
-
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import static com.teamchallenge.bookti.user.Role.ROLE_USER;
+
 
 /**
  * User service.

@@ -49,7 +49,7 @@ class PasswordResetToken {
    * Constructor that creates {@link PasswordResetToken} for {@link UserEntity user} with given
    * token and calculated expiryDate.
    *
-   * @param user {@link UserEntity} for whom {@link PasswordResetToken} will be created
+   * @param user  {@link UserEntity} for whom {@link PasswordResetToken} will be created
    * @param token String that contains random UUID
    */
   public PasswordResetToken(UserEntity user, String token) {
@@ -89,19 +89,25 @@ class PasswordResetToken {
   }
 
   @Override
-  public final boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null) return false;
-    Class<?> oEffectiveClass =
-        o instanceof HibernateProxy
-            ? ((HibernateProxy) o).getHibernateLazyInitializer().getPersistentClass()
-            : o.getClass();
+  public final boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    Class<?> objEffectiveClass =
+        obj instanceof HibernateProxy
+            ? ((HibernateProxy) obj).getHibernateLazyInitializer().getPersistentClass()
+            : obj.getClass();
     Class<?> thisEffectiveClass =
         this instanceof HibernateProxy
             ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass()
             : this.getClass();
-    if (thisEffectiveClass != oEffectiveClass) return false;
-    PasswordResetToken that = (PasswordResetToken) o;
+    if (thisEffectiveClass != objEffectiveClass) {
+      return false;
+    }
+    PasswordResetToken that = (PasswordResetToken) obj;
     return getId() != null && Objects.equals(getId(), that.getId());
   }
 
