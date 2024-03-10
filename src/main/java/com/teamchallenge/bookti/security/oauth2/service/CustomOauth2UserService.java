@@ -1,14 +1,14 @@
 package com.teamchallenge.bookti.security.oauth2.service;
 
-import static com.teamchallenge.bookti.model.Role.ROLE_USER;
+import static com.teamchallenge.bookti.user.Role.ROLE_USER;
 
 import com.teamchallenge.bookti.exception.Oauth2AuthenticationProcessingException;
-import com.teamchallenge.bookti.mapper.AuthorizedUserMapper;
-import com.teamchallenge.bookti.model.UserEntity;
-import com.teamchallenge.bookti.repository.UserRepository;
 import com.teamchallenge.bookti.security.AuthorizedUser;
 import com.teamchallenge.bookti.security.oauth2.user.Oauth2UserInfo;
 import com.teamchallenge.bookti.security.oauth2.user.Oauth2UserInfoFactory;
+import com.teamchallenge.bookti.user.UserEntity;
+import com.teamchallenge.bookti.user.UserRepository;
+import com.teamchallenge.bookti.utils.AuthorizedUserMapper;
 import java.util.Map;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;

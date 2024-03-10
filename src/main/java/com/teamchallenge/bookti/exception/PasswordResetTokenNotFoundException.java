@@ -1,7 +1,7 @@
 package com.teamchallenge.bookti.exception;
 
 /**
- * Exception that appears when {@link com.teamchallenge.bookti.model.PasswordResetToken} not found.
+ * Exception that appears when password reset token not found.
  *
  * @author Katherine Sokol
  */
