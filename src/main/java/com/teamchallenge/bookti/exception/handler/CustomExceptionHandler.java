@@ -2,11 +2,7 @@ package com.teamchallenge.bookti.exception.handler;
 
 import static java.util.stream.Collectors.collectingAndThen;
 import static java.util.stream.Collectors.toList;
-import static org.springframework.http.HttpStatus.BAD_REQUEST;
-import static org.springframework.http.HttpStatus.CONFLICT;
-import static org.springframework.http.HttpStatus.FORBIDDEN;
-import static org.springframework.http.HttpStatus.NOT_FOUND;
-import static org.springframework.http.HttpStatus.UNAUTHORIZED;
+import static org.springframework.http.HttpStatus.*;
 
 import com.teamchallenge.bookti.dto.ErrorResponse;
 import com.teamchallenge.bookti.exception.BookNotFoundException;
@@ -157,4 +153,16 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
     ErrorResponse errorResponse = new ErrorResponse(NOT_FOUND.value(), e.getMessage());
     return ResponseEntity.status(NOT_FOUND).body(errorResponse);
   }
+
+  @ExceptionHandler(Exception.class)
+  public ResponseEntity<ErrorResponse> handleInternalException(Exception e) {
+    ErrorResponse errorResponse;
+    if (e instanceof NullPointerException) {
+      errorResponse = new ErrorResponse(BAD_REQUEST.value(), e.getMessage());
+      return ResponseEntity.status(BAD_REQUEST).body(errorResponse);
+    }
+    errorResponse = new ErrorResponse(INTERNAL_SERVER_ERROR.value(), e.getMessage());
+    return ResponseEntity.status(INTERNAL_SERVER_ERROR).body(errorResponse);
+  }
+
 }
