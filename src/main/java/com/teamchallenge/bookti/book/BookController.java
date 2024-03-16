@@ -64,6 +64,14 @@ class BookController {
               @Content(
                   mediaType = APPLICATION_JSON_VALUE,
                   schema = @Schema(implementation = BookDetails.class))
+            }),
+        @ApiResponse(
+            responseCode = "500",
+            description = "Unexpected API error",
+            content = {
+              @Content(
+                  mediaType = APPLICATION_JSON_VALUE,
+                  schema = @Schema(implementation = ErrorResponse.class))
             })
       })
   @GetMapping
@@ -104,19 +112,26 @@ class BookController {
               @Content(
                   mediaType = APPLICATION_JSON_VALUE,
                   schema = @Schema(implementation = ErrorResponse.class))
+            }),
+        @ApiResponse(
+            responseCode = "500",
+            description = "Unexpected API error",
+            content = {
+              @Content(
+                  mediaType = APPLICATION_JSON_VALUE,
+                  schema = @Schema(implementation = ErrorResponse.class))
             })
       })
-  @PostMapping(
-      consumes = MULTIPART_FORM_DATA_VALUE,
-      produces = APPLICATION_JSON_VALUE)
-  @PreAuthorize("isAuthenticated() and hasRole('ROLE_USER')")
+  @PostMapping(consumes = MULTIPART_FORM_DATA_VALUE, produces = APPLICATION_JSON_VALUE)
+  @PreAuthorize("isAuthenticated() and authentication.principal.id == #userId")
   public ResponseEntity<BookDetails> create(
       @Parameter(description = BOOK_PROFILE_SCHEMA, required = true)
-      @Valid
-      @RequestPart
-      final BookProfile bookProfile,
-      @RequestPart final MultipartFile image) {
-    return ResponseEntity.status(CREATED).body(bookService.create(bookProfile, image));
+          @Valid
+          @RequestPart("book_profile")
+          final BookProfile bookProfile,
+      @RequestPart("user_id") final UUID userId,
+      @RequestPart(required = false) final MultipartFile image) {
+    return ResponseEntity.status(CREATED).body(bookService.create(bookProfile, image, userId));
   }
 
   /**
@@ -140,6 +155,14 @@ class BookController {
         @ApiResponse(
             responseCode = "404",
             description = "Book not found",
+            content = {
+              @Content(
+                  mediaType = APPLICATION_JSON_VALUE,
+                  schema = @Schema(implementation = ErrorResponse.class))
+            }),
+        @ApiResponse(
+            responseCode = "500",
+            description = "Unexpected API error",
             content = {
               @Content(
                   mediaType = APPLICATION_JSON_VALUE,
@@ -242,7 +265,7 @@ class BookController {
       @Parameter(required = true) @RequestPart("user_id") UUID userId,
       @Parameter(description = BOOK_UPDATE_REQ_SCHEMA, required = true) @RequestPart("book") @Valid
           BookUpdateReq bookUpdateInfo,
-      @RequestPart("image") final MultipartFile imageFile) {
+      @RequestPart(value = "image", required = false) final MultipartFile imageFile) {
     return ResponseEntity.ok(bookService.updateById(id, bookUpdateInfo, imageFile));
   }
 }

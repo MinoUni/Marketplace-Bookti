@@ -1,6 +1,7 @@
 package com.teamchallenge.bookti.book;
 
 import static com.teamchallenge.bookti.utils.CloudinaryUtils.BOOKS_FOLDER_NAME;
+import static org.springframework.transaction.annotation.Isolation.REPEATABLE_READ;
 
 import com.teamchallenge.bookti.exception.BookNotFoundException;
 import com.teamchallenge.bookti.exception.UserNotFoundException;
@@ -13,7 +14,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -38,10 +38,11 @@ class BookService {
    *
    * @param bookProfile DTO with book details
    * @param imageFile book avatar image
+   * @param userId user identifier
    * @return DTO of create book
    */
   @Transactional
-  public BookDetails create(BookProfile bookProfile, MultipartFile imageFile) {
+  public BookDetails create(BookProfile bookProfile, MultipartFile imageFile, UUID userId) {
     String imageUrl = null;
     String imageName = UUID.randomUUID().toString();
     if (imageFile != null && !imageFile.isEmpty()) {
@@ -49,7 +50,7 @@ class BookService {
     }
     var user =
         userRepository
-            .findById(bookProfile.getUserId())
+            .findById(userId)
             .orElseThrow(() -> new UserNotFoundException("User not found."));
     var book = build(bookProfile, imageUrl, imageName, user);
     book = bookRepository.save(book);
@@ -98,7 +99,7 @@ class BookService {
    * @param bookUpdateInfo info to update
    * @return updated book details DTO
    */
-  @Transactional(isolation = Isolation.REPEATABLE_READ)
+  @Transactional(isolation = REPEATABLE_READ)
   public BookDetails updateById(UUID id, BookUpdateReq bookUpdateInfo, MultipartFile imageFile) {
     if (!bookRepository.existsById(id)) {
       throw new BookNotFoundException("Book not found.");

@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import java.time.Year;
-import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -39,10 +38,6 @@ class BookProfile {
   @JsonProperty("trade_format")
   @NotBlank(message = "Field <trade_format> must be not blank")
   private String tradeFormat;
-
-  @JsonProperty("user_id")
-  @NotNull(message = "Field <user_id> must be not null")
-  private UUID userId;
 
   private String description;
 }
