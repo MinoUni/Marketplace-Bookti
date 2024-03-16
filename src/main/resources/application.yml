@@ -22,7 +22,7 @@ spring:
       hibernate:
         format-sql: true
   datasource:
-    driverClassName: org.postgresql.Driver
+    driverClassName: ${DRIVER_CLASS_NAME}
     url: jdbc:${DB_URL}
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
