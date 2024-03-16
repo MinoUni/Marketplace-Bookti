@@ -23,6 +23,7 @@ import com.teamchallenge.bookti.exception.UserNotFoundException;
 import com.teamchallenge.bookti.security.AuthorizedUser;
 import com.teamchallenge.bookti.security.jwt.TokenManager;
 import com.teamchallenge.bookti.utils.EmailUtils;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 import org.junit.jupiter.api.DisplayName;
@@ -505,19 +506,21 @@ class UserControllerTest {
   void shouldReturnMailResetPasswordResponseWithStatusCode200() throws Exception {
     String mail = "a@gmail.com";
     MailResetPasswordRequest mailResetPasswordRequest = new MailResetPasswordRequest(mail);
-    UserInfo userInfo = new UserInfo(UUID.randomUUID(), mail, "fullName", null);
-    when(userService.findUserByEmail(mailResetPasswordRequest.getEmail())).thenReturn(userInfo);
+    UserFullInfo userFullInfo =
+        new UserFullInfo(
+            UUID.randomUUID(), mail, "fullName", "telegramId", LocalDate.now(), "location", null);
+    when(userService.findUserByEmail(mailResetPasswordRequest.getEmail())).thenReturn(userFullInfo);
 
     String token = UUID.randomUUID().toString();
     UserEntity user =
         UserEntity.builder()
-            .id(userInfo.getId())
-            .email(userInfo.getEmail())
-            .fullName(userInfo.getFullName())
+            .id(userFullInfo.getId())
+            .email(userFullInfo.getEmail())
+            .fullName(userFullInfo.getFullName())
             .password("Password1")
             .build();
     PasswordResetToken resetToken = new PasswordResetToken(user, token);
-    when(userService.createPasswordResetTokenForUser(userInfo, token)).thenReturn(resetToken);
+    when(userService.createPasswordResetTokenForUser(userFullInfo, token)).thenReturn(resetToken);
 
     mockMvc
         .perform(
@@ -525,7 +528,7 @@ class UserControllerTest {
                 .contentType(APPLICATION_JSON)
                 .content(jsonMapper.writeValueAsString(mailResetPasswordRequest)))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("user_id").value(userInfo.getId().toString()));
+        .andExpect(jsonPath("user_id").value(userFullInfo.getId().toString()));
   }
 
   @Test
