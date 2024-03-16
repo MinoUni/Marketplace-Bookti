@@ -47,10 +47,9 @@ public class SwaggerConfig {
               "title": "string",
               "author": "string",
               "genre": "string",
-              "publication_date": "yyyy-MM-dd",
+              "publication_date": "yyyy",
               "language": "string",
               "trade_format": "string",
-              "user_id": "string",
               "description": "string"
             }
         """;
@@ -60,10 +59,19 @@ public class SwaggerConfig {
               "title": "string",
               "author": "string",
               "genre": "string",
-              "publication_date": "yyyy-MM-dd",
+              "publication_date": "yyyy",
               "language": "string",
               "trade_format": "string",
               "description": "string"
+            }
+        """;
+  public static final String USER_UPDATE_REQ_SCHEMA =
+      """
+            {
+              "full_name": "string",
+              "email": "string",
+              "location": "string",
+              "telegram_id": "string"
             }
         """;
 }

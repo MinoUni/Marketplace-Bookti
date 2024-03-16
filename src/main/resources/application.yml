@@ -1,9 +1,15 @@
 server:
   port: 8080
+  tomcat:
+    additional-tld-skip-patterns: "*.jar"
 
 spring:
   application:
     name: bookti
+  servlet:
+    multipart:
+      max-file-size: -1
+      max-request-size: -1
   sql:
     init:
       mode: always
@@ -16,8 +22,8 @@ spring:
       hibernate:
         format-sql: true
   datasource:
-    driver-class-name: ${DRIVER_CLASS_NAME}
-    url: ${DB_URL}
+    driverClassName: org.postgresql.Driver
+    url: jdbc:${DB_URL}
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
   mail:
@@ -73,8 +79,14 @@ application:
     - https://marketplace-bookti.vercel.app
     - http://localhost:5173
 
-logging:
-  level:
-    root: INFO
-    org.springframework.security: INFO
-    net.ttddyy.dsproxy.listener: INFO
+springdoc:
+  swagger-ui:
+    operationsSorter: method
+    tagsSorter: alpha
+    disable-swagger-default-url: false
+
+management:
+  endpoints:
+    web:
+      exposure:
+        exclude: "*"
