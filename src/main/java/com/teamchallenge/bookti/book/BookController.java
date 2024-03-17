@@ -125,11 +125,11 @@ class BookController {
   @PostMapping(consumes = MULTIPART_FORM_DATA_VALUE, produces = APPLICATION_JSON_VALUE)
   @PreAuthorize("isAuthenticated() and authentication.principal.id == #userId")
   public ResponseEntity<BookDetails> create(
+      @RequestParam("user_id") final UUID userId,
       @Parameter(description = BOOK_PROFILE_SCHEMA, required = true)
           @Valid
           @RequestPart("book_profile")
           final BookProfile bookProfile,
-      @RequestPart("user_id") final UUID userId,
       @RequestPart(required = false) final MultipartFile image) {
     return ResponseEntity.status(CREATED).body(bookService.create(bookProfile, image, userId));
   }
@@ -262,7 +262,7 @@ class BookController {
   @PreAuthorize("isAuthenticated() and authentication.principal.id == #userId")
   public ResponseEntity<BookDetails> updateById(
       @PathVariable UUID id,
-      @Parameter(required = true) @RequestPart("user_id") UUID userId,
+      @RequestParam("user_id") UUID userId,
       @Parameter(description = BOOK_UPDATE_REQ_SCHEMA, required = true) @RequestPart("book") @Valid
           BookUpdateReq bookUpdateInfo,
       @RequestPart(value = "image", required = false) final MultipartFile imageFile) {

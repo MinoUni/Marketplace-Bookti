@@ -9,6 +9,7 @@ import com.teamchallenge.bookti.user.UserEntity;
 import com.teamchallenge.bookti.user.UserRepository;
 import com.teamchallenge.bookti.utils.CloudinaryUtils;
 import com.teamchallenge.bookti.utils.MapperUtils;
+import java.time.Year;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -131,7 +132,7 @@ class BookService {
         .imageName(imageName)
         .imageUrl(imageUrl)
         .language(bookProfile.getLanguage())
-        .publicationDate(bookProfile.getPublicationDate())
+        .publicationDate(Year.parse(bookProfile.getPublicationDate()))
         .tradeFormat(bookProfile.getTradeFormat())
         .owner(user)
         .build();

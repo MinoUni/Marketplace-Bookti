@@ -2,8 +2,7 @@ package com.teamchallenge.bookti.book;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import java.time.Year;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -29,8 +28,9 @@ class BookProfile {
   private String genre;
 
   @JsonProperty("publication_date")
-  @NotNull(message = "Field <publication_date> must be not null")
-  private Year publicationDate;
+  @NotBlank(message = "Field <publication_date> must be not blank")
+  @Size(min = 4, max = 4, message = "Must be 4 symbols length")
+  private String publicationDate;
 
   @NotBlank(message = "Field <language> must be not blank")
   private String language;
