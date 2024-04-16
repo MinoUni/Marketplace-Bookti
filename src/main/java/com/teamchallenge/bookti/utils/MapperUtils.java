@@ -6,7 +6,7 @@ import static org.mapstruct.NullValuePropertyMappingStrategy.IGNORE;
 import com.teamchallenge.bookti.book.Book;
 import com.teamchallenge.bookti.book.BookUpdateReq;
 import com.teamchallenge.bookti.user.UserEntity;
-import com.teamchallenge.bookti.user.UserUpdateReq;
+import com.teamchallenge.bookti.user.dto.UserUpdateReq;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;

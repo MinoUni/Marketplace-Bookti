@@ -1,4 +1,4 @@
-package com.teamchallenge.bookti.user;
+package com.teamchallenge.bookti.user.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -16,7 +16,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-class MailResetPasswordRequest {
+public class MailResetPasswordRequest {
   @JsonProperty("email")
   @Schema(type = "string", example = "mark.javar@gmail.com")
   @NotBlank(message = "Field <email> must not be blank")

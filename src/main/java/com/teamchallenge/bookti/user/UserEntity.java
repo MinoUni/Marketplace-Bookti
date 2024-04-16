@@ -70,6 +70,12 @@ public class UserEntity {
   @Enumerated(EnumType.STRING)
   private Role role;
 
+  @Column(name = "display_email")
+  private Boolean displayEmail;
+
+  @Column(name = "display_telegram")
+  private Boolean displayTelegram;
+
   @ToString.Exclude
   @OneToMany(mappedBy = "owner")
   private Set<Book> books;

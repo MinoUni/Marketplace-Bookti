@@ -2,7 +2,7 @@ package com.teamchallenge.bookti.security.jwt;
 
 import com.teamchallenge.bookti.exception.RefreshTokenAlreadyRevokedException;
 import com.teamchallenge.bookti.security.AuthorizedUser;
-import com.teamchallenge.bookti.user.TokenPair;
+import com.teamchallenge.bookti.user.dto.TokenPair;
 import java.text.MessageFormat;
 import java.time.Duration;
 import java.time.Instant;

@@ -22,8 +22,13 @@ import com.teamchallenge.bookti.exception.UserAlreadyExistsException;
 import com.teamchallenge.bookti.exception.UserNotFoundException;
 import com.teamchallenge.bookti.security.AuthorizedUser;
 import com.teamchallenge.bookti.security.jwt.TokenManager;
+import com.teamchallenge.bookti.user.dto.MailResetPasswordRequest;
+import com.teamchallenge.bookti.user.dto.NewUserRegistrationRequest;
+import com.teamchallenge.bookti.user.dto.TokenPair;
+import com.teamchallenge.bookti.user.dto.UserFullInfo;
+import com.teamchallenge.bookti.user.dto.UserLoginRequest;
+import com.teamchallenge.bookti.user.dto.UserTokenPair;
 import com.teamchallenge.bookti.utils.EmailUtils;
-
 import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
@@ -515,7 +520,9 @@ class UserControllerTest {
             "telegramId",
             LocalDate.now(),
             "location",
-            "avatarUrl");
+            "avatarUrl",
+            Boolean.FALSE,
+            Boolean.FALSE);
     when(userService.findUserByEmail(mailResetPasswordRequest.getEmail())).thenReturn(userInfo);
 
     String token = UUID.randomUUID().toString();

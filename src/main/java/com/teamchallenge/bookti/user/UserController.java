@@ -10,6 +10,15 @@ import com.teamchallenge.bookti.exception.PasswordIsNotMatchesException;
 import com.teamchallenge.bookti.exception.RefreshTokenAlreadyRevokedException;
 import com.teamchallenge.bookti.exception.UserAlreadyExistsException;
 import com.teamchallenge.bookti.security.jwt.TokenManager;
+import com.teamchallenge.bookti.user.dto.MailResetPasswordRequest;
+import com.teamchallenge.bookti.user.dto.MailResetPasswordResponse;
+import com.teamchallenge.bookti.user.dto.NewUserRegistrationRequest;
+import com.teamchallenge.bookti.user.dto.PasswordResetRequest;
+import com.teamchallenge.bookti.user.dto.TokenPair;
+import com.teamchallenge.bookti.user.dto.UserFullInfo;
+import com.teamchallenge.bookti.user.dto.UserLoginRequest;
+import com.teamchallenge.bookti.user.dto.UserTokenPair;
+import com.teamchallenge.bookti.user.dto.UserUpdateReq;
 import com.teamchallenge.bookti.utils.EmailUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -237,7 +246,7 @@ class UserController {
     String token = refreshToken.getRefreshToken();
     if (tokenManager.isRefreshTokenRevoked(token)) {
       throw new RefreshTokenAlreadyRevokedException(
-          MessageFormat.format("Token <{0} is revoked>", token));
+          MessageFormat.format("Token <{0}> is revoked>", token));
     }
     var authentication =
         refreshTokenProvider.authenticate(new BearerTokenAuthenticationToken(token));
@@ -315,7 +324,7 @@ class UserController {
       responses = {
         @ApiResponse(
             responseCode = "200",
-            description = "Email is sent successfully",
+            description = "OK",
             content = {
               @Content(
                   mediaType = APPLICATION_JSON_VALUE,
@@ -323,7 +332,7 @@ class UserController {
             }),
         @ApiResponse(
             responseCode = "400",
-            description = "Bad request or Email was not sent",
+            description = "BAD_REQUEST",
             content = {
               @Content(
                   mediaType = APPLICATION_JSON_VALUE,
@@ -331,7 +340,7 @@ class UserController {
             }),
         @ApiResponse(
             responseCode = "404",
-            description = "User not found",
+            description = "NOT_FOUND",
             content = {
               @Content(
                   mediaType = APPLICATION_JSON_VALUE,
@@ -360,7 +369,7 @@ class UserController {
   /**
    * Checks {@link PasswordResetToken} and changes user's password.
    *
-   * @param passwordResetRequest {@link PasswordResetRequest} with information about new password
+   * @param request {@link PasswordResetRequest} with information about new password
    *     and user's reset token
    * @return {@link TokenPair}
    */
@@ -369,7 +378,7 @@ class UserController {
       responses = {
         @ApiResponse(
             responseCode = "200",
-            description = "Password updated",
+            description = "OK",
             content = {
               @Content(
                   mediaType = APPLICATION_JSON_VALUE,
@@ -377,7 +386,7 @@ class UserController {
             }),
         @ApiResponse(
             responseCode = "400",
-            description = "Bad request or Validation failed",
+            description = "BAD_REQUEST",
             content = {
               @Content(
                   mediaType = APPLICATION_JSON_VALUE,
@@ -385,7 +394,7 @@ class UserController {
             }),
         @ApiResponse(
             responseCode = "404",
-            description = "User not found",
+            description = "NOT_FOUND",
             content = {
               @Content(
                   mediaType = APPLICATION_JSON_VALUE,
@@ -402,16 +411,16 @@ class UserController {
       })
   @PostMapping(path = "/authorize/login/resetPassword/savePassword")
   public ResponseEntity<TokenPair> resetPassword(
-      @Valid @RequestBody PasswordResetRequest passwordResetRequest) {
+      @Valid @RequestBody PasswordResetRequest request) {
     var passwordResetToken =
-        userService.getPasswordResetToken(passwordResetRequest.getResetToken());
+        userService.getPasswordResetToken(request.getResetToken());
     passwordResetToken.validate(passwordResetToken);
-    var user = userService.getUserByPasswordResetToken(passwordResetRequest.getResetToken());
-    userService.changeUserPassword(user.getId(), passwordResetRequest.getPassword());
+    var user = userService.getUserByPasswordResetToken(request.getResetToken());
+    userService.changeUserPassword(user.getId(), request.getPassword());
     var authentication =
         authenticationManager.authenticate(
             new UsernamePasswordAuthenticationToken(
-                user.getEmail(), passwordResetRequest.getPassword()));
+                user.getEmail(), request.getPassword()));
     return ResponseEntity.status(HttpStatus.OK)
         .body(tokenManager.generateTokenPair(authentication));
   }
