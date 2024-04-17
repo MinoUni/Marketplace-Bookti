@@ -1,4 +1,4 @@
-package com.teamchallenge.bookti.user;
+package com.teamchallenge.bookti.user.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotBlank;
@@ -14,7 +14,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @AllArgsConstructor
-class UserTokenPair {
+public class UserTokenPair {
 
   @JsonProperty("user_id")
   @NotBlank(message = "Property <user_id> can't be blank")

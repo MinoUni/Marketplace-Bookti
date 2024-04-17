@@ -1,4 +1,4 @@
-package com.teamchallenge.bookti.user;
+package com.teamchallenge.bookti.user.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -37,4 +37,10 @@ public class UserUpdateReq {
   @JsonProperty("telegram_id")
   @Size(min = 5, max = 32, message = "Must be from 5 to 32 symbols length")
   private String telegramId;
+
+  @JsonProperty("display_email")
+  private Boolean displayEmail;
+
+  @JsonProperty("display_telegram")
+  private Boolean displayTelegram;
 }

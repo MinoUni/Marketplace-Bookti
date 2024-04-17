@@ -14,7 +14,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.teamchallenge.bookti.user.TokenPair;
+import com.teamchallenge.bookti.user.dto.TokenPair;
 import com.teamchallenge.bookti.exception.RefreshTokenAlreadyRevokedException;
 import com.teamchallenge.bookti.security.AuthorizedUser;
 import java.time.Instant;

@@ -1,6 +1,6 @@
 package com.teamchallenge.bookti.utils;
 
-import com.teamchallenge.bookti.user.UserFullInfo;
+import com.teamchallenge.bookti.user.dto.UserFullInfo;
 import java.text.MessageFormat;
 import lombok.RequiredArgsConstructor;
 import org.springframework.mail.SimpleMailMessage;

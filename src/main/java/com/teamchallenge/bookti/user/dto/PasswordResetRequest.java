@@ -1,4 +1,4 @@
-package com.teamchallenge.bookti.user;
+package com.teamchallenge.bookti.user.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -15,7 +15,7 @@ import lombok.Data;
  */
 @Data
 @AllArgsConstructor
-class PasswordResetRequest {
+public class PasswordResetRequest {
 
   @Schema(type = "string", example = "Javard1rkk")
   @NotBlank(message = "Field <password> must not be blank")

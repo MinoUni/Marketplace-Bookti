@@ -1,10 +1,13 @@
-package com.teamchallenge.bookti.user;
+package com.teamchallenge.bookti.user.dto;
 
 import static com.fasterxml.jackson.annotation.JsonFormat.Shape.STRING;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.teamchallenge.bookti.book.BookShortDetails;
+import com.teamchallenge.bookti.user.ItemSet;
+import com.teamchallenge.bookti.user.UserEntity;
+import com.teamchallenge.bookti.user.UserRepository;
 import java.time.LocalDate;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
@@ -40,6 +43,12 @@ public class UserFullInfo {
   @JsonProperty("avatar_url")
   private String avatarUrl;
 
+  @JsonProperty("display_email")
+  private Boolean displayEmail;
+
+  @JsonProperty("display_telegram")
+  private Boolean displayTelegram;
+
   private ItemSet<BookShortDetails> books;
 
   private ItemSet<BookShortDetails> wishlist;
@@ -64,7 +73,9 @@ public class UserFullInfo {
       String telegramId,
       LocalDate creationDate,
       String location,
-      String avatarUrl) {
+      String avatarUrl,
+      Boolean displayEmail,
+      Boolean displayTelegram) {
     this.id = id;
     this.email = email;
     this.fullName = fullName;
@@ -72,6 +83,8 @@ public class UserFullInfo {
     this.creationDate = creationDate;
     this.location = location;
     this.avatarUrl = avatarUrl;
+    this.displayEmail = displayEmail;
+    this.displayTelegram = displayTelegram;
   }
 
   /**
@@ -89,6 +102,8 @@ public class UserFullInfo {
         .creationDate(user.getCreationDate())
         .location(user.getLocation())
         .avatarUrl(user.getAvatarUrl())
+        .displayEmail(user.getDisplayEmail())
+        .displayTelegram(user.getDisplayTelegram())
         .build();
   }
 }

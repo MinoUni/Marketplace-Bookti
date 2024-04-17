@@ -1,12 +1,12 @@
 INSERT
 INTO
   users
-  (id, full_name, email, password, avatar_url, location, telegram_id, role)
+  (id, full_name, email, password, avatar_url, location, telegram_id, role, display_email, display_telegram)
 VALUES
-  ('631bde5d-a850-4539-9f40-053c41ef07b1', 'Peter Berger',  'peter.berger@testmail.com',  '$2a$10$cFNxO/yS0zBfPhtnFQ779Od3LiMoqSG0zrh7.Pb98onbi4Oajwwqy', null, 'Lviv',     null, 'ROLE_USER'),
-  ('631bde5d-a850-4539-9f40-053c41ef07b2', 'Laura Splice',  'laura.splice@testmail.com',  '$2a$10$cFNxO/yS0zBfPhtnFQ779Od3LiMoqSG0zrh7.Pb98onbi4Oajwwqy', null, 'Dnipro',   null, 'ROLE_USER'),
-  ('631bde5d-a850-4539-9f40-053c41ef07b3', 'Amiya Shiro',   'amiya.shiro@testmail.com',   '$2a$10$cFNxO/yS0zBfPhtnFQ779Od3LiMoqSG0zrh7.Pb98onbi4Oajwwqy', null, 'Kharkiv',  null, 'ROLE_USER'),
-  ('631bde5d-a850-4539-9f40-053c41ef07b4', 'Saria Darkoff', 'saria.darkoff@testmail.com', '$2a$10$cFNxO/yS0zBfPhtnFQ779Od3LiMoqSG0zrh7.Pb98onbi4Oajwwqy', null, 'Kyiv',     null, 'ROLE_USER');
+  ('631bde5d-a850-4539-9f40-053c41ef07b1', 'Peter Berger',  'peter.berger@testmail.com',  '$2a$10$cFNxO/yS0zBfPhtnFQ779Od3LiMoqSG0zrh7.Pb98onbi4Oajwwqy', null, 'Lviv',     null, 'ROLE_USER', false, false),
+  ('631bde5d-a850-4539-9f40-053c41ef07b2', 'Laura Splice',  'laura.splice@testmail.com',  '$2a$10$cFNxO/yS0zBfPhtnFQ779Od3LiMoqSG0zrh7.Pb98onbi4Oajwwqy', null, 'Dnipro',   null, 'ROLE_USER', false, false),
+  ('631bde5d-a850-4539-9f40-053c41ef07b3', 'Amiya Shiro',   'amiya.shiro@testmail.com',   '$2a$10$cFNxO/yS0zBfPhtnFQ779Od3LiMoqSG0zrh7.Pb98onbi4Oajwwqy', null, 'Kharkiv',  null, 'ROLE_USER', false, false),
+  ('631bde5d-a850-4539-9f40-053c41ef07b4', 'Saria Darkoff', 'saria.darkoff@testmail.com', '$2a$10$cFNxO/yS0zBfPhtnFQ779Od3LiMoqSG0zrh7.Pb98onbi4Oajwwqy', null, 'Kyiv',     null, 'ROLE_USER', false, false);
 
 INSERT
 INTO
