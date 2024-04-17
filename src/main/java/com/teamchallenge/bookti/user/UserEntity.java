@@ -8,6 +8,9 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import java.time.LocalDate;
@@ -79,6 +82,14 @@ public class UserEntity {
   @ToString.Exclude
   @OneToMany(mappedBy = "owner")
   private Set<Book> books;
+
+  @ToString.Exclude
+  @ManyToMany
+  @JoinTable(
+      name = "users_books",
+      joinColumns = {@JoinColumn(name = "user_id", referencedColumnName = "id")},
+      inverseJoinColumns = {@JoinColumn(name = "book_id", referencedColumnName = "id")})
+  private Set<Book> wishlist;
 
   @Override
   public final boolean equals(Object obj) {

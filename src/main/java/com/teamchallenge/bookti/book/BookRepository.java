@@ -47,4 +47,14 @@ public interface BookRepository extends JpaRepository<Book, UUID> {
         WHERE u.id = :user_id
       """)
   Set<BookShortDetails> getAllUserBooks(@Param("user_id") UUID userId);
+
+  @Query(
+      """
+        SELECT new com.teamchallenge.bookti.book.BookShortDetails(
+          b.id, b.title, b.author, b.language, b.imageUrl)
+        FROM Book b
+        INNER JOIN b.candidates u
+        WHERE u.id = :user_id
+      """)
+  Set<BookShortDetails> getUserWishlist(@Param("user_id") UUID userId);
 }

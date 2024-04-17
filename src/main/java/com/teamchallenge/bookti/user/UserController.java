@@ -40,12 +40,14 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.server.resource.authentication.BearerTokenAuthenticationToken;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationProvider;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
@@ -369,8 +371,8 @@ class UserController {
   /**
    * Checks {@link PasswordResetToken} and changes user's password.
    *
-   * @param request {@link PasswordResetRequest} with information about new password
-   *     and user's reset token
+   * @param request {@link PasswordResetRequest} with information about new password and user's
+   *     reset token
    * @return {@link TokenPair}
    */
   @Operation(
@@ -410,17 +412,14 @@ class UserController {
             })
       })
   @PostMapping(path = "/authorize/login/resetPassword/savePassword")
-  public ResponseEntity<TokenPair> resetPassword(
-      @Valid @RequestBody PasswordResetRequest request) {
-    var passwordResetToken =
-        userService.getPasswordResetToken(request.getResetToken());
+  public ResponseEntity<TokenPair> resetPassword(@Valid @RequestBody PasswordResetRequest request) {
+    var passwordResetToken = userService.getPasswordResetToken(request.getResetToken());
     passwordResetToken.validate(passwordResetToken);
     var user = userService.getUserByPasswordResetToken(request.getResetToken());
     userService.changeUserPassword(user.getId(), request.getPassword());
     var authentication =
         authenticationManager.authenticate(
-            new UsernamePasswordAuthenticationToken(
-                user.getEmail(), request.getPassword()));
+            new UsernamePasswordAuthenticationToken(user.getEmail(), request.getPassword()));
     return ResponseEntity.status(HttpStatus.OK)
         .body(tokenManager.generateTokenPair(authentication));
   }
@@ -428,8 +427,8 @@ class UserController {
   /**
    * Returns information about user.
    *
-   * @param id user's uuid
-   * @return {@link UserFullInfo}
+   * @param id user uuid
+   * @return {@link UserFullInfo} DTO with full user info
    */
   @Operation(
       summary = "Find User information",
@@ -481,6 +480,14 @@ class UserController {
     return ResponseEntity.status(HttpStatus.OK).body(userService.findById(id));
   }
 
+  /**
+   * Update user information.
+   *
+   * @param id user uuid
+   * @param userUpdateInfo DTO with user info to update
+   * @param image user avatar file
+   * @return {@link UserFullInfo} DTO with full user info
+   */
   @Operation(
       summary = "Update user information",
       responses = {
@@ -530,11 +537,47 @@ class UserController {
       consumes = {APPLICATION_JSON_VALUE, MULTIPART_FORM_DATA_VALUE},
       produces = APPLICATION_JSON_VALUE)
   @PreAuthorize("isAuthenticated() and hasRole('ROLE_USER') and authentication.principal.id == #id")
-  public ResponseEntity<Object> updateUserInfo(
+  public ResponseEntity<UserFullInfo> updateUserInfo(
       @PathVariable UUID id,
       @Parameter(description = USER_UPDATE_REQ_SCHEMA, required = true) @RequestPart("user_update")
           UserUpdateReq userUpdateInfo,
       @RequestPart(value = "image", required = false) final MultipartFile image) {
     return ResponseEntity.ok(userService.updateUserInfo(id, userUpdateInfo, image));
+  }
+
+  /**
+   * Add book to wishlist.
+   *
+   * @param userId user uuid
+   * @param bookId book uuid
+   * @return {@link AppResponse}
+   */
+  @Operation()
+  @PostMapping(
+      value = "/users/{userId}/wishlist",
+      produces = APPLICATION_JSON_VALUE)
+  @PreAuthorize(
+      "isAuthenticated() and hasRole('ROLE_USER') and authentication.principal.id == #userId")
+  public ResponseEntity<AppResponse> addBookToWishlist(
+      @PathVariable UUID userId, @RequestParam("book_id") UUID bookId) {
+    return ResponseEntity.ok(userService.addBookToWishlist(userId, bookId));
+  }
+
+  /**
+   * Delete book from wishlist.
+   *
+   * @param userId user uuid
+   * @param bookId book uuid
+   * @return {@link AppResponse}
+   */
+  @Operation()
+  @DeleteMapping(
+      value = "/users/{userId}/wishlist",
+      produces = APPLICATION_JSON_VALUE)
+  @PreAuthorize(
+      "isAuthenticated() and hasRole('ROLE_USER') and authentication.principal.id == #userId")
+  public ResponseEntity<AppResponse> deleteBookFromWishlist(
+      @PathVariable UUID userId, @RequestParam("book_id") UUID bookId) {
+    return ResponseEntity.ok(userService.deleteBookFromWishlist(userId, bookId));
   }
 }

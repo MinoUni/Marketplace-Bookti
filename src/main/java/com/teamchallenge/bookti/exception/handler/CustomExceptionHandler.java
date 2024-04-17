@@ -10,6 +10,7 @@ import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 
 import com.teamchallenge.bookti.dto.ErrorResponse;
+import com.teamchallenge.bookti.exception.BookException;
 import com.teamchallenge.bookti.exception.BookNotFoundException;
 import com.teamchallenge.bookti.exception.PasswordIsNotMatchesException;
 import com.teamchallenge.bookti.exception.PasswordResetTokenIsExpiredException;
@@ -170,5 +171,11 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
     }
     errorResponse = new ErrorResponse(INTERNAL_SERVER_ERROR.value(), e.getMessage());
     return ResponseEntity.status(INTERNAL_SERVER_ERROR).body(errorResponse);
+  }
+
+  @ExceptionHandler(BookException.class)
+  public ResponseEntity<ErrorResponse> handleBookException(BookException e) {
+    ErrorResponse errorResponse =  new ErrorResponse(BAD_REQUEST.value(), e.getMessage());
+    return ResponseEntity.status(BAD_REQUEST).body(errorResponse);
   }
 }
