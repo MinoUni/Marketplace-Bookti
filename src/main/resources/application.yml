@@ -1,17 +1,41 @@
 server:
   port: 8080
+  servlet:
+    context-path: /api/v1
+
+logging:
+  level:
+    ROOT: INFO
+    org.hibernate.SQL: INFO
 
 spring:
+  profiles:
+    active: dev
   application:
-    name: bookti
+    name: BookTi
   servlet:
     multipart:
-      max-file-size: -1
-      max-request-size: -1
+      enabled: true
+      max-file-size: 50MB
+      max-request-size: 50MB
+  datasource:
+    type: com.zaxxer.hikari.HikariDataSource
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:${DB_URL}/${DB_NAME}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    hikari:
+      pool-name: Hikari
+      auto-commit: false
   sql:
     init:
       mode: always
+  data:
+    jpa:
+      repositories:
+        bootstrap-mode: default
   jpa:
+    open-in-view: true
     show-sql: false
     defer-datasource-initialization: true
     hibernate:
@@ -19,22 +43,22 @@ spring:
     properties:
       hibernate:
         format-sql: true
-  datasource:
-    driverClassName: org.postgresql.Driver
-    url: jdbc:${DB_URL}
-    username: ${DB_USERNAME}
-    password: ${DB_PASSWORD}
   mail:
-    host: smtp.gmail.com
-    port: 587
+    host: ${MAIL_HOST}
+    port: ${MAIL_PORT}
     username: ${MAIL_USERNAME}
     password: ${MAIL_PASSWORD}
+    protocol: smtp
+    test-connection: true
     properties:
       mail:
         smtp:
           auth: true
           starttls:
             enable: true
+          connection-time-out: 5000
+          timeout: 3000
+          write-time-out: 5000
   security:
     oauth2:
       client:
@@ -47,6 +71,17 @@ spring:
               - email
               - profile
 
+springdoc:
+  swagger-ui:
+    operationsSorter: method
+    tagsSorter: alpha
+    disable-swagger-default-url: false
+
+cloudinary:
+  cloud-name: ${CLOUDINARY_CLOUD_NAME}
+  api-key: ${CLOUDINARY_API_KEY}
+  api-secret: ${CLOUDINARY_API_SECRET}
+
 jwt:
   access-token:
     private: "access-refresh-token-keys/access-token-private.key"
@@ -55,15 +90,9 @@ jwt:
     private: "access-refresh-token-keys/refresh-token-private.key"
     public: "access-refresh-token-keys/refresh-token-public.key"
 
-cloudinary:
-  cloud-name: ${CLOUDINARY_NAME}
-  api-key: ${CLOUDINARY_API_KEY}
-  api-secret: ${CLOUDINARY_API_SECRET}
-
 application:
   authorized-redirect-uris: https://marketplace-bookti.vercel.app/oauth2/redirect,http://localhost:5173/oauth2/redirect
   permit-all-req:
-    - /actuator/**
     - /v2/api-docs/**
     - /v3/api-docs/**
     - /swagger-resources/**
@@ -71,20 +100,7 @@ application:
     - /webjars/**
     - /swagger-ui/*
     - /swagger-ui.html
-    - /api/v1/authorize/**
+    - /authorize/**
     - /oauth2/**
-  allowed-origins:
-    - https://marketplace-bookti.vercel.app
-    - http://localhost:5173
-
-springdoc:
-  swagger-ui:
-    operationsSorter: method
-    tagsSorter: alpha
-    disable-swagger-default-url: false
-
-management:
-  endpoints:
-    web:
-      exposure:
-        exclude: "*"
+  cors:
+    origins: https://marketplace-bookti.vercel.app,http://localhost:5173
