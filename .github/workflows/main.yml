@@ -9,11 +9,13 @@ on:
       - .github/workflows/**
   pull_request:
     branches: [ 'dev', 'prod' ]
+  workflow_dispatch:
 
 jobs:
   compile:
     runs-on: ubuntu-latest
     name: Compile project
+    
     steps:
       - name: Checkout project
         uses: actions/checkout@v4
@@ -27,12 +29,12 @@ jobs:
           distribution: 'corretto'
 
       - name: Compile project
-        run: |
-          ./mvnw clean compile
+        run: mvn clean compile
 
   unit-tests:
     runs-on: ubuntu-latest
     name: Unit tests
+    
     steps:
       - name: Checkout project
         uses: actions/checkout@v4
@@ -46,22 +48,22 @@ jobs:
           distribution: 'corretto'
 
       - name: Run Unit tests
-        with:
-          cloudinary-cloud-name: ${{ secrets.CLOUDINARY_CLOUD_NAME }}
-          cloudinary-api-key: ${{ secrets.CLOUDINARY_API_KEY }}
-          cloudinary-api-secret: ${{ secrets.CLOUDINARY_API_SECRET }}
-          google-client-id: ${{ secrets.GOOGLE_CLIENT_ID }}
-          google-client-secret: ${{ secrets.GOOGLE_CLIENT_SECRET }}
-          mail-host: ${{ secrets.MAIL_HOST }}
-          mail-port: ${{ secrets.MAIL_PORT }}
-          mail-username: ${{ secrets.MAIL_USERNAME }}
-          mail-password: ${{ secrets.MAIL_PASSWORD }}
-        run: |
-          ./mvnw clean test
+        env:
+          CLOUDINARY_CLOUD_NAME: ${{ secrets.CLOUDINARY_CLOUD_NAME }}
+          CLOUDINARY_API_KEY: ${{ secrets.CLOUDINARY_API_KEY }}
+          CLOUDINARY_API_SECRET: ${{ secrets.CLOUDINARY_API_SECRET }}
+          GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+          GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
+          MAIL_HOST: ${{ secrets.MAIL_HOST }}
+          MAIL_PORT: ${{ secrets.MAIL_PORT }}
+          MAIL_USERNAME: ${{ secrets.MAIL_USERNAME }}
+          MAIL_PASSWORD: ${{ secrets.MAIL_PASSWORD }}
+        run: mvn clean test
 
   test-coverage:
     runs-on: ubuntu-latest
     name: Running tests with coverage
+    
     steps:
       - uses: actions/checkout@v4
       - name: Set up JDK 17
@@ -70,6 +72,12 @@ jobs:
           java-version: 17
           distribution: 'corretto'
       - name: Maven Verify
+        env:
+          CLOUDINARY_CLOUD_NAME: ${{ secrets.CLOUDINARY_CLOUD_NAME }}
+          CLOUDINARY_API_KEY: ${{ secrets.CLOUDINARY_API_KEY }}
+          CLOUDINARY_API_SECRET: ${{ secrets.CLOUDINARY_API_SECRET }}
+          GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+          GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
         run: mvn -B clean verify
       - name: Test Coverage
         uses: codecov/codecov-action@v1
@@ -79,6 +87,7 @@ jobs:
   checkstyle:
     runs-on: ubuntu-latest
     name: Checkstyle
+    
     steps:
       - uses: actions/checkout@v4
       - name: Set up JDK 17
@@ -99,6 +108,7 @@ jobs:
     runs-on: ubuntu-latest
     name: Build project
     needs: [ compile, unit-tests, checkstyle, test-coverage ]
+    
     steps:
       - uses: actions/checkout@v4
       - name: Setup JDK 17
@@ -108,5 +118,4 @@ jobs:
           distribution: 'corretto'
 
       - name: Build with Maven
-        run: | 
-          ./mvnw clean package --file pom.xml
+        run: mvn clean package --file pom.xml
