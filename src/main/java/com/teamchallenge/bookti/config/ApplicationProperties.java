@@ -14,10 +14,8 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 class ApplicationProperties {
 
   private final String[] permitAllReq;
-  private final List<String> allowedOrigins;
 
-  public ApplicationProperties(List<String> permitAllReq, List<String> allowedOrigins) {
+  public ApplicationProperties(List<String> permitAllReq) {
     this.permitAllReq = permitAllReq.toArray(String[]::new);
-    this.allowedOrigins = allowedOrigins;
   }
 }
