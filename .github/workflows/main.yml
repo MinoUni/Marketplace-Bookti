@@ -29,8 +29,7 @@ jobs:
           distribution: 'corretto'
 
       - name: Compile project
-        run: |
-          ./mvnw clean compile
+        run: mvn clean compile
 
   unit-tests:
     runs-on: ubuntu-latest
@@ -59,8 +58,7 @@ jobs:
           MAIL_PORT: ${{ secrets.MAIL_PORT }}
           MAIL_USERNAME: ${{ secrets.MAIL_USERNAME }}
           MAIL_PASSWORD: ${{ secrets.MAIL_PASSWORD }}
-        run: |
-          ./mvnw clean test
+        run: mvn clean test
 
   test-coverage:
     runs-on: ubuntu-latest
@@ -114,5 +112,4 @@ jobs:
           distribution: 'corretto'
 
       - name: Build with Maven
-        run: | 
-          ./mvnw clean package --file pom.xml
+        run: mvn clean package --file pom.xml
