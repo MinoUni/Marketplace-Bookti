@@ -19,7 +19,8 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 @RequiredArgsConstructor
 @Getter
 public enum Role {
-  ROLE_USER(Set.of(USER_READ, USER_WRITE));
+  ROLE_USER(Set.of(USER_READ, USER_WRITE)),
+  ROLE_ADMIN(Set.of(USER_READ, USER_WRITE));
 
   private final Set<Authority> authorities;
 
