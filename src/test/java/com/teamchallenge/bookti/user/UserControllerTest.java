@@ -108,7 +108,7 @@ class UserControllerTest {
 
       mockMvc
           .perform(
-              post("/api/v1/authorize/signup")
+              post("/authorize/signup")
                   .contentType(APPLICATION_JSON)
                   .content(jsonMapper.writeValueAsString(userDetails)))
           .andExpect(status().isCreated())
@@ -150,7 +150,7 @@ class UserControllerTest {
 
       mockMvc
           .perform(
-              post("/api/v1/authorize/signup")
+              post("/authorize/signup")
                   .contentType(APPLICATION_JSON)
                   .content(jsonMapper.writeValueAsString(userDetails)))
           .andExpect(status().isBadRequest())
@@ -188,7 +188,7 @@ class UserControllerTest {
         mockStatic(UsernamePasswordAuthenticationToken.class)) {
       mockMvc
           .perform(
-              post("/api/v1/authorize/signup")
+              post("/authorize/signup")
                   .contentType(APPLICATION_JSON)
                   .content(jsonMapper.writeValueAsString(userDetails)))
           .andExpect(status().isBadRequest())
@@ -224,7 +224,7 @@ class UserControllerTest {
 
       mockMvc
           .perform(
-              post("/api/v1/authorize/signup")
+              post("/authorize/signup")
                   .contentType(APPLICATION_JSON)
                   .content(jsonMapper.writeValueAsString(userDetails)))
           .andExpect(status().isConflict())
@@ -270,7 +270,7 @@ class UserControllerTest {
 
     mockMvc
         .perform(
-            post("/api/v1/authorize/login")
+            post("/authorize/login")
                 .contentType(APPLICATION_JSON)
                 .content(jsonMapper.writeValueAsString(request)))
         .andExpect(status().isOk())
@@ -295,7 +295,7 @@ class UserControllerTest {
 
     mockMvc
         .perform(
-            post("/api/v1/authorize/login")
+            post("/authorize/login")
                 .contentType(APPLICATION_JSON)
                 .content(jsonMapper.writeValueAsString(request)))
         .andExpect(status().isUnauthorized())
@@ -316,7 +316,7 @@ class UserControllerTest {
 
     mockMvc
         .perform(
-            post("/api/v1/authorize/login")
+            post("/authorize/login")
                 .contentType(APPLICATION_JSON)
                 .content(jsonMapper.writeValueAsString(request)))
         .andExpect(status().isBadRequest())
@@ -354,7 +354,7 @@ class UserControllerTest {
 
     mockMvc
         .perform(
-            post("/api/v1/authorize/token/refresh")
+            post("/authorize/token/refresh")
                 .contentType(APPLICATION_JSON)
                 .content(jsonMapper.writeValueAsString(request)))
         .andExpect(status().isOk())
@@ -382,7 +382,7 @@ class UserControllerTest {
 
     mockMvc
         .perform(
-            post("/api/v1/authorize/token/refresh")
+            post("/authorize/token/refresh")
                 .contentType(APPLICATION_JSON)
                 .content(jsonMapper.writeValueAsString(request)))
         .andExpect(status().isUnauthorized())
@@ -407,7 +407,7 @@ class UserControllerTest {
 
     mockMvc
         .perform(
-            post("/api/v1/authorize/token/refresh")
+            post("/authorize/token/refresh")
                 .contentType(APPLICATION_JSON)
                 .content(jsonMapper.writeValueAsString(request)))
         .andExpect(status().isConflict())
@@ -439,7 +439,7 @@ class UserControllerTest {
 
     mockMvc
         .perform(
-            post("/api/v1/authorize/token/revoke")
+            post("/authorize/token/revoke")
                 .contentType(APPLICATION_JSON)
                 .content(jsonMapper.writeValueAsString(request)))
         .andExpect(status().isOk())
@@ -463,7 +463,7 @@ class UserControllerTest {
 
     mockMvc
         .perform(
-            post("/api/v1/authorize/token/revoke")
+            post("/authorize/token/revoke")
                 .contentType(APPLICATION_JSON)
                 .content(jsonMapper.writeValueAsString(request)))
         .andExpect(status().isUnauthorized())
@@ -495,7 +495,7 @@ class UserControllerTest {
 
     mockMvc
         .perform(
-            post("/api/v1/authorize/token/revoke")
+            post("/authorize/token/revoke")
                 .contentType(APPLICATION_JSON)
                 .content(jsonMapper.writeValueAsString(request)))
         .andExpect(status().isConflict())
@@ -538,7 +538,7 @@ class UserControllerTest {
 
     mockMvc
         .perform(
-            post("/api/v1/authorize/login/resetPassword")
+            post("/authorize/login/resetPassword")
                 .contentType(APPLICATION_JSON)
                 .content(jsonMapper.writeValueAsString(mailResetPasswordRequest)))
         .andExpect(status().isOk())
@@ -555,7 +555,7 @@ class UserControllerTest {
 
     mockMvc
         .perform(
-            post("/api/v1/authorize/login/resetPassword")
+            post("/authorize/login/resetPassword")
                 .contentType(APPLICATION_JSON)
                 .content(jsonMapper.writeValueAsString(mailResetPasswordRequest)))
         .andExpect(status().isNotFound())
@@ -570,7 +570,7 @@ class UserControllerTest {
     MailResetPasswordRequest mailResetPasswordRequest = new MailResetPasswordRequest("abc123");
     mockMvc
         .perform(
-            post("/api/v1/authorize/login/resetPassword")
+            post("/authorize/login/resetPassword")
                 .contentType(APPLICATION_JSON)
                 .content(jsonMapper.writeValueAsString(mailResetPasswordRequest)))
         .andExpect(status().isBadRequest())
