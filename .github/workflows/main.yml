@@ -46,7 +46,7 @@ jobs:
           distribution: 'corretto'
 
       - name: Run Unit tests
-        with:
+        env:
           cloudinary-cloud-name: ${{ secrets.CLOUDINARY_CLOUD_NAME }}
           cloudinary-api-key: ${{ secrets.CLOUDINARY_API_KEY }}
           cloudinary-api-secret: ${{ secrets.CLOUDINARY_API_SECRET }}
