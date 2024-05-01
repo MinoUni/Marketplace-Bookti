@@ -1,6 +1,7 @@
 package com.teamchallenge.bookti.user.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
@@ -18,6 +19,7 @@ public class UserLoginRequest {
 
   @Schema(type = "string", example = "mark.javar@gmail.com")
   @NotBlank(message = "Field <email> must not be blank")
+  @Email
   private String email;
 
   @Schema(type = "string", example = "Javard1rkk")

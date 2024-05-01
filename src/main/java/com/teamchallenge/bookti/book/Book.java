@@ -2,8 +2,9 @@ package com.teamchallenge.bookti.book;
 
 import static jakarta.persistence.FetchType.LAZY;
 
-import com.teamchallenge.bookti.user.UserEntity;
-import com.teamchallenge.bookti.utils.YearConverter;
+import com.teamchallenge.bookti.converter.BookExchangeFormatConverter;
+import com.teamchallenge.bookti.converter.YearConverter;
+import com.teamchallenge.bookti.user.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
@@ -16,7 +17,6 @@ import jakarta.persistence.Table;
 import java.time.Year;
 import java.util.Objects;
 import java.util.Set;
-import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -42,8 +42,8 @@ import org.hibernate.proxy.HibernateProxy;
 public class Book {
 
   @Id
-  @GeneratedValue(strategy = GenerationType.UUID)
-  private UUID id;
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Integer id;
 
   @Column
   private String title;
@@ -66,22 +66,21 @@ public class Book {
   @Column
   private String language;
 
-  @Column(name = "publication_date", columnDefinition = "smallint")
   @Convert(converter = YearConverter.class)
-  private Year publicationDate;
+  @Column(name = "publication_year", columnDefinition = "smallint")
+  private Year publicationYear;
 
-  @Column(name = "trade_format")
-  private String tradeFormat;
+  @Convert(converter = BookExchangeFormatConverter.class)
+  @Column(name = "exchange_format")
+  private BookExchangeFormat exchangeFormat;
 
   @ToString.Exclude
   @ManyToOne(fetch = LAZY, optional = false)
-  private UserEntity owner;
+  private User owner;
 
   @ToString.Exclude
   @ManyToMany(mappedBy = "wishlist")
-  private Set<UserEntity> candidates;
-
-  // todo: Add 'comments' relationship 1:n
+  private Set<User> candidates;
 
   @Override
   public final boolean equals(Object o) {

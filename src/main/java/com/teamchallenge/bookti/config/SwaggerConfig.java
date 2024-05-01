@@ -26,7 +26,7 @@ import org.springframework.context.annotation.Configuration;
             contact = @Contact(name = "MinoUni", url = "https://github.com/MinoUni")),
     servers = {
       @Server(url = "http://localhost:8080", description = "Local dev ENV"),
-      @Server(url = "https://bookti-spring-backend.onrender.com", description = "Deploy dev ENV")
+      @Server(url = "https://bookti-spring-backend.onrender.com", description = "Prod ENV")
     },
     security = {@SecurityRequirement(name = "bearerAuth")})
 @SecuritySchemes(
@@ -41,15 +41,15 @@ import org.springframework.context.annotation.Configuration;
     })
 public class SwaggerConfig {
 
-  public static final String BOOK_PROFILE_SCHEMA =
+  public static final String BOOK_PAYLOAD_SCHEMA =
       """
             {
               "title": "string",
               "author": "string",
               "genre": "string",
-              "publication_date": "yyyy",
+              "publicationYear": integer,
               "language": "string",
-              "trade_format": "string",
+              "exchangeFormat": "string",
               "description": "string"
             }
         """;
@@ -59,19 +59,19 @@ public class SwaggerConfig {
               "title": "string",
               "author": "string",
               "genre": "string",
-              "publication_date": "yyyy",
+              "publicationYear": integer,
               "language": "string",
-              "trade_format": "string",
+              "exchangeFormat": "string",
               "description": "string"
             }
         """;
   public static final String USER_UPDATE_REQ_SCHEMA =
       """
             {
-              "full_name": "string",
+              "fullName": "string",
               "email": "string",
               "location": "string",
-              "telegram_id": "string"
+              "telegramId": "string"
             }
         """;
 }

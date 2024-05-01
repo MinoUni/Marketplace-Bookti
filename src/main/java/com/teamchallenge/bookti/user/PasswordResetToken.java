@@ -1,7 +1,7 @@
 package com.teamchallenge.bookti.user;
 
-import com.teamchallenge.bookti.exception.PasswordResetTokenIsExpiredException;
-import com.teamchallenge.bookti.exception.PasswordResetTokenNotFoundException;
+import com.teamchallenge.bookti.exception.user.PasswordResetTokenIsExpiredException;
+import com.teamchallenge.bookti.exception.user.PasswordResetTokenNotFoundException;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -39,20 +39,20 @@ class PasswordResetToken {
 
   private String token;
 
-  @OneToOne(targetEntity = UserEntity.class, fetch = FetchType.EAGER)
+  @OneToOne(targetEntity = User.class, fetch = FetchType.EAGER)
   @JoinColumn(nullable = false, name = "user_id")
-  private UserEntity user;
+  private User user;
 
   private Date expiryDate;
 
   /**
-   * Constructor that creates {@link PasswordResetToken} for {@link UserEntity user} with given
+   * Constructor that creates {@link PasswordResetToken} for {@link User user} with given
    * token and calculated expiryDate.
    *
-   * @param user  {@link UserEntity} for whom {@link PasswordResetToken} will be created
+   * @param user  {@link User} for whom {@link PasswordResetToken} will be created
    * @param token String that contains random UUID
    */
-  public PasswordResetToken(UserEntity user, String token) {
+  public PasswordResetToken(User user, String token) {
     this.token = token;
     this.user = user;
     this.expiryDate = calculateExpiryDate();

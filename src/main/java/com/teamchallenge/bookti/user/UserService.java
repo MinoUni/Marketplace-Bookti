@@ -7,19 +7,19 @@ import static org.springframework.transaction.annotation.Isolation.REPEATABLE_RE
 
 import com.teamchallenge.bookti.book.BookRepository;
 import com.teamchallenge.bookti.dto.AppResponse;
-import com.teamchallenge.bookti.exception.BookException;
-import com.teamchallenge.bookti.exception.BookNotFoundException;
-import com.teamchallenge.bookti.exception.PasswordIsNotMatchesException;
-import com.teamchallenge.bookti.exception.PasswordResetTokenNotFoundException;
-import com.teamchallenge.bookti.exception.UserAlreadyExistsException;
-import com.teamchallenge.bookti.exception.UserNotFoundException;
+import com.teamchallenge.bookti.exception.book.BookException;
+import com.teamchallenge.bookti.exception.book.BookNotFoundException;
+import com.teamchallenge.bookti.exception.user.PasswordIsNotMatchesException;
+import com.teamchallenge.bookti.exception.user.PasswordResetTokenNotFoundException;
+import com.teamchallenge.bookti.exception.user.UserAlreadyExistsException;
+import com.teamchallenge.bookti.exception.user.UserNotFoundException;
 import com.teamchallenge.bookti.security.AuthorizedUser;
 import com.teamchallenge.bookti.user.dto.NewUserRegistrationRequest;
-import com.teamchallenge.bookti.user.dto.UserFullInfo;
+import com.teamchallenge.bookti.user.dto.UserProfileDTO;
 import com.teamchallenge.bookti.user.dto.UserUpdateReq;
-import com.teamchallenge.bookti.utils.AuthorizedUserMapper;
+import com.teamchallenge.bookti.mapper.AuthorizedUserMapper;
 import com.teamchallenge.bookti.utils.CloudinaryUtils;
-import com.teamchallenge.bookti.utils.MapperUtils;
+import com.teamchallenge.bookti.mapper.MapperUtils;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -46,7 +46,7 @@ class UserService {
   private final MapperUtils mapperUtils;
 
   /**
-   * Creates a new {@link UserEntity user} and save it into database.
+   * Creates a new {@link User user} and save it into database.
    *
    * @param userDetails the {@link NewUserRegistrationRequest} DTO with basic user information
    * @return {@link AuthorizedUser}
@@ -65,7 +65,7 @@ class UserService {
           format("User with email <{0}> already exists", userDetails.getEmail()));
     }
     userDetails.setPassword(passwordEncoder.encode(userDetails.getPassword()));
-    UserEntity user = build(userDetails);
+    User user = build(userDetails);
     userRepository.save(user);
     return AuthorizedUserMapper.mapFrom(user);
   }
@@ -74,10 +74,10 @@ class UserService {
    * Return information about user.
    *
    * @param id user uuid
-   * @return {@link UserFullInfo user} DTO
+   * @return {@link UserProfileDTO user} DTO
    * @throws UserNotFoundException if user with provided id not found
    */
-  public UserFullInfo findById(UUID id) {
+  public UserProfileDTO findById(Integer id) {
     var user =
         userRepository
             .findUserFullInfoById(id)
@@ -94,21 +94,21 @@ class UserService {
    * Return information about user.
    *
    * @param email user uuid
-   * @return {@link UserFullInfo user} DTO
+   * @return {@link UserProfileDTO user} DTO
    * @throws UserNotFoundException if user with provided id not found
    */
-  public UserFullInfo findUserByEmail(String email) {
-    UserEntity user =
+  public UserProfileDTO findUserByEmail(String email) {
+    User user =
         userRepository
             .findByEmail(email)
             .orElseThrow(
                 () -> new UserNotFoundException(format("User with email <{0}> not found.", email)));
-    return UserFullInfo.mapFrom(user);
+    return UserProfileDTO.mapFrom(user);
   }
 
   @Transactional
-  public void changeUserPassword(UUID userId, String newPassword) {
-    UserEntity user =
+  public void changeUserPassword(Integer userId, String newPassword) {
+    User user =
         userRepository
             .findById(userId)
             .orElseThrow(
@@ -119,8 +119,8 @@ class UserService {
   }
 
   @Transactional
-  public PasswordResetToken createPasswordResetTokenForUser(UserFullInfo user, String token) {
-    UserEntity userEntity =
+  public PasswordResetToken createPasswordResetTokenForUser(UserProfileDTO user, String token) {
+    User userEntity =
         userRepository
             .findById(user.getId())
             .orElseThrow(
@@ -143,13 +143,13 @@ class UserService {
                     format("Password reset token <{0}> not found.", token)));
   }
 
-  public UserFullInfo getUserByPasswordResetToken(String passwordResetToken) {
-    UserEntity user = getPasswordResetToken(passwordResetToken).getUser();
-    return UserFullInfo.mapFrom(user);
+  public UserProfileDTO getUserByPasswordResetToken(String passwordResetToken) {
+    User user = getPasswordResetToken(passwordResetToken).getUser();
+    return UserProfileDTO.mapFrom(user);
   }
 
   @Transactional(isolation = REPEATABLE_READ)
-  public UserFullInfo updateUserInfo(UUID id, UserUpdateReq userUpdate, MultipartFile file) {
+  public UserProfileDTO updateUserInfo(Integer id, UserUpdateReq userUpdate, MultipartFile file) {
     var user =
         userRepository
             .findById(id)
@@ -180,7 +180,7 @@ class UserService {
    * @throws BookException when book operations error
    */
   @Transactional
-  public AppResponse addBookToWishlist(UUID userId, UUID bookId) {
+  public AppResponse addBookToWishlist(Integer userId, Integer bookId) {
     var user =
         userRepository
             .findById(userId)
@@ -214,7 +214,7 @@ class UserService {
    * @throws BookNotFoundException when book with provided uuid not found
    */
   @Transactional
-  public AppResponse deleteBookFromWishlist(UUID userId, UUID bookId) {
+  public AppResponse deleteBookFromWishlist(Integer userId, Integer bookId) {
     var user =
         userRepository
             .findById(userId)
@@ -232,13 +232,13 @@ class UserService {
   }
 
   /**
-   * Builds {@link UserEntity} from {@link NewUserRegistrationRequest}.
+   * Builds {@link User} from {@link NewUserRegistrationRequest}.
    *
    * @param userDetails {@link NewUserRegistrationRequest}
-   * @return {@link UserEntity}
+   * @return {@link User}
    */
-  private UserEntity build(NewUserRegistrationRequest userDetails) {
-    return UserEntity.builder()
+  private User build(NewUserRegistrationRequest userDetails) {
+    return User.builder()
         .fullName(userDetails.getFullName())
         .email(userDetails.getEmail())
         .password(userDetails.getPassword())

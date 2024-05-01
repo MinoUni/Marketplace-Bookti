@@ -14,13 +14,12 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.teamchallenge.bookti.user.dto.TokenPair;
-import com.teamchallenge.bookti.exception.RefreshTokenAlreadyRevokedException;
+import com.teamchallenge.bookti.exception.user.RefreshTokenAlreadyRevokedException;
 import com.teamchallenge.bookti.security.AuthorizedUser;
+import com.teamchallenge.bookti.user.dto.TokenPair;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
-import java.util.UUID;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -57,7 +56,7 @@ class TokenManagerTest {
   static void setup() {
     user =
         AuthorizedUser.authorizedUserBuilder("username", "password", List.of())
-            .id(UUID.randomUUID())
+            .id(1)
             .build();
     Instant now = Instant.now();
     expiredClaimSet =
@@ -106,7 +105,7 @@ class TokenManagerTest {
     assertAll(
         "tokenPair",
         () -> assertNotNull(tokenPair),
-        () -> assertEquals(user.getId().toString(), tokenPair.getUserId()),
+        () -> assertEquals(user.getId(), tokenPair.getUserId()),
         () -> assertNotNull(tokenPair.getAccessToken()),
         () -> assertNotNull(tokenPair.getRefreshToken()),
         () -> assertEquals(tokenPair.getAccessToken(), jwt.getTokenValue()),
@@ -156,7 +155,7 @@ class TokenManagerTest {
     assertAll(
         "tokenPair",
         () -> assertNotNull(tokenPair),
-        () -> assertEquals(user.getId().toString(), tokenPair.getUserId()),
+        () -> assertEquals(user.getId(), tokenPair.getUserId()),
         () -> assertNotNull(tokenPair.getAccessToken()),
         () -> assertNotNull(tokenPair.getRefreshToken()),
         () -> assertEquals(validToken.getTokenValue(), tokenPair.getRefreshToken()),
@@ -195,7 +194,7 @@ class TokenManagerTest {
     verify(refreshEncoder, times(1)).encode(any());
     assertAll(
         () -> assertNotNull(tokenPair),
-        () -> assertEquals(user.getId().toString(), tokenPair.getUserId()),
+        () -> assertEquals(user.getId(), tokenPair.getUserId()),
         () -> assertNotNull(tokenPair.getAccessToken()),
         () -> assertNotNull(tokenPair.getRefreshToken()),
         () -> assertNotEquals(expiredRefreshToken, tokenPair.getRefreshToken()),
@@ -248,7 +247,7 @@ class TokenManagerTest {
             JwsHeader.with(SignatureAlgorithm.RS256).build().getHeaders(),
             validClaimSet.getClaims());
     String tokenValue = revokedToken.getTokenValue();
-    tokenManager.getRevokedTokens().put(tokenValue, UUID.randomUUID());
+    tokenManager.getRevokedTokens().put(tokenValue, 1);
 
     when(authentication.getCredentials()).thenReturn(revokedToken);
 

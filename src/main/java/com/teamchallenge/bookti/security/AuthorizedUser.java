@@ -2,13 +2,11 @@ package com.teamchallenge.bookti.security;
 
 import java.util.Collection;
 import java.util.Map;
-import java.util.UUID;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.User;
-import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.util.Assert;
 
 /**
@@ -18,9 +16,9 @@ import org.springframework.util.Assert;
  */
 @Setter
 @Getter
-public class AuthorizedUser extends User implements OAuth2User {
+public class AuthorizedUser extends User {
 
-  private UUID id;
+  private Integer id;
   @Setter(AccessLevel.NONE)
   @Getter(AccessLevel.NONE)
   private String email;
@@ -43,16 +41,6 @@ public class AuthorizedUser extends User implements OAuth2User {
     return new AuthorizedUserBuilder(username, password, authorities);
   }
 
-  @Override
-  public Map<String, Object> getAttributes() {
-    return attributes;
-  }
-
-  @Override
-  public String getName() {
-    return email;
-  }
-
   /**
    * Builder for {@link AuthorizedUser}.
    *
@@ -73,7 +61,7 @@ public class AuthorizedUser extends User implements OAuth2User {
      * @param id user's UUID that cannot be null
      * @return {@link AuthorizedUserBuilder}
      */
-    public AuthorizedUserBuilder id(UUID id) {
+    public AuthorizedUserBuilder id(Integer id) {
       Assert.notNull(id, "id cannot be null");
       this.authorizedUser.setId(id);
       return this;
@@ -86,11 +74,6 @@ public class AuthorizedUser extends User implements OAuth2User {
 
     public AuthorizedUserBuilder avatarUrl(String avatarUrl) {
       this.authorizedUser.setAvatarUrl(avatarUrl);
-      return this;
-    }
-
-    public AuthorizedUserBuilder attributes(Map<String, Object> attributes) {
-      this.authorizedUser.setAttributes(attributes);
       return this;
     }
 

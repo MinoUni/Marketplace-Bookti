@@ -1,8 +1,8 @@
 package com.teamchallenge.bookti.security;
 
-import com.teamchallenge.bookti.user.UserEntity;
+import com.teamchallenge.bookti.user.User;
 import com.teamchallenge.bookti.user.UserRepository;
-import com.teamchallenge.bookti.utils.AuthorizedUserMapper;
+import com.teamchallenge.bookti.mapper.AuthorizedUserMapper;
 import java.text.MessageFormat;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -25,7 +25,7 @@ public class CustomUserDetailsService implements UserDetailsService {
   @Transactional(readOnly = true)
   @Override
   public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-    UserEntity user = userRepository.findByEmail(username)
+    User user = userRepository.findByEmail(username)
         .orElseThrow(() -> new UsernameNotFoundException(
             MessageFormat.format("User with username {0} not found.", username)));
     return AuthorizedUserMapper.mapFrom(user);

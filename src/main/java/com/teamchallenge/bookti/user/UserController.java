@@ -1,21 +1,21 @@
 package com.teamchallenge.bookti.user;
 
 import static com.teamchallenge.bookti.config.SwaggerConfig.USER_UPDATE_REQ_SCHEMA;
+import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE;
+import static org.springframework.security.authentication.UsernamePasswordAuthenticationToken.authenticated;
 
 import com.teamchallenge.bookti.dto.AppResponse;
 import com.teamchallenge.bookti.dto.ErrorResponse;
-import com.teamchallenge.bookti.exception.PasswordIsNotMatchesException;
-import com.teamchallenge.bookti.exception.RefreshTokenAlreadyRevokedException;
-import com.teamchallenge.bookti.exception.UserAlreadyExistsException;
+import com.teamchallenge.bookti.exception.user.RefreshTokenAlreadyRevokedException;
 import com.teamchallenge.bookti.security.jwt.TokenManager;
 import com.teamchallenge.bookti.user.dto.MailResetPasswordRequest;
 import com.teamchallenge.bookti.user.dto.MailResetPasswordResponse;
 import com.teamchallenge.bookti.user.dto.NewUserRegistrationRequest;
 import com.teamchallenge.bookti.user.dto.PasswordResetRequest;
 import com.teamchallenge.bookti.user.dto.TokenPair;
-import com.teamchallenge.bookti.user.dto.UserFullInfo;
+import com.teamchallenge.bookti.user.dto.UserProfileDTO;
 import com.teamchallenge.bookti.user.dto.UserLoginRequest;
 import com.teamchallenge.bookti.user.dto.UserTokenPair;
 import com.teamchallenge.bookti.user.dto.UserUpdateReq;
@@ -46,20 +46,13 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-/**
- * UserController is RestController witch works with user's information.
- *
- * @author Maksym Reva
- */
 @RestController
 @Tag(name = "User endpoints")
-@RequestMapping("/api/v1")
 class UserController {
 
   private final UserService userService;
@@ -68,15 +61,6 @@ class UserController {
   private final EmailUtils emailUtils;
   private final JwtAuthenticationProvider refreshTokenProvider;
 
-  /**
-   * AllArgs Constructor.
-   *
-   * @param userService {@link UserService}
-   * @param tokenManager {@link TokenManager}
-   * @param authenticationManager {@link AuthenticationManager}
-   * @param emailUtils {@link EmailUtils}
-   * @param refreshTokenProvider {@link JwtAuthenticationProvider}
-   */
   public UserController(
       UserService userService,
       TokenManager tokenManager,
@@ -91,18 +75,6 @@ class UserController {
     this.refreshTokenProvider = refreshTokenProvider;
   }
 
-  /**
-   * Register new user.
-   *
-   * @param newUserRegistrationRequest {@link NewUserRegistrationRequest request} with information
-   *     that user needs to register
-   * @return {@link TokenPair}
-   * @throws UserAlreadyExistsException if user with {@link NewUserRegistrationRequest#getEmail()
-   *     given email} already exists
-   * @throws PasswordIsNotMatchesException if {@link NewUserRegistrationRequest#getPassword()
-   *     password} does not match {@link NewUserRegistrationRequest#getConfirmPassword()
-   *     confirmPassword}
-   */
   @Operation(
       summary = "User signup",
       responses = {
@@ -139,25 +111,19 @@ class UserController {
                   schema = @Schema(implementation = ErrorResponse.class))
             })
       })
-  @PostMapping(path = "/authorize/signup")
-  public ResponseEntity<TokenPair> signup(
-      @Valid @RequestBody NewUserRegistrationRequest newUserRegistrationRequest)
-      throws UserAlreadyExistsException, PasswordIsNotMatchesException {
-    var createdUser = userService.create(newUserRegistrationRequest);
+  @PostMapping(
+      path = "/authorize/signup",
+      consumes = APPLICATION_JSON_VALUE,
+      produces = APPLICATION_JSON_VALUE)
+  public ResponseEntity<TokenPair> signup(@Valid @RequestBody NewUserRegistrationRequest newUser) {
+    var createdUser = userService.create(newUser);
     Authentication authentication =
-        UsernamePasswordAuthenticationToken.authenticated(
-            createdUser, createdUser.getPassword(), createdUser.getAuthorities());
+        authenticated(createdUser, createdUser.getPassword(), createdUser.getAuthorities());
     return ResponseEntity.status(HttpStatus.CREATED)
+        .contentType(APPLICATION_JSON)
         .body(tokenManager.generateTokenPair(authentication));
   }
 
-  /**
-   * User login.
-   *
-   * @param userCredentials {@link UserLoginRequest} with information that user needs to log in
-   * @return {@link AppResponse}
-   * @throws BadCredentialsException if {@link Authentication} has bad credentials
-   */
   @Operation(
       summary = "User login",
       responses = {
@@ -187,25 +153,17 @@ class UserController {
             })
       })
   @PostMapping(path = "/authorize/login")
-  public ResponseEntity<TokenPair> login(@Valid @RequestBody UserLoginRequest userCredentials)
+  public ResponseEntity<TokenPair> login(@Valid @RequestBody UserLoginRequest credentials)
       throws BadCredentialsException {
     var authentication =
         authenticationManager.authenticate(
             new UsernamePasswordAuthenticationToken(
-                userCredentials.getEmail(), userCredentials.getPassword()));
+                credentials.getEmail(), credentials.getPassword()));
     return ResponseEntity.status(HttpStatus.OK)
+        .contentType(APPLICATION_JSON)
         .body(tokenManager.generateTokenPair(authentication));
   }
 
-  /**
-   * Gets new access JWT.
-   *
-   * @param refreshToken {@link UserTokenPair} that need to be refreshed
-   * @return {@link TokenPair}
-   * @throws BadCredentialsException if {@link Authentication} has bad credentials
-   * @throws RefreshTokenAlreadyRevokedException if {@link UserTokenPair#getRefreshToken() refresh
-   *     token} already revoked.
-   */
   @Operation(
       summary = "Get new access JWT",
       responses = {
@@ -253,18 +211,10 @@ class UserController {
     var authentication =
         refreshTokenProvider.authenticate(new BearerTokenAuthenticationToken(token));
     return ResponseEntity.status(HttpStatus.OK)
+        .contentType(APPLICATION_JSON)
         .body(tokenManager.generateTokenPair(authentication));
   }
 
-  /**
-   * Revokes current refresh JWT.
-   *
-   * @param refreshToken {@link UserTokenPair} that need to be revoked
-   * @return {@link AppResponse}
-   * @throws BadCredentialsException if {@link Authentication} has bad credentials
-   * @throws RefreshTokenAlreadyRevokedException if {@link UserTokenPair#getRefreshToken() refresh
-   *     token} already revoked.
-   */
   @Operation(
       summary = "Revoke current refresh JWT",
       responses = {
@@ -314,13 +264,6 @@ class UserController {
     return ResponseEntity.status(HttpStatus.OK).body(resp);
   }
 
-  /**
-   * Checks if user with email from {@link MailResetPasswordRequest} exists. If true sends to user
-   * email with reset password link.
-   *
-   * @param mailResetPasswordRequest {@link MailResetPasswordRequest}
-   * @return {@link MailResetPasswordResponse}
-   */
   @Operation(
       summary = "Send reset password link by email",
       responses = {
@@ -368,13 +311,6 @@ class UserController {
         .body(new MailResetPasswordResponse(LocalDateTime.now(), String.valueOf(user.getId())));
   }
 
-  /**
-   * Checks {@link PasswordResetToken} and changes user's password.
-   *
-   * @param request {@link PasswordResetRequest} with information about new password and user's
-   *     reset token
-   * @return {@link TokenPair}
-   */
   @Operation(
       summary = "Reset user password",
       responses = {
@@ -424,12 +360,6 @@ class UserController {
         .body(tokenManager.generateTokenPair(authentication));
   }
 
-  /**
-   * Returns information about user.
-   *
-   * @param id user uuid
-   * @return {@link UserFullInfo} DTO with full user info
-   */
   @Operation(
       summary = "Find User information",
       responses = {
@@ -439,7 +369,7 @@ class UserController {
             content = {
               @Content(
                   mediaType = APPLICATION_JSON_VALUE,
-                  schema = @Schema(implementation = UserFullInfo.class))
+                  schema = @Schema(implementation = UserProfileDTO.class))
             }),
         @ApiResponse(
             responseCode = "401",
@@ -476,18 +406,10 @@ class UserController {
       })
   @GetMapping(path = "/users/{id}")
   @PreAuthorize("isAuthenticated() and hasRole('ROLE_USER') and authentication.principal.id == #id")
-  public ResponseEntity<UserFullInfo> getUserInfo(@PathVariable UUID id) {
+  public ResponseEntity<UserProfileDTO> getUserInfo(@PathVariable Integer id) {
     return ResponseEntity.status(HttpStatus.OK).body(userService.findById(id));
   }
 
-  /**
-   * Update user information.
-   *
-   * @param id user uuid
-   * @param userUpdateInfo DTO with user info to update
-   * @param image user avatar file
-   * @return {@link UserFullInfo} DTO with full user info
-   */
   @Operation(
       summary = "Update user information",
       responses = {
@@ -497,7 +419,7 @@ class UserController {
             content = {
               @Content(
                   mediaType = APPLICATION_JSON_VALUE,
-                  schema = @Schema(implementation = UserFullInfo.class))
+                  schema = @Schema(implementation = UserProfileDTO.class))
             }),
         @ApiResponse(
             responseCode = "401",
@@ -537,47 +459,29 @@ class UserController {
       consumes = {APPLICATION_JSON_VALUE, MULTIPART_FORM_DATA_VALUE},
       produces = APPLICATION_JSON_VALUE)
   @PreAuthorize("isAuthenticated() and hasRole('ROLE_USER') and authentication.principal.id == #id")
-  public ResponseEntity<UserFullInfo> updateUserInfo(
-      @PathVariable UUID id,
+  public ResponseEntity<UserProfileDTO> updateUserInfo(
+      @PathVariable Integer id,
       @Parameter(description = USER_UPDATE_REQ_SCHEMA, required = true) @RequestPart("user_update")
           UserUpdateReq userUpdateInfo,
       @RequestPart(value = "image", required = false) final MultipartFile image) {
     return ResponseEntity.ok(userService.updateUserInfo(id, userUpdateInfo, image));
   }
 
-  /**
-   * Add book to wishlist.
-   *
-   * @param userId user uuid
-   * @param bookId book uuid
-   * @return {@link AppResponse}
-   */
   @Operation()
-  @PostMapping(
-      value = "/users/{userId}/wishlist",
-      produces = APPLICATION_JSON_VALUE)
+  @PostMapping(value = "/users/{userId}/wishlist", produces = APPLICATION_JSON_VALUE)
   @PreAuthorize(
       "isAuthenticated() and hasRole('ROLE_USER') and authentication.principal.id == #userId")
   public ResponseEntity<AppResponse> addBookToWishlist(
-      @PathVariable UUID userId, @RequestParam("book_id") UUID bookId) {
+      @PathVariable Integer userId, @RequestParam("bookId") Integer bookId) {
     return ResponseEntity.ok(userService.addBookToWishlist(userId, bookId));
   }
 
-  /**
-   * Delete book from wishlist.
-   *
-   * @param userId user uuid
-   * @param bookId book uuid
-   * @return {@link AppResponse}
-   */
   @Operation()
-  @DeleteMapping(
-      value = "/users/{userId}/wishlist",
-      produces = APPLICATION_JSON_VALUE)
+  @DeleteMapping(value = "/users/{userId}/wishlist", produces = APPLICATION_JSON_VALUE)
   @PreAuthorize(
       "isAuthenticated() and hasRole('ROLE_USER') and authentication.principal.id == #userId")
   public ResponseEntity<AppResponse> deleteBookFromWishlist(
-      @PathVariable UUID userId, @RequestParam("book_id") UUID bookId) {
+      @PathVariable Integer userId, @RequestParam("bookId") Integer bookId) {
     return ResponseEntity.ok(userService.deleteBookFromWishlist(userId, bookId));
   }
 }

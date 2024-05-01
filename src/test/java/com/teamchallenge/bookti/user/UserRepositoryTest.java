@@ -18,17 +18,17 @@ class UserRepositoryTest {
 
     @Test
     void testThatUserExistsByEmail() {
-        UserEntity userEntity = UserEntity
+        User user = User
                 .builder()
                 .fullName("First_name")
                 .email("abc@gmail.com")
                 .password("Password1")
                 .location("city")
                 .build();
-        entityManager.persist(userEntity);
+        entityManager.persist(user);
         entityManager.flush();
 
-        UserEntity nonexistentUserEntity = UserEntity
+        User nonexistentUser = User
                 .builder()
                 .fullName("First_name")
                 .email("ABC@gmail.com")
@@ -36,13 +36,13 @@ class UserRepositoryTest {
                 .location("city")
                 .build();
 
-        assertTrue(userRepository.existsUserByEmail(userEntity.getEmail()));
-        assertFalse(userRepository.existsUserByEmail(nonexistentUserEntity.getEmail()));
+        assertTrue(userRepository.existsUserByEmail(user.getEmail()));
+        assertFalse(userRepository.existsUserByEmail(nonexistentUser.getEmail()));
     }
 
     @Test
     void testThatUserSavesCorrectly() {
-        UserEntity userEntity = UserEntity
+        User user = User
                 .builder()
                 .fullName("FirstName")
                 .email("abc@gmail.com")
@@ -50,7 +50,7 @@ class UserRepositoryTest {
                 .location("city")
                 .build();
 
-        UserEntity userEntity1 = UserEntity
+        User user1 = User
                 .builder()
                 .fullName("FirstName")
                 .email("abc")
@@ -58,11 +58,11 @@ class UserRepositoryTest {
                 .location("city")
                 .build();
 
-        UserEntity userEntitySaved = userRepository.save(userEntity);
-        UserEntity userEntity1Saved = userRepository.save(userEntity1);
-        System.out.println(userEntity1Saved.getEmail());
+        User userSaved = userRepository.save(user);
+        User user1Saved = userRepository.save(user1);
+        System.out.println(user1Saved.getEmail());
 
-        assertEquals(userEntity.getEmail(), userEntitySaved.getEmail());
-        assertEquals(userEntity1.getEmail(), userEntity1Saved.getEmail());
+        assertEquals(user.getEmail(), userSaved.getEmail());
+        assertEquals(user1.getEmail(), user1Saved.getEmail());
     }
 }

@@ -1,9 +1,19 @@
-# Build executable .jar file
-FROM maven:3.8.5-openjdk-17 AS build
-COPY . .
+# BUILD STAGE
+FROM maven:3.8.7-openjdk-18 AS build
+WORKDIR /build
+COPY pom.xml .
+RUN mvn dependency:go-offline
+COPY src ./src
 RUN mvn clean package -DskipTests
-# Run .jar
-FROM openjdk:17-oracle
-COPY --from=build /target/bookti-0.0.1.jar bookti.jar
+
+# RUNTIME STAGE
+FROM amazoncorretto:17
+ARG APP_VERSION=1.0.0
+ARG PROFILE=dev
+WORKDIR /app
+COPY --from=build /build/target/bookti-*.jar /app/
 EXPOSE 8080
-ENTRYPOINT ["java", "-jar", "bookti.jar"]
+ENV JAR_VERSION=${APP_VERSION}
+ENV ACTIVE_PROFILE=${PROFILE}
+CMD java -jar -Dspring.profiles.active=${ACTIVE_PROFILE} bookti-${JAR_VERSION}.jar
+#ENTRYPOINT ["java", "-jar", "bookti.jar"]

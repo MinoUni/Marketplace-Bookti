@@ -1,9 +1,10 @@
 package com.teamchallenge.bookti.book;
 
-import static com.teamchallenge.bookti.config.SwaggerConfig.BOOK_PROFILE_SCHEMA;
+import static com.teamchallenge.bookti.config.SwaggerConfig.BOOK_PAYLOAD_SCHEMA;
 import static com.teamchallenge.bookti.config.SwaggerConfig.BOOK_UPDATE_REQ_SCHEMA;
 import static org.springframework.http.HttpStatus.CREATED;
 import static org.springframework.http.HttpStatus.OK;
+import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE;
 
@@ -16,21 +17,12 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RequestPart;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 /**
@@ -42,7 +34,7 @@ import org.springframework.web.multipart.MultipartFile;
 @RestController
 @RequiredArgsConstructor
 @Tag(name = "Books endpoints")
-@RequestMapping("/api/v1/books")
+@RequestMapping("/books")
 class BookController {
 
   private final BookService bookService;
@@ -63,7 +55,7 @@ class BookController {
             content = {
               @Content(
                   mediaType = APPLICATION_JSON_VALUE,
-                  schema = @Schema(implementation = BookDetails.class))
+                  schema = @Schema(implementation = BookDetailsDTO.class))
             }),
         @ApiResponse(
             responseCode = "500",
@@ -75,14 +67,14 @@ class BookController {
             })
       })
   @GetMapping
-  public ResponseEntity<Page<BookDetails>> findAll(final Pageable pageable) {
+  public ResponseEntity<Page<BookDetailsDTO>> findAll(final Pageable pageable) {
     return ResponseEntity.ok(bookService.findAll(pageable));
   }
 
   /**
    * The mapping to add a new book to a user book list.
    *
-   * @param bookProfile DTO with book details
+   * @param payload DTO with book details
    * @return DTO of create book
    */
   @Operation(
@@ -95,7 +87,7 @@ class BookController {
             content = {
               @Content(
                   mediaType = APPLICATION_JSON_VALUE,
-                  schema = @Schema(implementation = BookDetails.class))
+                  schema = @Schema(implementation = BookDetailsDTO.class))
             }),
         @ApiResponse(
             responseCode = "401",
@@ -122,16 +114,20 @@ class BookController {
                   schema = @Schema(implementation = ErrorResponse.class))
             })
       })
-  @PostMapping(consumes = MULTIPART_FORM_DATA_VALUE, produces = APPLICATION_JSON_VALUE)
+  @PostMapping(
+      consumes = {MULTIPART_FORM_DATA_VALUE},
+      produces = APPLICATION_JSON_VALUE)
   @PreAuthorize("isAuthenticated() and authentication.principal.id == #userId")
-  public ResponseEntity<BookDetails> create(
-      @RequestParam("user_id") final UUID userId,
-      @Parameter(description = BOOK_PROFILE_SCHEMA, required = true)
+  public ResponseEntity<BookDetailsDTO> save(
+      @RequestParam("userId") final Integer userId,
+      @Parameter(description = BOOK_PAYLOAD_SCHEMA, required = true)
           @Valid
-          @RequestPart("book_profile")
-          final BookProfile bookProfile,
-      @RequestPart(required = false) final MultipartFile image) {
-    return ResponseEntity.status(CREATED).body(bookService.create(bookProfile, image, userId));
+          @RequestPart("bookPayload")
+          final BookSaveDTO payload,
+      @RequestPart(name = "image", required = false) MultipartFile image) {
+    return ResponseEntity.status(CREATED)
+        .contentType(APPLICATION_JSON)
+        .body(bookService.save(payload, image, userId));
   }
 
   /**
@@ -150,7 +146,7 @@ class BookController {
             content = {
               @Content(
                   mediaType = APPLICATION_JSON_VALUE,
-                  schema = @Schema(implementation = BookDetails.class))
+                  schema = @Schema(implementation = BookDetailsDTO.class))
             }),
         @ApiResponse(
             responseCode = "404",
@@ -170,7 +166,7 @@ class BookController {
             })
       })
   @GetMapping("/{id}")
-  public ResponseEntity<BookDetails> findById(@PathVariable UUID id) {
+  public ResponseEntity<BookDetailsDTO> findById(@PathVariable Integer id) {
     return ResponseEntity.ok(bookService.findById(id));
   }
 
@@ -191,7 +187,7 @@ class BookController {
             content = {
               @Content(
                   mediaType = APPLICATION_JSON_VALUE,
-                  schema = @Schema(implementation = BookDetails.class))
+                  schema = @Schema(implementation = BookDetailsDTO.class))
             }),
         @ApiResponse(
             responseCode = "404",
@@ -213,7 +209,7 @@ class BookController {
   @DeleteMapping("/{id}")
   @PreAuthorize("isAuthenticated() and authentication.principal.id == #userId")
   public ResponseEntity<AppResponse> deleteById(
-      @RequestParam("user_id") UUID userId, @PathVariable UUID id) {
+      @RequestParam("userId") Integer userId, @PathVariable Integer id) {
     bookService.deleteById(id);
     var response = new AppResponse(OK.value(), String.format("Book <%s> deleted", id));
     return ResponseEntity.ok(response);
@@ -260,9 +256,9 @@ class BookController {
       consumes = MULTIPART_FORM_DATA_VALUE,
       produces = APPLICATION_JSON_VALUE)
   @PreAuthorize("isAuthenticated() and authentication.principal.id == #userId")
-  public ResponseEntity<BookDetails> updateById(
-      @PathVariable UUID id,
-      @RequestParam("user_id") UUID userId,
+  public ResponseEntity<BookDetailsDTO> updateById(
+      @PathVariable Integer id,
+      @RequestParam("userId") Integer userId,
       @Parameter(description = BOOK_UPDATE_REQ_SCHEMA, required = true) @RequestPart("book") @Valid
           BookUpdateReq bookUpdateInfo,
       @RequestPart(value = "image", required = false) final MultipartFile imageFile) {

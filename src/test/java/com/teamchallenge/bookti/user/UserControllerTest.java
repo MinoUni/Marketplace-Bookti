@@ -16,16 +16,16 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.teamchallenge.bookti.exception.PasswordIsNotMatchesException;
-import com.teamchallenge.bookti.exception.RefreshTokenAlreadyRevokedException;
-import com.teamchallenge.bookti.exception.UserAlreadyExistsException;
-import com.teamchallenge.bookti.exception.UserNotFoundException;
+import com.teamchallenge.bookti.exception.user.PasswordIsNotMatchesException;
+import com.teamchallenge.bookti.exception.user.RefreshTokenAlreadyRevokedException;
+import com.teamchallenge.bookti.exception.user.UserAlreadyExistsException;
+import com.teamchallenge.bookti.exception.user.UserNotFoundException;
 import com.teamchallenge.bookti.security.AuthorizedUser;
 import com.teamchallenge.bookti.security.jwt.TokenManager;
 import com.teamchallenge.bookti.user.dto.MailResetPasswordRequest;
 import com.teamchallenge.bookti.user.dto.NewUserRegistrationRequest;
 import com.teamchallenge.bookti.user.dto.TokenPair;
-import com.teamchallenge.bookti.user.dto.UserFullInfo;
+import com.teamchallenge.bookti.user.dto.UserProfileDTO;
 import com.teamchallenge.bookti.user.dto.UserLoginRequest;
 import com.teamchallenge.bookti.user.dto.UserTokenPair;
 import com.teamchallenge.bookti.utils.EmailUtils;
@@ -82,11 +82,11 @@ class UserControllerTest {
     var user =
         AuthorizedUser.authorizedUserBuilder(
                 userDetails.getEmail(), userDetails.getPassword(), List.of())
-            .id(UUID.randomUUID())
+            .id(1)
             .build();
     var tokenPair =
         TokenPair.builder()
-            .userId(user.getId().toString())
+            .userId(user.getId())
             .accessToken("access_token")
             .refreshToken("refresh_token")
             .build();
@@ -108,13 +108,13 @@ class UserControllerTest {
 
       mockMvc
           .perform(
-              post("/api/v1/authorize/signup")
+              post("/authorize/signup")
                   .contentType(APPLICATION_JSON)
                   .content(jsonMapper.writeValueAsString(userDetails)))
           .andExpect(status().isCreated())
-          .andExpect(jsonPath("user_id").value(user.getId().toString()))
-          .andExpect(jsonPath("access_token").exists())
-          .andExpect(jsonPath("refresh_token").exists());
+          .andExpect(jsonPath("userId").value(user.getId().toString()))
+          .andExpect(jsonPath("accessToken").exists())
+          .andExpect(jsonPath("refreshToken").exists());
 
       verify(userService, times(1)).create(eq(userDetails));
       mock.verify(
@@ -138,7 +138,7 @@ class UserControllerTest {
     var user =
         AuthorizedUser.authorizedUserBuilder(
                 userDetails.getEmail(), userDetails.getPassword(), List.of())
-            .id(UUID.randomUUID())
+            .id(1)
             .build();
     var authentication =
         new UsernamePasswordAuthenticationToken(user, user.getPassword(), user.getAuthorities());
@@ -150,7 +150,7 @@ class UserControllerTest {
 
       mockMvc
           .perform(
-              post("/api/v1/authorize/signup")
+              post("/authorize/signup")
                   .contentType(APPLICATION_JSON)
                   .content(jsonMapper.writeValueAsString(userDetails)))
           .andExpect(status().isBadRequest())
@@ -179,7 +179,7 @@ class UserControllerTest {
     var user =
         AuthorizedUser.authorizedUserBuilder(
                 userDetails.getEmail(), userDetails.getPassword(), List.of())
-            .id(UUID.randomUUID())
+            .id(1)
             .build();
     var authentication =
         new UsernamePasswordAuthenticationToken(user, user.getPassword(), user.getAuthorities());
@@ -188,7 +188,7 @@ class UserControllerTest {
         mockStatic(UsernamePasswordAuthenticationToken.class)) {
       mockMvc
           .perform(
-              post("/api/v1/authorize/signup")
+              post("/authorize/signup")
                   .contentType(APPLICATION_JSON)
                   .content(jsonMapper.writeValueAsString(userDetails)))
           .andExpect(status().isBadRequest())
@@ -224,7 +224,7 @@ class UserControllerTest {
 
       mockMvc
           .perform(
-              post("/api/v1/authorize/signup")
+              post("/authorize/signup")
                   .contentType(APPLICATION_JSON)
                   .content(jsonMapper.writeValueAsString(userDetails)))
           .andExpect(status().isConflict())
@@ -253,11 +253,11 @@ class UserControllerTest {
     UserLoginRequest request = new UserLoginRequest("testmail@gmail.com", "PassWord110k");
     var user =
         AuthorizedUser.authorizedUserBuilder(request.getEmail(), request.getPassword(), List.of())
-            .id(UUID.randomUUID())
+            .id(1)
             .build();
     var tokenPair =
         TokenPair.builder()
-            .userId(user.getId().toString())
+            .userId(user.getId())
             .accessToken("access_token")
             .refreshToken("refresh_token")
             .build();
@@ -270,13 +270,13 @@ class UserControllerTest {
 
     mockMvc
         .perform(
-            post("/api/v1/authorize/login")
+            post("/authorize/login")
                 .contentType(APPLICATION_JSON)
                 .content(jsonMapper.writeValueAsString(request)))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("user_id").value(user.getId().toString()))
-        .andExpect(jsonPath("access_token").exists())
-        .andExpect(jsonPath("refresh_token").exists());
+        .andExpect(jsonPath("userId").value(user.getId().toString()))
+        .andExpect(jsonPath("accessToken").exists())
+        .andExpect(jsonPath("refreshToken").exists());
 
     verify(authenticationManager, times(1)).authenticate(any(Authentication.class));
     verify(tokenManager, times(1)).generateTokenPair(any(Authentication.class));
@@ -295,7 +295,7 @@ class UserControllerTest {
 
     mockMvc
         .perform(
-            post("/api/v1/authorize/login")
+            post("/authorize/login")
                 .contentType(APPLICATION_JSON)
                 .content(jsonMapper.writeValueAsString(request)))
         .andExpect(status().isUnauthorized())
@@ -316,7 +316,7 @@ class UserControllerTest {
 
     mockMvc
         .perform(
-            post("/api/v1/authorize/login")
+            post("/authorize/login")
                 .contentType(APPLICATION_JSON)
                 .content(jsonMapper.writeValueAsString(request)))
         .andExpect(status().isBadRequest())
@@ -333,10 +333,10 @@ class UserControllerTest {
       "when calling /token/refresh, expect that request is valid, then response with TokenPair.class and status code 200")
   void whenUserRefreshTokenRequestIsValidThenResponseWithTokenPairAndStatusCode200()
       throws Exception {
-    UserTokenPair request = new UserTokenPair(UUID.randomUUID().toString(), "refresh_token");
+    UserTokenPair request = new UserTokenPair(1, "refresh_token");
     var user =
         AuthorizedUser.authorizedUserBuilder("email", "password", List.of())
-            .id(UUID.fromString(request.getUserId()))
+            .id(request.getUserId())
             .build();
     TokenPair tokenPair =
         TokenPair.builder()
@@ -354,13 +354,13 @@ class UserControllerTest {
 
     mockMvc
         .perform(
-            post("/api/v1/authorize/token/refresh")
+            post("/authorize/token/refresh")
                 .contentType(APPLICATION_JSON)
                 .content(jsonMapper.writeValueAsString(request)))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("user_id").value(user.getId().toString()))
-        .andExpect(jsonPath("access_token").exists())
-        .andExpect(jsonPath("refresh_token").exists());
+        .andExpect(jsonPath("userId").value(user.getId().toString()))
+        .andExpect(jsonPath("accessToken").exists())
+        .andExpect(jsonPath("refreshToken").exists());
 
     verify(tokenManager, times(1)).isRefreshTokenRevoked(eq(request.getRefreshToken()));
     verify(refreshTokenProvider, times(1)).authenticate(any(Authentication.class));
@@ -373,7 +373,7 @@ class UserControllerTest {
       "when calling /token/refresh, expect that refresh token invalid, then response with ErrorResponse.class and status code 401")
   void whenUserRefreshTokenRequestIsInvalidThenResponseWithErrorResponseAndStatusCode401()
       throws Exception {
-    UserTokenPair request = new UserTokenPair(UUID.randomUUID().toString(), "refresh_token");
+    UserTokenPair request = new UserTokenPair(1, "refresh_token");
 
     when(tokenManager.isRefreshTokenRevoked(eq(request.getRefreshToken())))
         .thenReturn(Boolean.FALSE);
@@ -382,7 +382,7 @@ class UserControllerTest {
 
     mockMvc
         .perform(
-            post("/api/v1/authorize/token/refresh")
+            post("/authorize/token/refresh")
                 .contentType(APPLICATION_JSON)
                 .content(jsonMapper.writeValueAsString(request)))
         .andExpect(status().isUnauthorized())
@@ -400,14 +400,14 @@ class UserControllerTest {
       "when calling /token/refresh, expect that refresh token revoked, then response with ErrorResponse.class and status code 409")
   void whenUserRefreshTokenRequestWithRevokedTokenThenResponseWIthErrorResponseAndStatusCode409()
       throws Exception {
-    UserTokenPair request = new UserTokenPair(UUID.randomUUID().toString(), "refresh_token");
+    UserTokenPair request = new UserTokenPair(1, "refresh_token");
 
     when(tokenManager.isRefreshTokenRevoked(eq(request.getRefreshToken())))
         .thenThrow(new RefreshTokenAlreadyRevokedException("Token revoked"));
 
     mockMvc
         .perform(
-            post("/api/v1/authorize/token/refresh")
+            post("/authorize/token/refresh")
                 .contentType(APPLICATION_JSON)
                 .content(jsonMapper.writeValueAsString(request)))
         .andExpect(status().isConflict())
@@ -425,10 +425,10 @@ class UserControllerTest {
       "when calling /token/revoke, expect that request is valid, then response with AppResponse.class and status code 200")
   void whenUserTokenRevokeRequestValidThenResponseWithAppResponseAndStatusCode200()
       throws Exception {
-    UserTokenPair request = new UserTokenPair(UUID.randomUUID().toString(), "refresh_token");
+    UserTokenPair request = new UserTokenPair(1, "refresh_token");
     var user =
         AuthorizedUser.authorizedUserBuilder("email", "password", List.of())
-            .id(UUID.fromString(request.getUserId()))
+            .id(request.getUserId())
             .build();
     Authentication authentication =
         new UsernamePasswordAuthenticationToken(user, user.getPassword(), user.getAuthorities());
@@ -439,7 +439,7 @@ class UserControllerTest {
 
     mockMvc
         .perform(
-            post("/api/v1/authorize/token/revoke")
+            post("/authorize/token/revoke")
                 .contentType(APPLICATION_JSON)
                 .content(jsonMapper.writeValueAsString(request)))
         .andExpect(status().isOk())
@@ -456,14 +456,14 @@ class UserControllerTest {
       "when calling /token/revoke, expect that refresh token is invalid, then response with ErrorResponse.class and status code 401")
   void whenUserTokenRevokeRequestIsInvalidThenResponseWithErrorResponseAndStatusCode401()
       throws Exception {
-    UserTokenPair request = new UserTokenPair(UUID.randomUUID().toString(), "refresh_token");
+    UserTokenPair request = new UserTokenPair(1, "refresh_token");
 
     when(refreshTokenProvider.authenticate(any(Authentication.class)))
         .thenThrow(new BadCredentialsException("Bad credentials"));
 
     mockMvc
         .perform(
-            post("/api/v1/authorize/token/revoke")
+            post("/authorize/token/revoke")
                 .contentType(APPLICATION_JSON)
                 .content(jsonMapper.writeValueAsString(request)))
         .andExpect(status().isUnauthorized())
@@ -480,10 +480,10 @@ class UserControllerTest {
       "when calling /token/revoke, expect that refresh token already revoked, then response with ErrorResponse.class and status code 409")
   void whenUserTokenRevokeRequestWithRevokedTokenThenResponseWithErrorResponseAndStatusCode409()
       throws Exception {
-    UserTokenPair request = new UserTokenPair(UUID.randomUUID().toString(), "refresh_token");
+    UserTokenPair request = new UserTokenPair(1, "refresh_token");
     var user =
         AuthorizedUser.authorizedUserBuilder("email", "password", List.of())
-            .id(UUID.fromString(request.getUserId()))
+            .id(request.getUserId())
             .build();
     Authentication authentication =
         new UsernamePasswordAuthenticationToken(user, user.getPassword(), user.getAuthorities());
@@ -495,7 +495,7 @@ class UserControllerTest {
 
     mockMvc
         .perform(
-            post("/api/v1/authorize/token/revoke")
+            post("/authorize/token/revoke")
                 .contentType(APPLICATION_JSON)
                 .content(jsonMapper.writeValueAsString(request)))
         .andExpect(status().isConflict())
@@ -512,9 +512,9 @@ class UserControllerTest {
   void shouldReturnMailResetPasswordResponseWithStatusCode200() throws Exception {
     String mail = "a@gmail.com";
     MailResetPasswordRequest mailResetPasswordRequest = new MailResetPasswordRequest(mail);
-    UserFullInfo userInfo =
-        new UserFullInfo(
-            UUID.randomUUID(),
+    UserProfileDTO userInfo =
+        new UserProfileDTO(
+            1,
             mail,
             "fullName",
             "telegramId",
@@ -526,8 +526,8 @@ class UserControllerTest {
     when(userService.findUserByEmail(mailResetPasswordRequest.getEmail())).thenReturn(userInfo);
 
     String token = UUID.randomUUID().toString();
-    UserEntity user =
-        UserEntity.builder()
+    User user =
+        User.builder()
             .id(userInfo.getId())
             .email(userInfo.getEmail())
             .fullName(userInfo.getFullName())
@@ -538,11 +538,11 @@ class UserControllerTest {
 
     mockMvc
         .perform(
-            post("/api/v1/authorize/login/resetPassword")
+            post("/authorize/login/resetPassword")
                 .contentType(APPLICATION_JSON)
                 .content(jsonMapper.writeValueAsString(mailResetPasswordRequest)))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("user_id").value(userInfo.getId().toString()));
+        .andExpect(jsonPath("userId").value(userInfo.getId().toString()));
   }
 
   @Test
@@ -555,7 +555,7 @@ class UserControllerTest {
 
     mockMvc
         .perform(
-            post("/api/v1/authorize/login/resetPassword")
+            post("/authorize/login/resetPassword")
                 .contentType(APPLICATION_JSON)
                 .content(jsonMapper.writeValueAsString(mailResetPasswordRequest)))
         .andExpect(status().isNotFound())
@@ -570,7 +570,7 @@ class UserControllerTest {
     MailResetPasswordRequest mailResetPasswordRequest = new MailResetPasswordRequest("abc123");
     mockMvc
         .perform(
-            post("/api/v1/authorize/login/resetPassword")
+            post("/authorize/login/resetPassword")
                 .contentType(APPLICATION_JSON)
                 .content(jsonMapper.writeValueAsString(mailResetPasswordRequest)))
         .andExpect(status().isBadRequest())

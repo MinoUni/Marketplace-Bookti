@@ -32,6 +32,8 @@ build/
 ### VS Code ###
 .vscode/
 
-### APP Ignore ###
-src/main/resources/application-dev_deploy.yml
-Dockerfile
+### SECRETS ###
+.env
+src/main/resources/application-dev.yml
+src/test/resources/application-test.yml
+access-refresh-token-keys

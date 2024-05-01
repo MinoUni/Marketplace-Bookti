@@ -1,31 +1,35 @@
-name: Running tests with coverage
+name: Run tests with coverage
 
 on:
   push:
-    branches: [ "main", "development" ]
+    branches: [ 'dev', 'prod' ]
+    paths:
+      - src/**
+      - 'Dockerfile'
+      - .github/workflows/**
   pull_request:
-    branches: [ "main", "development" ]
+    branches: [ 'dev', 'prod' ]
+  workflow_dispatch:
 
 jobs:
-  build:
-
+  test-coverage:
     runs-on: ubuntu-latest
+    name: Running tests with coverage
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Set up JDK 17
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
-          java-version: '17'
-          distribution: 'temurin'
-          cache: maven
+          java-version: 17
+          distribution: 'corretto'
       - name: Maven Verify
         env:
+          CLOUDINARY_CLOUD_NAME: ${{ secrets.CLOUDINARY_CLOUD_NAME }}
+          CLOUDINARY_API_KEY: ${{ secrets.CLOUDINARY_API_KEY }}
+          CLOUDINARY_API_SECRET: ${{ secrets.CLOUDINARY_API_SECRET }}
           GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
           GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
-          CLOUDINARY_NAME: ${{ secrets.CLOUDINARY_NAME }}
-          CLOUDINARY_API_SECRET: ${{ secrets.CLOUDINARY_API_SECRET }}
-          CLOUDINARY_API_KEY: ${{ secrets.CLOUDINARY_API_KEY }}
         run: mvn -B clean verify
       - name: Test Coverage
         uses: codecov/codecov-action@v1
