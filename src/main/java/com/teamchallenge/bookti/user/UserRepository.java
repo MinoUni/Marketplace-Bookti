@@ -1,8 +1,8 @@
 package com.teamchallenge.bookti.user;
 
-import com.teamchallenge.bookti.user.dto.UserFullInfo;
+import com.teamchallenge.bookti.user.dto.UserProfileDTO;
 import java.util.Optional;
-import java.util.UUID;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -14,21 +14,21 @@ import org.springframework.stereotype.Repository;
  * @author Katherine Sokol
  */
 @Repository
-public interface UserRepository extends JpaRepository<UserEntity, Long> {
+public interface UserRepository extends JpaRepository<User, Integer> {
 
-  Optional<UserEntity> findByEmail(String email);
+  Optional<User> findByEmail(String email);
 
-  Optional<UserEntity> findById(UUID id);
+  Optional<User> findById(Integer id);
 
   boolean existsUserByEmail(String email);
 
   @Query(
       """
-        select new com.teamchallenge.bookti.user.dto.UserFullInfo(
+        select new com.teamchallenge.bookti.user.dto.UserProfileDTO(
           u.id, u.email, u.fullName, u.telegramId, u.creationDate,
           u.location, u.avatarUrl, u.displayEmail, u.displayTelegram)
-        from UserEntity u
+        from User u
         where u.id = :id
       """)
-  Optional<UserFullInfo> findUserFullInfoById(@Param("id") UUID id);
+  Optional<UserProfileDTO> findUserFullInfoById(@Param("id") Integer id);
 }

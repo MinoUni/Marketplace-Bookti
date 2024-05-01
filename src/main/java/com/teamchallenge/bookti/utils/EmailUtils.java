@@ -1,6 +1,6 @@
 package com.teamchallenge.bookti.utils;
 
-import com.teamchallenge.bookti.user.dto.UserFullInfo;
+import com.teamchallenge.bookti.user.dto.UserProfileDTO;
 import java.text.MessageFormat;
 import lombok.RequiredArgsConstructor;
 import org.springframework.mail.SimpleMailMessage;
@@ -20,11 +20,11 @@ public class EmailUtils {
 
   private final JavaMailSender mailSender;
 
-  public void sendResetPasswordEmail(String token, UserFullInfo userFullInfo) {
-    mailSender.send(constructResetTokenEmail(token, userFullInfo));
+  public void sendResetPasswordEmail(String token, UserProfileDTO userProfileDTO) {
+    mailSender.send(constructResetTokenEmail(token, userProfileDTO));
   }
 
-  private SimpleMailMessage constructResetTokenEmail(String token, UserFullInfo user) {
+  private SimpleMailMessage constructResetTokenEmail(String token, UserProfileDTO user) {
     //TODO update message with locale
     String domainName = "Bookti";
     String url = domainName + "/renamePassword?resetToken=" + token;
@@ -37,7 +37,7 @@ public class EmailUtils {
     return constructEmail("Reset Password", message, user);
   }
 
-  private SimpleMailMessage constructEmail(String subject, String body, UserFullInfo user) {
+  private SimpleMailMessage constructEmail(String subject, String body, UserProfileDTO user) {
     final SimpleMailMessage email = new SimpleMailMessage();
     email.setSubject(subject);
     email.setText(body);

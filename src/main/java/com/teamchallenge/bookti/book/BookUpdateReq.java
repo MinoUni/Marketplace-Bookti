@@ -28,14 +28,14 @@ public class BookUpdateReq {
 
   @JsonProperty("publication_date")
   @NotNull(message = "Field <publication_date> must be not null")
-  private Year publicationDate;
+  private Year publicationYear;
 
   @NotBlank(message = "Field <language> must be not blank")
   private String language;
 
   @JsonProperty("trade_format")
   @NotBlank(message = "Field <trade_format> must be not blank")
-  private String tradeFormat;
+  private String exchangeFormat;
 
   private String description;
 }

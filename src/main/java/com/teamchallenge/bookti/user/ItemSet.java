@@ -4,11 +4,11 @@ import java.util.Set;
 import lombok.Getter;
 
 /**
- * Container to save item Set and count his size.
+ * Container to save items and count collection size.
  *
  * @author MinoUni
  * @version 1.0
- * @param <T> type of object collection
+ * @param <T> object type
  */
 @Getter
 public class ItemSet<T> {

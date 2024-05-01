@@ -19,10 +19,6 @@ import com.teamchallenge.bookti.security.CustomUserDetailsService;
 import com.teamchallenge.bookti.security.handler.CustomAccessDeniedHandler;
 import com.teamchallenge.bookti.security.handler.CustomRestAuthenticationEntryPoint;
 import com.teamchallenge.bookti.security.jwt.JwtToAuthorizedUserConverter;
-import com.teamchallenge.bookti.security.oauth2.handler.FailureHandler;
-import com.teamchallenge.bookti.security.oauth2.handler.SuccessHandler;
-import com.teamchallenge.bookti.security.oauth2.repository.CustomAuthorizationRequestRepository;
-import com.teamchallenge.bookti.security.oauth2.service.CustomOauth2UserService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -62,10 +58,6 @@ class SecurityConfig {
   private final CustomAccessDeniedHandler accessDeniedHandler;
   private final ApplicationProperties applicationProperties;
   private final PasswordEncoder passwordEncoder;
-  private final SuccessHandler successHandler;
-  private final FailureHandler failureHandler;
-  private final CustomOauth2UserService userService;
-  private final CustomAuthorizationRequestRepository authorizationRequestRepository;
 
   @Value("${application.cors.origins}")
   private List<String> allowedOrigins;
@@ -79,8 +71,7 @@ class SecurityConfig {
    */
   @Bean
   public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-    return http.httpBasic(AbstractHttpConfigurer::disable)
-        .formLogin(AbstractHttpConfigurer::disable)
+    return http
         .csrf(AbstractHttpConfigurer::disable)
         .sessionManagement(
             session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -102,19 +93,6 @@ class SecurityConfig {
                     .authenticated())
         .oauth2ResourceServer(
             oauth2 -> oauth2.jwt(jwt -> jwt.jwtAuthenticationConverter(jwtToUserConverter)))
-        .oauth2Login(
-            oauth2 ->
-                oauth2
-                    .authorizationEndpoint(
-                        authEndpoint ->
-                            authEndpoint
-                                .baseUri("/oauth2/authorize")
-                                .authorizationRequestRepository(authorizationRequestRepository))
-                    .redirectionEndpoint(
-                        redirectEndpoint -> redirectEndpoint.baseUri("/oauth2/callback/*"))
-                    .userInfoEndpoint(userInfoEndpoint -> userInfoEndpoint.userService(userService))
-                    .successHandler(successHandler)
-                    .failureHandler(failureHandler))
         .build();
   }
 

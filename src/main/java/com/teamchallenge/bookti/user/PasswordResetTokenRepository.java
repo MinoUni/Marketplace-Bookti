@@ -16,10 +16,10 @@ interface PasswordResetTokenRepository extends JpaRepository<PasswordResetToken,
 
   Optional<PasswordResetToken> findByToken(String token);
 
-  PasswordResetToken findByUser(UserEntity user);
+  PasswordResetToken findByUser(User user);
 
   @Modifying
   @Transactional
   @Query("delete from PasswordResetToken t where t.user = :user")
-  void deletePasswordResetTokenByUserId(@Param("user") UserEntity user);
+  void deletePasswordResetTokenByUserId(@Param("user") User user);
 }

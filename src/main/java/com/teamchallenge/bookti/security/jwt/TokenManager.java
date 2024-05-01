@@ -1,6 +1,6 @@
 package com.teamchallenge.bookti.security.jwt;
 
-import com.teamchallenge.bookti.exception.RefreshTokenAlreadyRevokedException;
+import com.teamchallenge.bookti.exception.user.RefreshTokenAlreadyRevokedException;
 import com.teamchallenge.bookti.security.AuthorizedUser;
 import com.teamchallenge.bookti.user.dto.TokenPair;
 import java.text.MessageFormat;
@@ -32,7 +32,7 @@ import org.springframework.stereotype.Component;
 public class TokenManager {
 
   @Getter
-  private final Map<String, UUID> revokedTokens = new ConcurrentHashMap<>();
+  private final Map<String, Integer> revokedTokens = new ConcurrentHashMap<>();
   private final JwtEncoder accessTokenEncoder;
   private final JwtEncoder refreshTokenEncoder;
   private final String issuer;
@@ -72,7 +72,7 @@ public class TokenManager {
     }
     return TokenPair
         .builder()
-        .userId(String.valueOf(user.getId()))
+        .userId((user.getId()))
         .refreshToken(validateRefreshToken(authentication))
         .accessToken(generateAccessToken(authentication))
         .build();
@@ -104,7 +104,7 @@ public class TokenManager {
           MessageFormat.format("Token <{0}> is already revoked", token)
       );
     }
-    revokedTokens.put(token, UUID.fromString(jwt.getSubject()));
+    revokedTokens.put(token, Integer.valueOf(jwt.getSubject()));
   }
 
   private String validateRefreshToken(Authentication authentication) {
@@ -114,7 +114,7 @@ public class TokenManager {
       if (Duration.between(now, expiresAt).toDays() > 4) {
         return jwt.getTokenValue();
       }
-      revokedTokens.put(jwt.getTokenValue(), UUID.fromString(jwt.getSubject()));
+      revokedTokens.put(jwt.getTokenValue(), Integer.valueOf(jwt.getSubject()));
     }
     return generateRefreshToken(authentication);
   }
