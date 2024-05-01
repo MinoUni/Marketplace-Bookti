@@ -20,8 +20,8 @@ spring:
       max-request-size: 50MB
   datasource:
     type: com.zaxxer.hikari.HikariDataSource
-    driver-class-name: org.postgresql.Driver
-    url: jdbc:${DB_URL}/${DB_NAME}
+    driver-class-name: ${DRIVER_CLASS_NAME}
+    url: jdbc:${DB_URL}
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
     hikari:
