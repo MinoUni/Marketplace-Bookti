@@ -16,8 +16,6 @@ import org.springframework.stereotype.Component;
 @Component
 public class EmailUtils {
 
-  private String mailAddress;
-
   private final JavaMailSender mailSender;
 
   public void sendResetPasswordEmail(String token, UserProfileDTO userProfileDTO) {
@@ -25,25 +23,26 @@ public class EmailUtils {
   }
 
   private SimpleMailMessage constructResetTokenEmail(String token, UserProfileDTO user) {
-    //TODO update message with locale
-    String domainName = "Bookti";
+    // TODO update message with locale
+    String domainName = "https://marketplace-bookti.vercel.app";
     String url = domainName + "/renamePassword?resetToken=" + token;
-    String message = MessageFormat.format("""
+    String message =
+        MessageFormat.format(
+            """
             Dear {0}!
             You have received this email to change your forgotten password on {1}.
             Follow this link to continue: {2}
             """,
-        user.getFullName(), domainName, url);
-    return constructEmail("Reset Password", message, user);
+            user.getFullName(), domainName, url);
+    return constructEmail(message, user);
   }
 
-  private SimpleMailMessage constructEmail(String subject, String body, UserProfileDTO user) {
+  private SimpleMailMessage constructEmail(String body, UserProfileDTO user) {
     final SimpleMailMessage email = new SimpleMailMessage();
-    email.setSubject(subject);
+    email.setSubject("Reset Password");
     email.setText(body);
     email.setTo(user.getEmail());
-    email.setFrom(mailAddress);
+    email.setFrom("BookBridgeHub");
     return email;
   }
-
 }
