@@ -1,16 +1,17 @@
 package com.teamchallenge.bookti.user;
 
+import static com.fasterxml.jackson.annotation.JsonFormat.Shape.STRING;
+
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import java.time.LocalDate;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDate;
-
-import static com.fasterxml.jackson.annotation.JsonFormat.Shape.STRING;
-
 @Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)

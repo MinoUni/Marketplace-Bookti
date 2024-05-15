@@ -9,13 +9,15 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PastOrPresent;
 import java.time.Year;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Getter
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
-class BookSaveDTO {
+public class BookSaveDTO {
 
   @NotBlank(message = FIELD_NOT_BLANK_MESSAGE)
   private String title;

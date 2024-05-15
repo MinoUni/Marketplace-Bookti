@@ -3,10 +3,11 @@ package com.teamchallenge.bookti.book;
 import static com.teamchallenge.bookti.utils.CloudinaryUtils.BOOKS_FOLDER_NAME;
 import static org.springframework.transaction.annotation.Isolation.REPEATABLE_READ;
 
+import com.teamchallenge.bookti.constant.BookConstant;
+import com.teamchallenge.bookti.constant.UserConstant;
 import com.teamchallenge.bookti.exception.book.BookNotFoundException;
 import com.teamchallenge.bookti.exception.user.UserNotFoundException;
 import com.teamchallenge.bookti.mapper.BookMapper;
-import com.teamchallenge.bookti.mapper.MapperUtils;
 import com.teamchallenge.bookti.user.User;
 import com.teamchallenge.bookti.user.UserDTO;
 import com.teamchallenge.bookti.user.UserRepository;
@@ -27,21 +28,24 @@ class BookService {
   private final BookRepository bookRepository;
   private final UserRepository userRepository;
   private final CloudinaryUtils cloudinaryUtils;
-  private final MapperUtils mapperUtils;
   private final BookMapper bookMapper;
 
   @Transactional
-  public BookDetailsDTO save(BookSaveDTO bookSaveDTO, MultipartFile image, Integer userId) {
+  public BookDetailsDTO save(BookSaveDTO bookDto, MultipartFile image, Integer userId) {
     String imageUrl = null;
-    String imageName = UUID.randomUUID().toString();
-    if (image != null && !image.isEmpty()) {
-      imageUrl = cloudinaryUtils.uploadFile(image, imageName, BOOKS_FOLDER_NAME);
-    }
-    var user =
+    String imageName = null;
+    User user =
         userRepository
             .findById(userId)
-            .orElseThrow(() -> new UserNotFoundException("User not found."));
-    var book = build(bookSaveDTO, imageUrl, imageName, user);
+            .orElseThrow(
+                () ->
+                    new UserNotFoundException(
+                        String.format(UserConstant.NOT_FOUND_MESSAGE, userId)));
+    if (image != null && !image.isEmpty()) {
+      imageName = UUID.randomUUID().toString();
+      imageUrl = cloudinaryUtils.uploadFile(image, imageName, BOOKS_FOLDER_NAME);
+    }
+    Book book = bookMapper.mapBookSaveDtoAndUserToBook(bookDto, user, imageUrl, imageName);
     book = bookRepository.save(book);
     return bookMapper.mapBookToBookDetailsDTO(book);
   }
@@ -50,8 +54,9 @@ class BookService {
     BookDetailsDTO book =
         bookRepository
             .findBookById(id)
-            .orElseThrow(() -> new BookNotFoundException("Book not found."));
-    UserDTO owner = bookRepository.getBookOwner(book.getId());
+            .orElseThrow(
+                () -> new BookNotFoundException(String.format(BookConstant.NOT_FOUND_MESSAGE, id)));
+    UserDTO owner = bookRepository.getBookOwner(id);
     book.setOwner(owner);
     return book;
   }
@@ -62,40 +67,24 @@ class BookService {
 
   @Transactional
   public void deleteById(Integer id) {
-    if (bookRepository.existsById(id)) {
-      bookRepository.deleteById(id);
+    if (!bookRepository.existsById(id)) {
+      throw new BookNotFoundException(String.format(BookConstant.NOT_FOUND_MESSAGE, id));
     }
-    throw new BookNotFoundException("Book not found.");
+    bookRepository.deleteById(id);
   }
 
   @Transactional(isolation = REPEATABLE_READ)
-  public BookDetailsDTO updateById(
-      Integer id, BookUpdateReq bookUpdateInfo, MultipartFile imageFile) {
+  public BookDetailsDTO updateById(Integer id, BookUpdateReq bookUpdate, MultipartFile image) {
     if (!bookRepository.existsById(id)) {
-      throw new BookNotFoundException("Book not found.");
+      throw new BookNotFoundException(String.format(BookConstant.NOT_FOUND_MESSAGE, id));
     }
     var book = bookRepository.getReferenceById(id);
-    if (imageFile != null && !imageFile.isEmpty()) {
-      var imageUrl = cloudinaryUtils.uploadFile(imageFile, book.getImageName(), BOOKS_FOLDER_NAME);
+    if (image != null && !image.isEmpty()) {
+      var imageUrl = cloudinaryUtils.uploadFile(image, book.getImageName(), BOOKS_FOLDER_NAME);
       book.setImageUrl(imageUrl);
     }
-    mapperUtils.mapBookUpdateToBook(bookUpdateInfo, book);
+    bookMapper.mapBookUpdateToBook(bookUpdate, book);
     bookRepository.save(book);
     return findById(id);
-  }
-
-  private Book build(BookSaveDTO bookSaveDTO, String imageUrl, String imageName, User user) {
-    return Book.builder()
-        .title(bookSaveDTO.getTitle())
-        .author(bookSaveDTO.getAuthor())
-        .genre(bookSaveDTO.getGenre())
-        .description(bookSaveDTO.getDescription())
-        .imageName(imageName)
-        .imageUrl(imageUrl)
-        .language(bookSaveDTO.getLanguage())
-        .publicationYear(bookSaveDTO.getPublicationYear())
-        .exchangeFormat(BookExchangeFormat.valueOf(bookSaveDTO.getExchangeFormat()))
-        .owner(user)
-        .build();
   }
 }
