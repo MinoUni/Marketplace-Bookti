@@ -118,16 +118,17 @@ class BookController {
       consumes = {MULTIPART_FORM_DATA_VALUE},
       produces = APPLICATION_JSON_VALUE)
   @PreAuthorize("isAuthenticated() and authentication.principal.id == #userId")
-  public ResponseEntity<BookDetailsDTO> save(
+  public ResponseEntity<String> save(
       @RequestParam("userId") final Integer userId,
       @Parameter(description = BOOK_PAYLOAD_SCHEMA, required = true)
           @Valid
           @RequestPart("bookPayload")
           final BookSaveDTO payload,
       @RequestPart(name = "image", required = false) MultipartFile image) {
+    bookService.save(payload, image, userId);
     return ResponseEntity.status(CREATED)
         .contentType(APPLICATION_JSON)
-        .body(bookService.save(payload, image, userId));
+        .build();
   }
 
   /**

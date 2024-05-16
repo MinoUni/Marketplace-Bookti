@@ -25,7 +25,7 @@ public interface BookMapper {
   void mapBookUpdateToBook(BookUpdateReq bookUpdate, @MappingTarget Book book);
 
   @Mapping(target = "id", ignore = true)
-  Book mapBookSaveDtoAndUserToBook(BookSaveDTO bookSaveDTO, User user, String imageUrl, String imageName);
+  Book mapBookSaveDtoAndUserToBook(BookSaveDTO bookSaveDTO, User user);
 
   BookDetailsDTO mapBookToBookDetailsDTO(Book book);
 }

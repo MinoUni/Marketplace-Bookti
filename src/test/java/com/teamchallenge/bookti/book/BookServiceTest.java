@@ -1,5 +1,17 @@
 package com.teamchallenge.bookti.book;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import com.teamchallenge.bookti.exception.book.BookNotFoundException;
 import com.teamchallenge.bookti.exception.user.UserNotFoundException;
 import com.teamchallenge.bookti.mapper.BookMapper;
@@ -7,6 +19,8 @@ import com.teamchallenge.bookti.user.User;
 import com.teamchallenge.bookti.user.UserDTO;
 import com.teamchallenge.bookti.user.UserRepository;
 import com.teamchallenge.bookti.utils.CloudinaryUtils;
+import java.time.Year;
+import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -14,15 +28,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.time.Year;
-import java.util.Optional;
-
-import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class BookServiceTest {
@@ -39,39 +44,25 @@ class BookServiceTest {
       new BookService(mockBookRepository, mockUserRepository, mockCloudinary, mockBookMapper);
 
   @Test
-  @DisplayName("when save book with valid args then return DTO of saved book")
-  void whenBookSaveWithValidArgsThenReturnBookDetailsDto() {
+  @DisplayName("when save book without image then return saved book id")
+  void whenBookSaveWithoutImageThenSaveBookAndReturnBookId() {
     MultipartFile image = null;
     int userId = 1;
     BookSaveDTO bookPayload = generateValidBookSaveDto();
     User user = generateUser(userId);
     Book book = generateValidBook(user);
-    BookDetailsDTO bookDetailsDto = generateBookDetailsDto(user, book);
 
-    when(mockUserRepository.findById(eq(userId))).thenReturn(Optional.of(user));
-    when(mockBookMapper.mapBookSaveDtoAndUserToBook(eq(bookPayload), eq(user), any(), any()))
-        .thenReturn(book);
+    when(mockUserRepository.existsById(eq(userId))).thenReturn(true);
+    when(mockUserRepository.getReferenceById(eq(userId))).thenReturn(user);
+    when(mockBookMapper.mapBookSaveDtoAndUserToBook(eq(bookPayload), eq(user))).thenReturn(book);
     when(mockBookRepository.save(eq(book))).thenReturn(book);
-    when(mockBookMapper.mapBookToBookDetailsDTO(eq(book))).thenReturn(bookDetailsDto);
 
-    BookDetailsDTO bookDto = assertDoesNotThrow(() -> bookService.save(bookPayload, image, userId));
+    assertDoesNotThrow(() -> bookService.save(bookPayload, image, userId));
 
-    assertAll(
-        () -> {
-          assertEquals(bookPayload.getTitle(), bookDto.getTitle());
-          assertEquals(bookPayload.getAuthor(), bookDto.getAuthor());
-          assertEquals(bookPayload.getGenre(), bookDto.getGenre());
-          assertEquals(bookPayload.getDescription(), bookDto.getDescription());
-          assertEquals(bookPayload.getLanguage(), bookDto.getLanguage());
-          assertEquals(bookPayload.getExchangeFormat(), bookDto.getExchangeFormat());
-          assertEquals(bookPayload.getPublicationYear(), bookDto.getPublicationYear());
-        });
-
+    verify(mockUserRepository, times(1)).existsById(eq(userId));
+    verify(mockUserRepository, times(1)).getReferenceById(eq(userId));
+    verify(mockBookMapper, times(1)).mapBookSaveDtoAndUserToBook(eq(bookPayload), eq(user));
     verify(mockCloudinary, never()).uploadFile(eq(image), any(), any());
-    verify(mockBookMapper, times(1))
-        .mapBookSaveDtoAndUserToBook(eq(bookPayload), eq(user), any(), any());
-    verify(mockBookMapper, times(1)).mapBookToBookDetailsDTO(eq(book));
-    verify(mockUserRepository, times(1)).findById(eq(userId));
     verify(mockBookRepository, times(1)).save(eq(book));
   }
 
@@ -82,22 +73,20 @@ class BookServiceTest {
     int userId = 1;
     BookSaveDTO bookPayload = generateValidBookSaveDto();
 
-    when(mockUserRepository.findById(eq(userId))).thenThrow(UserNotFoundException.class);
+    when(mockUserRepository.existsById(eq(userId))).thenReturn(false);
 
     assertThrows(UserNotFoundException.class, () -> bookService.save(bookPayload, image, userId));
 
+    verify(mockUserRepository, times(1)).existsById(eq(userId));
+    verify(mockUserRepository, never()).getReferenceById(eq(userId));
+    verify(mockBookMapper, never()).mapBookSaveDtoAndUserToBook(eq(bookPayload), any(User.class));
     verify(mockCloudinary, never()).uploadFile(eq(image), any(String.class), any(String.class));
-    verify(mockUserRepository, times(1)).findById(eq(userId));
-    verify(mockBookMapper, never())
-        .mapBookSaveDtoAndUserToBook(
-            eq(bookPayload), any(User.class), any(String.class), any(String.class));
     verify(mockBookRepository, never()).save(any(Book.class));
-    verify(mockBookMapper, never()).mapBookToBookDetailsDTO(any(Book.class));
   }
 
   @Test
   @DisplayName(
-      "when save book with image, then upload file to cloud and save link with book into db")
+      "when save book with image, upload file to cloud, save link with book into db, then return book id")
   void whenBookSaveWithImageThenUploadImageToCloudAndSaveBookAndLinkIntoDatabase() {
     MultipartFile image =
         new MockMultipartFile("image", "image", MediaType.IMAGE_JPEG_VALUE, new byte[] {0, 1, 1});
@@ -106,36 +95,21 @@ class BookServiceTest {
     String imageUrl = "image_url";
     User user = generateUser(userId);
     Book book = generateValidBook(user);
-    BookDetailsDTO bookDto = generateBookDetailsDto(user, book);
 
-    when(mockUserRepository.findById(eq(userId))).thenReturn(Optional.of(user));
+    when(mockUserRepository.existsById(eq(userId))).thenReturn(true);
+    when(mockUserRepository.getReferenceById(eq(userId))).thenReturn(user);
     when(mockCloudinary.uploadFile(eq(image), any(String.class), any(String.class)))
         .thenReturn(imageUrl);
-    when(mockBookMapper.mapBookSaveDtoAndUserToBook(
-            eq(bookPayload), eq(user), eq(imageUrl), any(String.class)))
-        .thenReturn(book);
+    when(mockBookMapper.mapBookSaveDtoAndUserToBook(eq(bookPayload), eq(user))).thenReturn(book);
     when(mockBookRepository.save(eq(book))).thenReturn(book);
-    when(mockBookMapper.mapBookToBookDetailsDTO(eq(book))).thenReturn(bookDto);
 
     assertDoesNotThrow(() -> bookService.save(bookPayload, image, userId));
 
-    assertAll(
-        () -> {
-          assertEquals(bookPayload.getTitle(), bookDto.getTitle());
-          assertEquals(bookPayload.getAuthor(), bookDto.getAuthor());
-          assertEquals(bookPayload.getGenre(), bookDto.getGenre());
-          assertEquals(bookPayload.getDescription(), bookDto.getDescription());
-          assertEquals(bookPayload.getLanguage(), bookDto.getLanguage());
-          assertEquals(bookPayload.getExchangeFormat(), bookDto.getExchangeFormat());
-          assertEquals(bookPayload.getPublicationYear(), bookDto.getPublicationYear());
-        });
-
+    verify(mockUserRepository, times(1)).existsById(eq(userId));
+    verify(mockUserRepository, times(1)).getReferenceById(eq(userId));
+    verify(mockBookMapper, times(1)).mapBookSaveDtoAndUserToBook(eq(bookPayload), eq(user));
     verify(mockCloudinary, times(1)).uploadFile(eq(image), any(String.class), any(String.class));
-    verify(mockUserRepository, times(1)).findById(eq(userId));
-    verify(mockBookMapper, times(1))
-        .mapBookSaveDtoAndUserToBook(eq(bookPayload), eq(user), eq(imageUrl), any(String.class));
     verify(mockBookRepository, times(1)).save(eq(book));
-    verify(mockBookMapper, times(1)).mapBookToBookDetailsDTO(eq(book));
   }
 
   @Test
@@ -200,21 +174,6 @@ class BookServiceTest {
 
     verify(mockBookRepository, times(1)).existsById(bookId);
     verify(mockBookRepository, never()).deleteById(eq(bookId));
-  }
-
-  private static BookDetailsDTO generateBookDetailsDto(User user, Book book) {
-    return BookDetailsDTO.builder()
-        .id(1)
-        .title(book.getTitle())
-        .author(book.getAuthor())
-        .genre(book.getGenre())
-        .description(book.getDescription())
-        .publicationYear(book.getPublicationYear())
-        .language(book.getLanguage())
-        .imageUrl(book.getImageUrl())
-        .exchangeFormat(book.getExchangeFormat().getFormat())
-        .owner(UserDTO.builder().id(user.getId()).email(user.getEmail()).build())
-        .build();
   }
 
   private static User generateUser(int userId) {

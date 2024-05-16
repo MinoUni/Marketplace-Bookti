@@ -31,23 +31,22 @@ class BookService {
   private final BookMapper bookMapper;
 
   @Transactional
-  public BookDetailsDTO save(BookSaveDTO bookDto, MultipartFile image, Integer userId) {
+  public int save(BookSaveDTO bookDto, MultipartFile image, Integer userId) {
     String imageUrl = null;
     String imageName = null;
-    User user =
-        userRepository
-            .findById(userId)
-            .orElseThrow(
-                () ->
-                    new UserNotFoundException(
-                        String.format(UserConstant.NOT_FOUND_MESSAGE, userId)));
+    if (!userRepository.existsById(userId)) {
+      throw new UserNotFoundException(String.format(UserConstant.NOT_FOUND_MESSAGE, userId));
+    }
+    User user = userRepository.getReferenceById(userId);
+    Book book = bookMapper.mapBookSaveDtoAndUserToBook(bookDto, user);
     if (image != null && !image.isEmpty()) {
       imageName = UUID.randomUUID().toString();
       imageUrl = cloudinaryUtils.uploadFile(image, imageName, BOOKS_FOLDER_NAME);
+      book.setImageName(imageName);
+      book.setImageUrl(imageUrl);
     }
-    Book book = bookMapper.mapBookSaveDtoAndUserToBook(bookDto, user, imageUrl, imageName);
     book = bookRepository.save(book);
-    return bookMapper.mapBookToBookDetailsDTO(book);
+    return book.getId();
   }
 
   public BookDetailsDTO findById(Integer id) {

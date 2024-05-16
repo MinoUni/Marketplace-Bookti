@@ -27,7 +27,6 @@ import org.springframework.test.web.servlet.MockMvc;
 @AutoConfigureMockMvc(addFilters = false)
 class BookControllerTest {
 
-
   @Autowired private MockMvc mockMvc;
 
   @Autowired private ObjectMapper mapper;
@@ -35,25 +34,35 @@ class BookControllerTest {
   @MockBean private UserRepository userRepository;
 
   @MockBean private BookService bookService;
-  
+
   @Test
   @WithMockUser
   void test1() throws Exception {
-    BookSaveDTO bookPayload = new BookSaveDTO(
-            "title", "author", "genre", Year.of(1999), "eng", BookExchangeFormat.GIFT.name(), "description");
-    MockMultipartFile mockFile = new MockMultipartFile(
+    BookSaveDTO bookPayload =
+        new BookSaveDTO(
+            "title",
+            "author",
+            "genre",
+            Year.of(1999),
+            "eng",
+            BookExchangeFormat.GIFT.name(),
+            "description");
+    MockMultipartFile mockFile =
+        new MockMultipartFile(
             "bookPayload",
             "book.json",
             APPLICATION_JSON_VALUE,
             mapper.writeValueAsBytes(bookPayload));
-    when(bookService.save(any(), any(), any())).thenReturn(BookDetailsDTO.builder().build());
+    when(bookService.save(any(), any(), any())).thenReturn(1);
     mockMvc
         .perform(
             multipart("/books")
                 .file(mockFile)
                 .contentType(MULTIPART_FORM_DATA)
                 .param("userId", "1"))
-        .andExpectAll(status().isCreated(), content().contentType(APPLICATION_JSON));
+        .andExpectAll(
+            status().isCreated(),
+            content().contentType(APPLICATION_JSON));
 
     verify(bookService, times(1)).save(any(), any(), any());
   }
