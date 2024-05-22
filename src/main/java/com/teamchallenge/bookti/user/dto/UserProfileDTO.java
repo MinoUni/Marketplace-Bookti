@@ -4,8 +4,8 @@ import static com.fasterxml.jackson.annotation.JsonFormat.Shape.STRING;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.teamchallenge.bookti.book.BookProfileDTO;
-import com.teamchallenge.bookti.user.ItemSet;
 import com.teamchallenge.bookti.user.User;
+import com.teamchallenge.bookti.utils.ItemSet;
 import java.time.LocalDate;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

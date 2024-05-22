@@ -22,12 +22,13 @@ import com.teamchallenge.bookti.exception.user.UserAlreadyExistsException;
 import com.teamchallenge.bookti.exception.user.UserNotFoundException;
 import com.teamchallenge.bookti.security.AuthorizedUser;
 import com.teamchallenge.bookti.security.jwt.TokenManager;
-import com.teamchallenge.bookti.user.dto.MailResetPasswordRequest;
-import com.teamchallenge.bookti.user.dto.NewUserRegistrationRequest;
 import com.teamchallenge.bookti.user.dto.TokenPair;
+import com.teamchallenge.bookti.user.dto.UserLoginDto;
 import com.teamchallenge.bookti.user.dto.UserProfileDTO;
-import com.teamchallenge.bookti.user.dto.UserLoginRequest;
+import com.teamchallenge.bookti.user.dto.UserSaveDto;
 import com.teamchallenge.bookti.user.dto.UserTokenPair;
+import com.teamchallenge.bookti.user.password.MailResetPasswordRequest;
+import com.teamchallenge.bookti.user.password.PasswordResetToken;
 import com.teamchallenge.bookti.utils.EmailUtils;
 import java.time.LocalDate;
 import java.util.List;
@@ -76,8 +77,8 @@ class UserControllerTest {
   @DisplayName(
       "When calling /signup, expect that request is valid, then response with TokenPair.class and status code 201")
   void whenUserSignUpRequestIsValidThenResponseWithTokenPairAndStatusCode201() throws Exception {
-    NewUserRegistrationRequest userDetails =
-        new NewUserRegistrationRequest(
+    UserSaveDto userDetails =
+        new UserSaveDto(
             "fullName", "abc@gmail.com", "Password1", "Password1", "city");
     var user =
         AuthorizedUser.authorizedUserBuilder(
@@ -132,8 +133,8 @@ class UserControllerTest {
       "When calling /signup, expect that passwords in request not matches, then response with ErrorResponse.class and status code 409")
   void whenUserSignUpRequestWithNotEqualsPasswordsThenResponseWithErrorResponseAndStatusCode409()
       throws Exception {
-    NewUserRegistrationRequest userDetails =
-        new NewUserRegistrationRequest(
+    UserSaveDto userDetails =
+        new UserSaveDto(
             "FirstName", "abc@gmail.com", "Password1", "PassNoWord2", "city");
     var user =
         AuthorizedUser.authorizedUserBuilder(
@@ -174,8 +175,8 @@ class UserControllerTest {
       "When calling /signup, expect that request fail validation, then response with ErrorResponse.class and status code 400")
   void whenUserSignupRequestThatIsInvalidThenResponseWithErrorResponseAndStatusCode400()
       throws Exception {
-    NewUserRegistrationRequest userDetails =
-        new NewUserRegistrationRequest("", "invalidEmail", "12345", "54321", "");
+    UserSaveDto userDetails =
+        new UserSaveDto("", "invalidEmail", "12345", "54321", "");
     var user =
         AuthorizedUser.authorizedUserBuilder(
                 userDetails.getEmail(), userDetails.getPassword(), List.of())
@@ -212,8 +213,8 @@ class UserControllerTest {
       "when calling /signup, expect that user already exists, then response with ErrorResponse.class and status code 409")
   void whenUserSignUpRequestThatAlreadyExistsThenResponseWithErrorResponseAndStatusCode409()
       throws Exception {
-    NewUserRegistrationRequest userDetails =
-        new NewUserRegistrationRequest(
+    UserSaveDto userDetails =
+        new UserSaveDto(
             "first_name", "abc@gmail.com", "Password1", "Password1", "city");
     try (MockedStatic<UsernamePasswordAuthenticationToken> mock =
         mockStatic(UsernamePasswordAuthenticationToken.class)) {
@@ -250,7 +251,7 @@ class UserControllerTest {
       "when calling /login, expect that credentials are valid, then response with TokenPair.class and status code 200")
   void whenUserLoginRequestWithValidCredentialsThenResponseWithTokenPairAndStatusCode200()
       throws Exception {
-    UserLoginRequest request = new UserLoginRequest("testmail@gmail.com", "PassWord110k");
+    UserLoginDto request = new UserLoginDto("testmail@gmail.com", "PassWord110k");
     var user =
         AuthorizedUser.authorizedUserBuilder(request.getEmail(), request.getPassword(), List.of())
             .id(1)
@@ -288,7 +289,7 @@ class UserControllerTest {
       "when calling /login, expect that credentials are invalid, then response with ErrorResponse.class and status code 401")
   void whenUserLoginRequestWithInvalidCredentialsThenResponseWithErrorResponseAndStatusCode401()
       throws Exception {
-    UserLoginRequest request = new UserLoginRequest("testmail@gmail.com", "PassWord110k");
+    UserLoginDto request = new UserLoginDto("testmail@gmail.com", "PassWord110k");
 
     when(authenticationManager.authenticate(any(Authentication.class)))
         .thenThrow(new BadCredentialsException("Bad Credentials"));
@@ -312,7 +313,7 @@ class UserControllerTest {
       "when calling /login, expect that request is invalid, then response with ErrorResponse.class and status code 400")
   void whenUserLoginRequestIsInvalidThenResponseWithErrorResponseAndStatusCode400()
       throws Exception {
-    UserLoginRequest request = new UserLoginRequest("", "1234");
+    UserLoginDto request = new UserLoginDto("", "1234");
 
     mockMvc
         .perform(

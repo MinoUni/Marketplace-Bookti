@@ -1,4 +1,4 @@
-package com.teamchallenge.bookti.user;
+package com.teamchallenge.bookti.user.dto;
 
 import static com.fasterxml.jackson.annotation.JsonFormat.Shape.STRING;
 

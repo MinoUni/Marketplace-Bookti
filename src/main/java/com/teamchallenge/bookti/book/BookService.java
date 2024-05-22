@@ -9,8 +9,8 @@ import com.teamchallenge.bookti.exception.book.BookNotFoundException;
 import com.teamchallenge.bookti.exception.user.UserNotFoundException;
 import com.teamchallenge.bookti.mapper.BookMapper;
 import com.teamchallenge.bookti.user.User;
-import com.teamchallenge.bookti.user.UserDTO;
 import com.teamchallenge.bookti.user.UserRepository;
+import com.teamchallenge.bookti.user.dto.UserDTO;
 import com.teamchallenge.bookti.utils.CloudinaryUtils;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +23,7 @@ import org.springframework.web.multipart.MultipartFile;
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-class BookService {
+public class BookService {
 
   private final BookRepository bookRepository;
   private final UserRepository userRepository;

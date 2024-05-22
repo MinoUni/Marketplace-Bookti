@@ -1,7 +1,7 @@
 package com.teamchallenge.bookti.book;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.teamchallenge.bookti.user.UserDTO;
+import com.teamchallenge.bookti.user.dto.UserDTO;
 import java.time.Year;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
