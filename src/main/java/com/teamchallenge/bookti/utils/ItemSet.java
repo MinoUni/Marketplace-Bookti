@@ -1,4 +1,4 @@
-package com.teamchallenge.bookti.user;
+package com.teamchallenge.bookti.utils;
 
 import java.util.Set;
 import lombok.Getter;
