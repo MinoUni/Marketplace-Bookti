@@ -29,6 +29,8 @@ import com.teamchallenge.bookti.user.dto.UserProfileDTO;
 import com.teamchallenge.bookti.user.dto.UserLoginRequest;
 import com.teamchallenge.bookti.user.dto.UserTokenPair;
 import com.teamchallenge.bookti.utils.EmailUtils;
+
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
@@ -517,6 +519,7 @@ class UserControllerTest {
             1,
             mail,
             "fullName",
+            BigDecimal.valueOf(3),
             "telegramId",
             LocalDate.now(),
             "location",

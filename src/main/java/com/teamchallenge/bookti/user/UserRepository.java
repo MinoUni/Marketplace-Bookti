@@ -25,10 +25,11 @@ public interface UserRepository extends JpaRepository<User, Integer> {
   @Query(
       """
         select new com.teamchallenge.bookti.user.dto.UserProfileDTO(
-          u.id, u.email, u.fullName, u.telegramId, u.creationDate,
+          u.id, u.email, u.fullName, u.rating, u.telegramId, u.creationDate,
           u.location, u.avatarUrl, u.displayEmail, u.displayTelegram)
         from User u
         where u.id = :id
       """)
   Optional<UserProfileDTO> findUserFullInfoById(@Param("id") Integer id);
+
 }

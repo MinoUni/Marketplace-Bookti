@@ -1,5 +1,6 @@
 package com.teamchallenge.bookti.review;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.teamchallenge.bookti.user.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -15,10 +16,11 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Entity
-@Table(name = "UserReview")
+@Table(name = "user_review")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -35,23 +37,25 @@ public class UserReview {
     @Column(columnDefinition = "TEXT")
     private String message;
 
-    @Column(name = "user_rating")
-    private Float rating;
+    @Column(name = "rating", precision = 10, scale = 1)
+    private BigDecimal rating;
 
+    @Builder.Default
     @Column(name = "creation_date", columnDefinition = "DATE")
-    private LocalDate creationDate = LocalDate.now();;
+    private LocalDate creationDate = LocalDate.now();
 
     @Column(name = "avatar_url")
     private String avatarUrl;
 
     @ToString.Exclude
-    @ManyToOne()
-    @JoinColumn(name = "userId", nullable = false)
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false)
+    @JsonIgnore
     private User owner;
 
-
-//    @ManyToOne()
-//    @JoinColumn(name = "bookId", nullable = true)
-//    private Book book;
-
+    @ToString.Exclude
+    @ManyToOne
+    @JoinColumn(name = "reviewers_id", nullable = false)
+    @JsonIgnore
+    private User reviewers;
 }
