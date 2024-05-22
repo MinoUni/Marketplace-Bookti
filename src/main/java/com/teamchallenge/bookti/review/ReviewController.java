@@ -84,7 +84,7 @@ public class ReviewController {
                             })
             })
     @GetMapping("/user/{userId}/received")
-    public ResponseEntity<List<UserReview>> findAllUserReviewById(@PathVariable("userId") Integer userId) {
+    public ResponseEntity<List<UserReview>> findAllUserReceivedReviewsById(@PathVariable("userId") Integer userId) {
 
         List<UserReview> response = userReviewService.findAllUserReceivedReviewsById(userId);
         log.info("From ReviewController method findAllUserReviewById - /reviews/user/{userId} - return user reviews. ");
