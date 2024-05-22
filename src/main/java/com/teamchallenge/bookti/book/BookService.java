@@ -32,8 +32,8 @@ class BookService {
 
   @Transactional
   public int save(BookSaveDTO bookDto, MultipartFile image, Integer userId) {
-    String imageUrl = null;
-    String imageName = null;
+    String imageUrl;
+    String imageName;
     if (!userRepository.existsById(userId)) {
       throw new UserNotFoundException(String.format(UserConstant.NOT_FOUND_MESSAGE, userId));
     }
@@ -74,10 +74,11 @@ class BookService {
 
   @Transactional(isolation = REPEATABLE_READ)
   public BookDetailsDTO updateById(Integer id, BookUpdateReq bookUpdate, MultipartFile image) {
-    if (!bookRepository.existsById(id)) {
-      throw new BookNotFoundException(String.format(BookConstant.NOT_FOUND_MESSAGE, id));
-    }
-    var book = bookRepository.getReferenceById(id);
+    var book =
+        bookRepository
+            .findById(id)
+            .orElseThrow(
+                () -> new BookNotFoundException(String.format(BookConstant.NOT_FOUND_MESSAGE, id)));
     if (image != null && !image.isEmpty()) {
       var imageUrl = cloudinaryUtils.uploadFile(image, book.getImageName(), BOOKS_FOLDER_NAME);
       book.setImageUrl(imageUrl);
