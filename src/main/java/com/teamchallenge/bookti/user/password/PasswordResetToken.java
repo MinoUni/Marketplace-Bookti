@@ -1,7 +1,8 @@
-package com.teamchallenge.bookti.user;
+package com.teamchallenge.bookti.user.password;
 
 import com.teamchallenge.bookti.exception.user.PasswordResetTokenIsExpiredException;
 import com.teamchallenge.bookti.exception.user.PasswordResetTokenNotFoundException;
+import com.teamchallenge.bookti.user.User;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -30,7 +31,7 @@ import org.hibernate.proxy.HibernateProxy;
 @Getter
 @Setter
 @ToString
-class PasswordResetToken {
+public class PasswordResetToken {
   private static final int EXPIRATION = 60;
 
   @Id
