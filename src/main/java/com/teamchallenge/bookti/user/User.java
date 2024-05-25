@@ -1,6 +1,7 @@
 package com.teamchallenge.bookti.user;
 
 import com.teamchallenge.bookti.book.Book;
+import com.teamchallenge.bookti.security.Role;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
