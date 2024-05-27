@@ -1,7 +1,7 @@
-package com.teamchallenge.bookti.user;
+package com.teamchallenge.bookti.security;
 
-import static com.teamchallenge.bookti.user.Authority.USER_READ;
-import static com.teamchallenge.bookti.user.Authority.USER_WRITE;
+import static com.teamchallenge.bookti.security.Authority.USER_READ;
+import static com.teamchallenge.bookti.security.Authority.USER_WRITE;
 
 import java.util.List;
 import java.util.Set;

@@ -15,7 +15,7 @@ import lombok.Data;
  */
 @Data
 @AllArgsConstructor
-public class UserLoginRequest {
+public class UserLoginDto {
 
   @Schema(type = "string", example = "mark.javar@gmail.com")
   @NotBlank(message = "Field <email> must not be blank")

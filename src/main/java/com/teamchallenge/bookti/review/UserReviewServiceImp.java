@@ -1,6 +1,9 @@
 package com.teamchallenge.bookti.review;
 
+import com.teamchallenge.bookti.constant.ReviewConstant;
+import com.teamchallenge.bookti.constant.UserConstant;
 import com.teamchallenge.bookti.exception.user.UserNotFoundException;
+import com.teamchallenge.bookti.mapper.ReviewMapper;
 import com.teamchallenge.bookti.user.User;
 import com.teamchallenge.bookti.user.UserRepository;
 import com.teamchallenge.bookti.user.dto.UserProfileDTO;
@@ -26,30 +29,31 @@ public class UserReviewServiceImp implements UserReviewService {
 
     private final UserRepository userRepository;
     private final UserReviewRepository userReviewRepository;
+    private final ReviewMapper reviewMapper;
     private final JwtDecoder jwtDecoder;
 
     @Override
     public List<UserReview> findAllUserReceivedReviewsById(Integer userId) {
-        if (userId > 0) {
-            List<UserReview> userReviewList = userReviewRepository.findAllUserReceivedReviewsById(userId);
-            log.info("From UserReviewServiceImp method - findAllUserReviewById - return list or empty list, received review to user: {}.", userId);
-
-            return userReviewList;
-        } else {
-            throw new UserNotFoundException("Write correct Users id.");
+        if (!userRepository.existsById(userId)) {
+            log.info("Throw UserNotFoundException with NOT_FOUND_MESSAGE. userId: {}", userId);
+            throw new UserNotFoundException(String.format(UserConstant.NOT_FOUND_MESSAGE, userId));
         }
+        List<UserReview> userReviewList = userReviewRepository.findAllUserReceivedReviewsById(userId);
+        log.info("From UserReviewServiceImp method - findAllUserReviewById - return list or empty list, received review to user: {}.", userId);
+
+        return userReviewList;
     }
 
     @Override
     public List<UserReview> findAllUserLeftReviewById(Integer userId) {
-        if (userId > 0) {
-            List<UserReview> userReviewList = userReviewRepository.findAllUserLeftReviewById(userId);
-            log.info("From UserReviewServiceImp method - findAllUserReviewById - return list or empty list, Left reviews to user: {}.", userId);
-
-            return userReviewList;
-        } else {
-            throw new UserNotFoundException("Write correct Users id.");
+        if (!userRepository.existsById(userId)) {
+            log.info("Throw UserNotFoundException with NOT_FOUND_MESSAGE. userId: {}", userId);
+            throw new UserNotFoundException(String.format(UserConstant.NOT_FOUND_MESSAGE, userId));
         }
+        List<UserReview> userReviewList = userReviewRepository.findAllUserLeftReviewById(userId);
+        log.info("From UserReviewServiceImp method - findAllUserReviewById - return list or empty list, received review to user: {}.", userId);
+
+        return userReviewList;
     }
 
     @Transactional
@@ -65,7 +69,8 @@ public class UserReviewServiceImp implements UserReviewService {
                     .orElseThrow(
                             () -> new UserNotFoundException(format("Owner's User with id <{0}> not found.", review.getOwnerId())));
 
-            UserReview newReview = createUserReview(review, userReviewer, userOwner);
+            UserReview newReview = reviewMapper.toUserReview(review, userReviewer, userOwner);
+
 
             userReviewRepository.save(newReview);
 
@@ -75,7 +80,7 @@ public class UserReviewServiceImp implements UserReviewService {
 
             UserProfileDTO userProfileDTO = UserProfileDTO.mapFrom(userWithNewRating);
 
-            UserReviewResponseDTO userReviewResponseDTO = createUserReviewResponseDTO(userReviewList, userProfileDTO);
+            UserReviewResponseDTO userReviewResponseDTO = reviewMapper.toUserReviewResponseDTO(userReviewList, userProfileDTO);
             log.info("From UserReviewServiceImp method - save - Creat new User Review to user: {}.", userWithNewRating.getId());
 
             return userReviewResponseDTO;
@@ -87,12 +92,13 @@ public class UserReviewServiceImp implements UserReviewService {
     @Transactional
     @Override
     public String delete(Integer reviewId) {
-        UserReview userReviewer = userReviewRepository.findById(reviewId)
-                .orElseThrow(
-                        () -> new UserNotFoundException(format("Reviewer's User with id <{0}> not found.", reviewId)));
+        if (!userReviewRepository.existsById(reviewId)) {
+            log.info("Throw UserNotFoundException with NOT_FOUND_MESSAGE. reviewId: {}", reviewId);
+            throw new UserNotFoundException(String.format(ReviewConstant.NOT_FOUND_MESSAGE, reviewId));
+        }
+        userReviewRepository.deleteById(reviewId);
+        log.info("From UserReviewServiceImp method - delete - deleted User Review from review id: {}.", reviewId);
 
-        userReviewRepository.delete(userReviewer);
-        log.info("From UserReviewServiceImp method - delete - deleted User Review from review id: {}.", userReviewer.getId());
         return "Review was deleted successfully";
     }
 

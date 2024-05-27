@@ -200,7 +200,6 @@ class UserReviewServiceImpTest {
         Integer userId = userRobert.getId();
 
         when(userReviewRepository.getUserRating(userId)).thenReturn(Optional.of(testRating));
-
         when(userRepository.save(any())).thenReturn(userRobert);
 
         User userWithNewRating = userReviewService.addUserRating(userRobert);
@@ -226,6 +225,7 @@ class UserReviewServiceImpTest {
                 Instant.now().plusSeconds(3600),
                 headers,
                 claims);
+
         when(jwtDecoder.decode(Mockito.anyString())).thenReturn(jwt);
 
         String accessToken = "Bearer eyJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJCb29r" +
@@ -234,6 +234,5 @@ class UserReviewServiceImpTest {
         Integer result = userReviewService.getUserIdFromAccessToken(accessToken);
 
         assertEquals(Integer.valueOf(userId), result);
-
     }
 }

@@ -51,22 +51,6 @@ public class ReviewController {
                                             schema = @Schema(implementation = UserReview.class))
                             }),
                     @ApiResponse(
-                            responseCode = "401",
-                            description = "UNAUTHORIZED",
-                            content = {
-                                    @Content(
-                                            mediaType = APPLICATION_JSON_VALUE,
-                                            schema = @Schema(implementation = ErrorResponse.class))
-                            }),
-                    @ApiResponse(
-                            responseCode = "403",
-                            description = "ACCESS_DENIED",
-                            content = {
-                                    @Content(
-                                            mediaType = APPLICATION_JSON_VALUE,
-                                            schema = @Schema(implementation = ErrorResponse.class))
-                            }),
-                    @ApiResponse(
                             responseCode = "404",
                             description = "NOT_FOUND",
                             content = {
@@ -87,7 +71,7 @@ public class ReviewController {
     public ResponseEntity<List<UserReview>> findAllUserReceivedReviewsById(@PathVariable("userId") Integer userId) {
 
         List<UserReview> response = userReviewService.findAllUserReceivedReviewsById(userId);
-        log.info("From ReviewController method findAllUserReviewById - /reviews/user/{userId} - return user reviews. ");
+        log.info("From ReviewController method findAllUserReceivedReviewsById - /reviews/user/{userId} - return user reviews. ");
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
@@ -153,8 +137,7 @@ public class ReviewController {
         log.info("From ReviewController method save - /reviews/user - Saved a new review about the user {}", userReview.getOwnerId());
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
-
-
+    
     @Operation(
             summary = "Delete a review about the user",
             responses = {

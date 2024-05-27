@@ -8,15 +8,9 @@ import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
-/**
- * Request that contains information about new user who wants to register on site. Request contains
- * fields 'fullName', 'email', 'password', 'confirmPassword' and 'location'.
- *
- * @author Katherine Sokol and Maksym Reva
- */
-@AllArgsConstructor
 @Data
-public class NewUserRegistrationRequest {
+@AllArgsConstructor
+public class UserSaveDto {
 
   @NotBlank(message = "Field <full_name> must not be blank")
   private String fullName;

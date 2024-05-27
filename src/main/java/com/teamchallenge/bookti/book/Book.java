@@ -3,6 +3,7 @@ package com.teamchallenge.bookti.book;
 import static jakarta.persistence.FetchType.LAZY;
 
 import com.teamchallenge.bookti.converter.BookExchangeFormatConverter;
+import com.teamchallenge.bookti.converter.BookStatusConverter;
 import com.teamchallenge.bookti.converter.YearConverter;
 import com.teamchallenge.bookti.user.User;
 import jakarta.persistence.Column;
@@ -73,6 +74,11 @@ public class Book {
   @Convert(converter = BookExchangeFormatConverter.class)
   @Column(name = "exchange_format")
   private BookExchangeFormat exchangeFormat;
+
+  @Builder.Default
+  @Convert(converter = BookStatusConverter.class)
+  @Column(name = "status")
+  private BookStatus status = BookStatus.PENDING_APPROVAL;
 
   @ToString.Exclude
   @ManyToOne(fetch = LAZY, optional = false)

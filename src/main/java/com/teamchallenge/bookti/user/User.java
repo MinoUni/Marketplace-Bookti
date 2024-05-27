@@ -3,6 +3,7 @@ package com.teamchallenge.bookti.user;
 import com.teamchallenge.bookti.book.Book;
 import com.teamchallenge.bookti.review.UserReview;
 import jakarta.persistence.CascadeType;
+import com.teamchallenge.bookti.security.Role;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -81,11 +82,13 @@ public class User {
   @Enumerated(EnumType.STRING)
   private Role role;
 
+  @Builder.Default
   @Column(name = "display_email")
-  private Boolean displayEmail;
+  private Boolean displayEmail = Boolean.FALSE;
 
+  @Builder.Default
   @Column(name = "display_telegram")
-  private Boolean displayTelegram;
+  private Boolean displayTelegram = Boolean.FALSE;
 
   @ToString.Exclude
   @OneToMany(mappedBy = "owner", fetch = FetchType.LAZY, cascade = CascadeType.ALL)

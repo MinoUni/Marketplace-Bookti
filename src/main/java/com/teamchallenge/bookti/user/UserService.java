@@ -1,6 +1,6 @@
 package com.teamchallenge.bookti.user;
 
-import static com.teamchallenge.bookti.user.Role.ROLE_USER;
+import static com.teamchallenge.bookti.security.Role.ROLE_USER;
 import static com.teamchallenge.bookti.utils.CloudinaryUtils.USERS_FOLDER_NAME;
 import static java.text.MessageFormat.format;
 import static org.springframework.transaction.annotation.Isolation.REPEATABLE_READ;
@@ -13,13 +13,16 @@ import com.teamchallenge.bookti.exception.user.PasswordIsNotMatchesException;
 import com.teamchallenge.bookti.exception.user.PasswordResetTokenNotFoundException;
 import com.teamchallenge.bookti.exception.user.UserAlreadyExistsException;
 import com.teamchallenge.bookti.exception.user.UserNotFoundException;
-import com.teamchallenge.bookti.security.AuthorizedUser;
-import com.teamchallenge.bookti.user.dto.NewUserRegistrationRequest;
-import com.teamchallenge.bookti.user.dto.UserProfileDTO;
-import com.teamchallenge.bookti.user.dto.UserUpdateReq;
 import com.teamchallenge.bookti.mapper.AuthorizedUserMapper;
-import com.teamchallenge.bookti.utils.CloudinaryUtils;
 import com.teamchallenge.bookti.mapper.MapperUtils;
+import com.teamchallenge.bookti.security.AuthorizedUser;
+import com.teamchallenge.bookti.user.dto.UserProfileDTO;
+import com.teamchallenge.bookti.user.dto.UserSaveDto;
+import com.teamchallenge.bookti.user.dto.UserUpdateDto;
+import com.teamchallenge.bookti.user.password.PasswordResetToken;
+import com.teamchallenge.bookti.user.password.PasswordResetTokenRepository;
+import com.teamchallenge.bookti.utils.CloudinaryUtils;
+import com.teamchallenge.bookti.utils.ItemSet;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -48,15 +51,15 @@ public class UserService {
   /**
    * Creates a new {@link User user} and save it into database.
    *
-   * @param userDetails the {@link NewUserRegistrationRequest} DTO with basic user information
+   * @param userDetails the {@link UserSaveDto} DTO with basic user information
    * @return {@link AuthorizedUser}
-   * @throws PasswordIsNotMatchesException if {@link NewUserRegistrationRequest#getPassword()
-   *     password} not matches with {@link NewUserRegistrationRequest#getConfirmPassword()
+   * @throws PasswordIsNotMatchesException if {@link UserSaveDto#getPassword()
+   *     password} not matches with {@link UserSaveDto#getConfirmPassword()
    *     confirmPassword}
    * @throws UserAlreadyExistsException if user with provided email already exists
    */
   @Transactional
-  public AuthorizedUser create(NewUserRegistrationRequest userDetails) {
+  public AuthorizedUser create(UserSaveDto userDetails) {
     if (!userDetails.getPassword().equals(userDetails.getConfirmPassword())) {
       throw new PasswordIsNotMatchesException("Password is not matches");
     }
@@ -149,7 +152,7 @@ public class UserService {
   }
 
   @Transactional(isolation = REPEATABLE_READ)
-  public UserProfileDTO updateUserInfo(Integer id, UserUpdateReq userUpdate, MultipartFile file) {
+  public UserProfileDTO updateUserInfo(Integer id, UserUpdateDto userUpdate, MultipartFile file) {
     var user =
         userRepository
             .findById(id)
@@ -232,12 +235,12 @@ public class UserService {
   }
 
   /**
-   * Builds {@link User} from {@link NewUserRegistrationRequest}.
+   * Builds {@link User} from {@link UserSaveDto}.
    *
-   * @param userDetails {@link NewUserRegistrationRequest}
+   * @param userDetails {@link UserSaveDto}
    * @return {@link User}
    */
-  private User build(NewUserRegistrationRequest userDetails) {
+  private User build(UserSaveDto userDetails) {
     return User.builder()
         .fullName(userDetails.getFullName())
         .email(userDetails.getEmail())

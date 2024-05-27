@@ -102,8 +102,7 @@ class UserReviewRepositoryTest {
         assertAll(
                 () -> assertFalse(listUserReview.isEmpty()),
                 () -> assertThat(listUserReview.size()).isEqualTo(2),
-                () -> assertTrue(listUserReview.contains(userReview))
-        );
+                () -> assertTrue(listUserReview.contains(userReview)));
     }
 
     @Test
@@ -115,7 +114,6 @@ class UserReviewRepositoryTest {
 
         assertAll(
                 () -> assertEquals(userReview.getId(), newUserReview.getId()),
-                () -> assertEquals(userReview.getMessage(), newUserReview.getMessage())
-        );
+                () -> assertEquals(userReview.getMessage(), newUserReview.getMessage()));
     }
 }

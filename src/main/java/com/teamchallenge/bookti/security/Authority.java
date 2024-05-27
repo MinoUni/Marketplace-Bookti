@@ -1,4 +1,4 @@
-package com.teamchallenge.bookti.user;
+package com.teamchallenge.bookti.security;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

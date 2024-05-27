@@ -44,16 +44,4 @@ public class UserReviewDTO {
         this.creationDate = creationDate;
         this.avatarUrl = avatarUrl;
     }
-
-    public static UserReviewDTO mapFrom(UserReview user, UserProfileDTO userProfile) {
-        return UserReviewDTO.builder()
-                .id(user.getId())
-                .reviewerName(user.getReviewerName())
-                .message(user.getMessage())
-                .rating(user.getRating())
-                .creationDate(user.getCreationDate())
-                .avatarUrl(user.getAvatarUrl())
-                .owner(userProfile)
-                .build();
-    }
 }

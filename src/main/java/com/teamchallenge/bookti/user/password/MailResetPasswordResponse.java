@@ -1,4 +1,4 @@
-package com.teamchallenge.bookti.user.dto;
+package com.teamchallenge.bookti.user.password;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import java.time.LocalDateTime;
