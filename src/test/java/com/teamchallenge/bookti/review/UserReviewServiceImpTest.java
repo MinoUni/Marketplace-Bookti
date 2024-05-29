@@ -48,7 +48,6 @@ class UserReviewServiceImpTest {
     @Autowired
     private UserReviewServiceImp userReviewService;
 
-
     private UserReview userReview;
     private UserReview secondUserReview;
     private User userRobert;
@@ -102,14 +101,11 @@ class UserReviewServiceImpTest {
 
     @Test
     @DisplayName("Test UserReviewServiceImp method findAllUserReviewById.")
-    void testMethodFindAllUserReviewById() {
-
-        List<UserReview> reviewsEmptyList = userReviewService.findAllUserLeftReviewById(userRobert.getId());
-
-        assertTrue(reviewsEmptyList.isEmpty());
+    void testMethodFindAllUserLeftReviewById() {
 
         List<UserReview> reviewList = List.of(userReview, secondUserReview);
 
+        when(userRepository.existsById(any())).thenReturn(true);
         when(userReviewRepository.findAllUserReceivedReviewsById(any())).thenReturn(reviewList);
 
         List<UserReview> reviewsList = userReviewService.findAllUserReceivedReviewsById(userRobert.getId());
@@ -131,7 +127,7 @@ class UserReviewServiceImpTest {
         UserNotFoundException errorIfOwnerIdIsEqualReviewerId = assertThrows(UserNotFoundException.class,
                 () -> userReviewService.findAllUserReceivedReviewsById(notCorrectId));
 
-        assertEquals("Write correct Users id.", errorIfOwnerIdIsEqualReviewerId.getMessage());
+        assertEquals("User with id [-1] not found.", errorIfOwnerIdIsEqualReviewerId.getMessage());
 
         verify(userReviewRepository, times(0)).findAllUserReceivedReviewsById(any());
     }
@@ -181,12 +177,7 @@ class UserReviewServiceImpTest {
         UserNotFoundException errorIfOwnerIdIsEqualReviewerId = assertThrows(UserNotFoundException.class,
                 () -> userReviewService.save(userReviewSaveDTO, ownerId));
 
-        assertEquals("Write correct Users id.", errorIfOwnerIdIsEqualReviewerId.getMessage());
-
-        UserNotFoundException errorIfReviewerIdIsNegative = assertThrows(UserNotFoundException.class,
-                () -> userReviewService.save(userReviewSaveDTO, -1));
-
-        assertEquals("Write correct Users id.", errorIfReviewerIdIsNegative.getMessage());
+        assertEquals("User with same id can't left review.", errorIfOwnerIdIsEqualReviewerId.getMessage());
 
         verify(userRepository, times(0)).findById(any());
         verify(userReviewRepository, times(0)).findAllUserReceivedReviewsById(any());

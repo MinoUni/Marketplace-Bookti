@@ -35,10 +35,12 @@ import java.util.Optional;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -119,20 +121,21 @@ class ReviewControllerTest {
                 .build();
 
         authorizedUser = new AuthorizedUser("testUser", "password", List.of(new SimpleGrantedAuthority("ROLE_USER")));
-
     }
 
     @Test
     @Tag("UserReviews")
     @DisplayName("When calling get /reviews/user/{userId}, expect that request is valid," +
             " then response with List of all User Reviews and status code 200")
-    void testMethodFindAllUserReviewById() throws Exception {
+    void testMethodFindAllUserReceivedReviewsById() throws Exception {
         Integer userId = userDenial.getId();
         List<UserReview> reviewList = List.of(userReview, secondUserReview);
 
+        when(userRepository.existsById(userId)).thenReturn(true);
         when(reviewService.findAllUserReceivedReviewsById(userId)).thenReturn(reviewList);
 
-        mockMvc.perform(get("/reviews/user/{userId}/received", userId))
+        mockMvc.perform(get("/reviews")
+                        .param("userId", userId.toString()))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$", hasSize(2)))
@@ -183,7 +186,7 @@ class ReviewControllerTest {
         when(userRepository.save(any())).thenReturn(userRobert);
         when(reviewService.findAllUserReceivedReviewsById(ownerId)).thenReturn(reviewList);
 
-        mockMvc.perform(post("/reviews/user")
+        mockMvc.perform(post("/reviews")
                         .header(HttpHeaders.AUTHORIZATION, accessToken)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonMapper.writeValueAsString(userReviewSaveDTO))
@@ -229,18 +232,17 @@ class ReviewControllerTest {
 
         authorizedUser.setId(negativeReviewerId);
         SecurityContextHolder.getContext().setAuthentication(
-                new UsernamePasswordAuthenticationToken(authorizedUser, "password", authorizedUser.getAuthorities())
-        );
+                new UsernamePasswordAuthenticationToken(authorizedUser, "password", authorizedUser.getAuthorities()));
 
         when(jwtDecoder.decode(Mockito.anyString())).thenReturn(jwtWithOwnerId);
 
-        mockMvc.perform(post("/reviews/user")
+        mockMvc.perform(post("/reviews")
                         .header(HttpHeaders.AUTHORIZATION, accessToken)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonMapper.writeValueAsString(userReviewSaveDTO)))
                 .andExpect(status().isNotFound())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.message").value("Write correct Users id."))
+                .andExpect(jsonPath("$.message").value("Reviewer's User with id <{-1}> not found."))
                 .andExpect(jsonPath("status_code").value(HttpStatus.NOT_FOUND.value()));
 
         claims.put("sub", Integer.toString(negativeReviewerId));
@@ -251,13 +253,13 @@ class ReviewControllerTest {
                 claims);
         when(jwtDecoder.decode(Mockito.anyString())).thenReturn(jwtWithNegativeReviewerId);
 
-        mockMvc.perform(post("/reviews/user")
+        mockMvc.perform(post("/reviews")
                         .header(HttpHeaders.AUTHORIZATION, accessToken)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonMapper.writeValueAsString(userReviewSaveDTO)))
                 .andExpect(status().isNotFound())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.message").value("Write correct Users id."))
+                .andExpect(jsonPath("$.message").value("Reviewer's User with id <{-1}> not found."))
                 .andExpect(jsonPath("status_code").value(HttpStatus.NOT_FOUND.value()));
 
         verify(reviewService, times(0)).findAllUserReceivedReviewsById(ownerId);
@@ -266,7 +268,7 @@ class ReviewControllerTest {
 
     @Test
     @Tag("UserReviews")
-    @DisplayName("When calling post/reviews/user, expect that request  are invalid (filed are not valid" +
+    @DisplayName("When calling post/reviews/user, expect that request are invalid (filed are not valid" +
             "then response with ErrorResponse.class and status code 401")
     @WithMockUser(username = "user", roles = {"USER"})
     void testValidationExceptionInMethodSave() throws Exception {
@@ -293,7 +295,7 @@ class ReviewControllerTest {
 
         when(jwtDecoder.decode(Mockito.anyString())).thenReturn(jwtWithOwnerId);
 
-        mockMvc.perform(post("/reviews/user")
+        mockMvc.perform(post("/reviews")
                         .header(HttpHeaders.AUTHORIZATION, accessToken)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonMapper.writeValueAsString(userReviewSaveDTO)))
@@ -307,7 +309,7 @@ class ReviewControllerTest {
         userReviewSaveDTO.setRating(BigDecimal.valueOf(6));
         userReviewSaveDTO.setOwnerId(ownerId);
 
-        mockMvc.perform(post("/reviews/user")
+        mockMvc.perform(post("/reviews")
                         .header(HttpHeaders.AUTHORIZATION, accessToken)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonMapper.writeValueAsString(userReviewSaveDTO)))
@@ -320,7 +322,7 @@ class ReviewControllerTest {
         UserReviewSaveDTO EmptyUserReviewSaveDTO = new UserReviewSaveDTO();
 
 
-        mockMvc.perform(post("/reviews/user")
+        mockMvc.perform(post("/reviews")
                         .header(HttpHeaders.AUTHORIZATION, accessToken)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonMapper.writeValueAsString(EmptyUserReviewSaveDTO)))
@@ -335,4 +337,22 @@ class ReviewControllerTest {
         verify(reviewService, times(0)).save(any(UserReview.class));
     }
 
+    @Test
+    @Tag("Reviews")
+    @DisplayName("When calling delete /reviews/{reviewId}}, expect that request is valid and we delete user review," +
+            " then response with string of deleted successfully and status code 200")
+    @WithMockUser(username = "user", roles = {"USER"})
+    void whenDeleteReviewByIdThenDeleteReview() throws Exception {
+        Integer reviewId = userReview.getId();
+        when(reviewService.existsById(reviewId)).thenReturn(true);
+        doNothing().when(reviewService).deleteById(reviewId);
+
+        mockMvc.perform(delete("/reviews/{reviewId}", reviewId))
+                .andExpect(status().isOk())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.message").value("Review was deleted successfully"));
+
+        verify(reviewService, times(1)).existsById(reviewId);
+        verify(reviewService, times(1)).deleteById(reviewId);
+    }
 }

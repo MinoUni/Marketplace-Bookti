@@ -19,7 +19,6 @@ import java.math.RoundingMode;
 import java.util.List;
 import java.util.Objects;
 
-import static java.text.MessageFormat.format;
 
 @Service
 @Slf4j
@@ -31,6 +30,8 @@ public class UserReviewServiceImp implements UserReviewService {
     private final UserReviewRepository userReviewRepository;
     private final ReviewMapper reviewMapper;
     private final JwtDecoder jwtDecoder;
+
+    
 
     @Override
     public List<UserReview> findAllUserReceivedReviewsById(Integer userId) {
@@ -59,39 +60,37 @@ public class UserReviewServiceImp implements UserReviewService {
     @Transactional
     @Override
     public UserReviewResponseDTO save(UserReviewSaveDTO review, Integer reviewerId) {
-
-        if (checkValidUserId(reviewerId, review.getOwnerId())) {
-            User userReviewer = userRepository.findById(reviewerId)
-                    .orElseThrow(
-                            () -> new UserNotFoundException(format("Reviewer's User with id <{0}> not found.", reviewerId)));
-
-            User userOwner = userRepository.findById(review.getOwnerId())
-                    .orElseThrow(
-                            () -> new UserNotFoundException(format("Owner's User with id <{0}> not found.", review.getOwnerId())));
-
-            UserReview newReview = reviewMapper.toUserReview(review, userReviewer, userOwner);
-
-
-            userReviewRepository.save(newReview);
-
-            User userWithNewRating = addUserRating(userOwner);
-
-            List<UserReview> userReviewList = userReviewRepository.findAllUserReceivedReviewsById(userOwner.getId());
-
-            UserProfileDTO userProfileDTO = UserProfileDTO.mapFrom(userWithNewRating);
-
-            UserReviewResponseDTO userReviewResponseDTO = reviewMapper.toUserReviewResponseDTO(userReviewList, userProfileDTO);
-            log.info("From UserReviewServiceImp method - save - Creat new User Review to user: {}.", userWithNewRating.getId());
-
-            return userReviewResponseDTO;
-        } else {
-            throw new UserNotFoundException("Write correct Users id.");
+        if (Objects.equals(reviewerId, review.getOwnerId())) {
+            throw new UserNotFoundException("User with same id can't left review.");
         }
+        User userReviewer = userRepository.findById(reviewerId)
+                .orElseThrow(
+                        () -> new UserNotFoundException(String.format("Reviewer's User with id <{%d}> not found.", reviewerId)));
+
+        User userOwner = userRepository.findById(review.getOwnerId())
+                .orElseThrow(
+                        () -> new UserNotFoundException(String.format("Owner's User with id <{%d}> not found.", review.getOwnerId())));
+
+        UserReview newReview = reviewMapper.toUserReview(review, userReviewer, userOwner);
+
+
+        userReviewRepository.save(newReview);
+
+        User userWithNewRating = addUserRating(userOwner);
+
+        List<UserReview> userReviewList = userReviewRepository.findAllUserReceivedReviewsById(userOwner.getId());
+
+        UserProfileDTO userProfileDTO = UserProfileDTO.mapFrom(userWithNewRating);
+
+        UserReviewResponseDTO userReviewResponseDTO = reviewMapper.toUserReviewResponseDTO(userReviewList, userProfileDTO);
+        log.info("From UserReviewServiceImp method - save - Creat new User Review to user: {}.", userWithNewRating.getId());
+
+        return userReviewResponseDTO;
     }
 
     @Transactional
     @Override
-    public String delete(Integer reviewId) {
+    public String deleteById(Integer reviewId) {
         if (!userReviewRepository.existsById(reviewId)) {
             log.info("Throw UserNotFoundException with NOT_FOUND_MESSAGE. reviewId: {}", reviewId);
             throw new UserNotFoundException(String.format(ReviewConstant.NOT_FOUND_MESSAGE, reviewId));
@@ -100,24 +99,6 @@ public class UserReviewServiceImp implements UserReviewService {
         log.info("From UserReviewServiceImp method - delete - deleted User Review from review id: {}.", reviewId);
 
         return "Review was deleted successfully";
-    }
-
-    private static UserReviewResponseDTO createUserReviewResponseDTO(List<UserReview> UserReviewList, UserProfileDTO userProfileDTO) {
-        return UserReviewResponseDTO.builder()
-                .reviewsList(UserReviewList)
-                .owner(userProfileDTO)
-                .build();
-    }
-
-    private static UserReview createUserReview(UserReviewSaveDTO userReview, User userReviewer, User userOwner) {
-        return UserReview.builder()
-                .reviewerName(userReviewer.getFullName())
-                .avatarUrl(userReviewer.getAvatarUrl())
-                .message(userReview.getMessage())
-                .rating(userReview.getRating().setScale(1, RoundingMode.HALF_UP))
-                .owner(userOwner)
-                .reviewers(userReviewer)
-                .build();
     }
 
     public User addUserRating(User userOwner) {
@@ -136,10 +117,4 @@ public class UserReviewServiceImp implements UserReviewService {
 
         return Integer.parseInt(userId);
     }
-
-    public boolean checkValidUserId(Integer reviewerId, Integer ownerId) {
-
-        return reviewerId > 0 && !Objects.equals(reviewerId, ownerId);
-    }
-
 }

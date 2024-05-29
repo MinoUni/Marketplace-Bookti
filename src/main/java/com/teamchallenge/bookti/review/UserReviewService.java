@@ -12,6 +12,6 @@ public interface UserReviewService {
 
     Integer getUserIdFromAccessToken(String accessToken);
 
-    String delete(Integer reviewId);
+    String deleteById(Integer reviewId);
 
 }

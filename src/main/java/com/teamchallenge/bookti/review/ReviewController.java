@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -67,11 +68,10 @@ public class ReviewController {
                                             schema = @Schema(implementation = ErrorResponse.class))
                             })
             })
-    @GetMapping("/user/{userId}/received")
-    public ResponseEntity<List<UserReview>> findAllUserReceivedReviewsById(@PathVariable("userId") Integer userId) {
-
+    @GetMapping
+    public ResponseEntity<List<UserReview>> findAllUserReceivedReviewsById(@RequestParam("userId") Integer userId) {
         List<UserReview> response = userReviewService.findAllUserReceivedReviewsById(userId);
-        log.info("From ReviewController method findAllUserReceivedReviewsById - /reviews/user/{userId} - return user reviews. ");
+        log.info("From ReviewController method findAllUserReceivedReviewsById  - /reviews/ - return user reviews. ");
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
@@ -127,17 +127,17 @@ public class ReviewController {
                                             schema = @Schema(implementation = ErrorResponse.class))
                             })
             })
-    @PostMapping("/user")
+    @PostMapping
     @PreAuthorize("isAuthenticated() and hasRole('ROLE_USER')")
     public ResponseEntity<UserReviewResponseDTO> save(
             @AuthenticationPrincipal AuthorizedUser authorizedUser,
             @Valid @RequestBody UserReviewSaveDTO userReview) {
 
         UserReviewResponseDTO response = userReviewService.save(userReview, authorizedUser.getId());
-        log.info("From ReviewController method save - /reviews/user - Saved a new review about the user {}", userReview.getOwnerId());
+        log.info("From ReviewController method  save - /reviews - Saved a new review about the user {}", userReview.getOwnerId());
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
-    
+
     @Operation(
             summary = "Delete a review about the user",
             responses = {
@@ -191,16 +191,12 @@ public class ReviewController {
                             })
             })
     @PreAuthorize("isAuthenticated() and hasRole('ROLE_USER')")
-    @DeleteMapping("/user/{reviewId}")
-    public ResponseEntity<AppResponse> delete(@PathVariable("reviewId") Integer reviewId) {
-
-        var responseMessage = userReviewService.delete(reviewId);
-
-        var response = new AppResponse(OK.value(), responseMessage);
+    @DeleteMapping("/{reviewId}")
+    public ResponseEntity<AppResponse> deleteById(@PathVariable("reviewId") Integer reviewId) {
+        String responseMessage = userReviewService.deleteById(reviewId);
+        AppResponse response = new AppResponse(OK.value(), responseMessage);
         log.info("From ReviewController method delete - /reviews/{reviewId} - delete a review about the user {}", reviewId);
 
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
-
-
 }

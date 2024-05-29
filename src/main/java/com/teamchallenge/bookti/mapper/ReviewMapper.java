@@ -19,7 +19,7 @@ import static org.mapstruct.NullValuePropertyMappingStrategy.IGNORE;
         injectionStrategy = CONSTRUCTOR,
         nullValuePropertyMappingStrategy = IGNORE)
 public interface ReviewMapper {
-    //    ReviewMapper INSTANCE = Mappers.getMapper(ReviewMapper.class);
+
     @Mapping(source = "user.id", target = "id")
     @Mapping(source = "user.reviewerName", target = "reviewerName")
     @Mapping(source = "user.message", target = "message")
