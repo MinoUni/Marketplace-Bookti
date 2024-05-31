@@ -9,8 +9,6 @@ logging:
     org.hibernate.SQL: INFO
 
 spring:
-  profiles:
-    active:
   application:
     name: BookTi
   servlet:
@@ -18,15 +16,6 @@ spring:
       enabled: true
       max-file-size: 50MB
       max-request-size: 50MB
-  datasource:
-    type: com.zaxxer.hikari.HikariDataSource
-    driver-class-name: ${DRIVER_CLASS_NAME}
-    url: jdbc:${DB_URL}
-    username: ${DB_USERNAME}
-    password: ${DB_PASSWORD}
-    hikari:
-      pool-name: Hikari
-      auto-commit: false
   sql:
     init:
       mode: always
@@ -43,6 +32,15 @@ spring:
     properties:
       hibernate:
         format-sql: true
+  datasource:
+    type: com.zaxxer.hikari.HikariDataSource
+    driverClassName: ${DRIVER_CLASS_NAME}
+    url: jdbc:${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    hikari:
+      pool-name: Hikari
+      auto-commit: false
   mail:
     host: ${MAIL_HOST}
     port: ${MAIL_PORT}
@@ -89,6 +87,6 @@ application:
     - /swagger-ui/*
     - /swagger-ui.html
     - /authorize/**
-    - /oauth2/**
+    - /reviews/user/{userId}/received
   cors:
     origins: https://marketplace-bookti.vercel.app,http://localhost:5173

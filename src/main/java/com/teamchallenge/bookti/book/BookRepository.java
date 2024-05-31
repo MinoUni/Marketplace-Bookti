@@ -25,7 +25,7 @@ public interface BookRepository extends JpaRepository<Book, Integer> {
 
   @Query(
       """
-        SELECT new com.teamchallenge.bookti.user.UserDTO(
+        SELECT new com.teamchallenge.bookti.user.dto.UserDTO(
           u.id, u.fullName, u.email, u.creationDate, u.location,
           u.displayEmail, u.telegramId, u.displayTelegram, u.avatarUrl)
         FROM Book b

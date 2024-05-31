@@ -1,11 +1,14 @@
 package com.teamchallenge.bookti.user;
 
 import com.teamchallenge.bookti.book.Book;
+import com.teamchallenge.bookti.review.UserReview;
+import jakarta.persistence.CascadeType;
 import com.teamchallenge.bookti.security.Role;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -14,6 +17,8 @@ import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Objects;
 import java.util.Set;
@@ -66,6 +71,10 @@ public class User {
   @Column(nullable = false)
   private String location;
 
+  @Builder.Default
+  @Column(columnDefinition = "DECIMAL(10,1) DEFAULT 0.0" )
+  private BigDecimal rating = BigDecimal.ZERO;
+
   @Column(name = "telegram_id", length = 32)
   private String telegramId;
 
@@ -80,6 +89,14 @@ public class User {
   @Builder.Default
   @Column(name = "display_telegram")
   private Boolean displayTelegram = Boolean.FALSE;
+
+  @ToString.Exclude
+  @OneToMany(mappedBy = "owner", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+  private Set<UserReview> leftReviews;
+
+  @ToString.Exclude
+  @OneToMany(mappedBy = "reviewers", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+  private Set<UserReview> receivedReviews;
 
   @ToString.Exclude
   @OneToMany(mappedBy = "owner")

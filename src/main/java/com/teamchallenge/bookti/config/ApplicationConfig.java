@@ -2,11 +2,16 @@ package com.teamchallenge.bookti.config;
 
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
+import com.teamchallenge.bookti.review.UserReviewRepository;
+import com.teamchallenge.bookti.review.UserReviewService;
+import com.teamchallenge.bookti.review.UserReviewServiceImp;
+import com.teamchallenge.bookti.user.UserRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
 
 /**
  * Application configuration class.
@@ -44,4 +49,5 @@ class ApplicationConfig {
             "api_secret", apiSecret,
             "secure", true));
   }
+
 }
