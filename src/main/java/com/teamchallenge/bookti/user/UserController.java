@@ -30,9 +30,9 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 @RestController
+@Tag(name = "User")
 @RequiredArgsConstructor
 @RequestMapping("/users")
-@Tag(name = "User endpoints")
 class UserController {
 
   private final UserService userService;
