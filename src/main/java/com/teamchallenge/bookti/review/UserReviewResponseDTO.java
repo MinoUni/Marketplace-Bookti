@@ -1,14 +1,12 @@
 package com.teamchallenge.bookti.review;
 
-
 import com.teamchallenge.bookti.user.dto.UserProfileDTO;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
-import java.util.List;
 
 @Getter
 @Setter
@@ -17,9 +15,7 @@ import java.util.List;
 @Builder
 public class UserReviewResponseDTO {
 
-    private List<UserReview> reviewsList;
+  private List<UserReview> reviewsList;
 
-    private UserProfileDTO owner;
-
+  private UserProfileDTO owner;
 }
-

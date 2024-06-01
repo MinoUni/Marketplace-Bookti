@@ -4,14 +4,13 @@ import java.util.List;
 
 public interface UserReviewService {
 
-    List<UserReview> findAllUserReceivedReviewsById(Integer userId);
+  List<UserReview> findAllUserReceivedReviewsById(Integer userId);
 
-    List<UserReview> findAllUserLeftReviewById(Integer userId);
+  List<UserReview> findAllUserLeftReviewById(Integer userId);
 
-    UserReviewResponseDTO save(UserReviewSaveDTO userReview, Integer reviewerId);
+  UserReviewResponseDTO save(UserReviewSaveDTO userReview, Integer reviewerId);
 
-    Integer getUserIdFromAccessToken(String accessToken);
+  Integer getUserIdFromAccessToken(String accessToken);
 
-    String deleteById(Integer reviewId);
-
+  String deleteById(Integer reviewId);
 }

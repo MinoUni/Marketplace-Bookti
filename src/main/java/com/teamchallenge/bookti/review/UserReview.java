@@ -10,52 +10,56 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
-
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
 @Entity
 @Table(name = "user_review")
-@Data
+@Getter
+@Setter
+@ToString
+@RequiredArgsConstructor
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 public class UserReview {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Integer id;
 
-    @Column(name = "reviewer_name")
-    private String reviewerName;
+  @Column(name = "reviewer_name")
+  private String reviewerName;
 
-    @Column(columnDefinition = "TEXT")
-    private String message;
+  @Column(columnDefinition = "TEXT")
+  private String message;
 
-    @Column(name = "rating", precision = 10, scale = 1)
-    private BigDecimal rating;
+  @Column(name = "rating", precision = 10, scale = 1)
+  private BigDecimal rating;
 
-    @Builder.Default
-    @Column(name = "creation_date", columnDefinition = "DATE")
-    private LocalDate creationDate = LocalDate.now();
+  @Builder.Default
+  @Column(name = "creation_date", columnDefinition = "DATE")
+  private LocalDate creationDate = LocalDate.now();
 
-    @Column(name = "avatar_url")
-    private String avatarUrl;
+  @Column(name = "avatar_url")
+  private String avatarUrl;
 
-    @ToString.Exclude
-    @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false)
-    @JsonIgnore
-    private User owner;
+  @ToString.Exclude
+  @ManyToOne
+  @JoinColumn(name = "user_id", nullable = false)
+  @JsonIgnore
+  private User owner;
 
-    @ToString.Exclude
-    @ManyToOne
-    @JoinColumn(name = "reviewers_id", nullable = false)
-    @JsonIgnore
-    private User reviewers;
+  @ToString.Exclude
+  @ManyToOne
+  @JoinColumn(name = "reviewers_id", nullable = false)
+  @JsonIgnore
+  private User reviewers;
 }
