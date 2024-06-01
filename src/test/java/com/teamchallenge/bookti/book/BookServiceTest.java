@@ -54,14 +54,14 @@ class BookServiceTest {
 
     when(mockUserRepository.existsById(eq(userId))).thenReturn(true);
     when(mockUserRepository.getReferenceById(eq(userId))).thenReturn(user);
-    when(mockBookMapper.mapBookSaveDtoAndUserToBook(eq(bookPayload), eq(user))).thenReturn(book);
+    when(mockBookMapper.mapToBook(eq(bookPayload))).thenReturn(book);
     when(mockBookRepository.save(eq(book))).thenReturn(book);
 
     assertDoesNotThrow(() -> bookService.save(bookPayload, image, userId));
 
     verify(mockUserRepository, times(1)).existsById(eq(userId));
     verify(mockUserRepository, times(1)).getReferenceById(eq(userId));
-    verify(mockBookMapper, times(1)).mapBookSaveDtoAndUserToBook(eq(bookPayload), eq(user));
+    verify(mockBookMapper, times(1)).mapToBook(eq(bookPayload));
     verify(mockCloudinary, never()).uploadFile(eq(image), any(), any());
     verify(mockBookRepository, times(1)).save(eq(book));
   }
@@ -79,7 +79,7 @@ class BookServiceTest {
 
     verify(mockUserRepository, times(1)).existsById(eq(userId));
     verify(mockUserRepository, never()).getReferenceById(eq(userId));
-    verify(mockBookMapper, never()).mapBookSaveDtoAndUserToBook(eq(bookPayload), any(User.class));
+    verify(mockBookMapper, never()).mapToBook(eq(bookPayload));
     verify(mockCloudinary, never()).uploadFile(eq(image), any(String.class), any(String.class));
     verify(mockBookRepository, never()).save(any(Book.class));
   }
@@ -100,14 +100,14 @@ class BookServiceTest {
     when(mockUserRepository.getReferenceById(eq(userId))).thenReturn(user);
     when(mockCloudinary.uploadFile(eq(image), any(String.class), any(String.class)))
         .thenReturn(imageUrl);
-    when(mockBookMapper.mapBookSaveDtoAndUserToBook(eq(bookPayload), eq(user))).thenReturn(book);
+    when(mockBookMapper.mapToBook(eq(bookPayload))).thenReturn(book);
     when(mockBookRepository.save(eq(book))).thenReturn(book);
 
     assertDoesNotThrow(() -> bookService.save(bookPayload, image, userId));
 
     verify(mockUserRepository, times(1)).existsById(eq(userId));
     verify(mockUserRepository, times(1)).getReferenceById(eq(userId));
-    verify(mockBookMapper, times(1)).mapBookSaveDtoAndUserToBook(eq(bookPayload), eq(user));
+    verify(mockBookMapper, times(1)).mapToBook(eq(bookPayload));
     verify(mockCloudinary, times(1)).uploadFile(eq(image), any(String.class), any(String.class));
     verify(mockBookRepository, times(1)).save(eq(book));
   }
