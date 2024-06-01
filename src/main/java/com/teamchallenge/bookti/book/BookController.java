@@ -22,7 +22,15 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 /**
@@ -33,7 +41,7 @@ import org.springframework.web.multipart.MultipartFile;
  */
 @RestController
 @RequiredArgsConstructor
-@Tag(name = "Books endpoints")
+@Tag(name = "Books")
 @RequestMapping("/books")
 class BookController {
 
@@ -81,14 +89,7 @@ class BookController {
       summary = "Create a new book",
       description = "Add a new book to a user list",
       responses = {
-        @ApiResponse(
-            responseCode = "201",
-            description = "Book created",
-            content = {
-              @Content(
-                  mediaType = APPLICATION_JSON_VALUE,
-                  schema = @Schema(implementation = BookDetailsDTO.class))
-            }),
+        @ApiResponse(responseCode = "201", description = "Book created"),
         @ApiResponse(
             responseCode = "401",
             description = "UNAUTHORIZED",
@@ -126,9 +127,7 @@ class BookController {
           final BookSaveDTO payload,
       @RequestPart(name = "image", required = false) MultipartFile image) {
     bookService.save(payload, image, userId);
-    return ResponseEntity.status(CREATED)
-        .contentType(APPLICATION_JSON)
-        .build();
+    return ResponseEntity.status(CREATED).contentType(APPLICATION_JSON).build();
   }
 
   /**

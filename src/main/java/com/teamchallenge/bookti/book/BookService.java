@@ -12,9 +12,12 @@ import com.teamchallenge.bookti.user.User;
 import com.teamchallenge.bookti.user.UserRepository;
 import com.teamchallenge.bookti.user.dto.UserDTO;
 import com.teamchallenge.bookti.utils.CloudinaryUtils;
+
+import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,19 +35,13 @@ public class BookService {
 
   @Transactional
   public int save(BookSaveDTO bookDto, MultipartFile image, Integer userId) {
-    String imageUrl;
-    String imageName;
     if (!userRepository.existsById(userId)) {
       throw new UserNotFoundException(String.format(UserConstant.NOT_FOUND_MESSAGE, userId));
     }
     User user = userRepository.getReferenceById(userId);
-    Book book = bookMapper.mapBookSaveDtoAndUserToBook(bookDto, user);
-    if (image != null && !image.isEmpty()) {
-      imageName = UUID.randomUUID().toString();
-      imageUrl = cloudinaryUtils.uploadFile(image, imageName, BOOKS_FOLDER_NAME);
-      book.setImageName(imageName);
-      book.setImageUrl(imageUrl);
-    }
+    Book book = bookMapper.mapToBook(bookDto);
+    book.setOwner(user);
+    uploadImageIfPresent(image, book);
     book = bookRepository.save(book);
     return book.getId();
   }
@@ -54,7 +51,7 @@ public class BookService {
         bookRepository
             .findBookById(id)
             .orElseThrow(
-                () -> new BookNotFoundException(String.format(BookConstant.NOT_FOUND_MESSAGE, id)));
+                () -> new BookNotFoundException(String.format(BookConstant.NOT_FOUND, id)));
     UserDTO owner = bookRepository.getBookOwner(id);
     book.setOwner(owner);
     return book;
@@ -64,10 +61,16 @@ public class BookService {
     return bookRepository.findAllBooks(pageable);
   }
 
+  public Page<BookDetailsDTO> findAllBooksWithPendingApprovalStatus(Pageable pageable) {
+    List<Book> books = bookRepository.findAllByStatus(BookStatus.PENDING_APPROVAL);
+    List<BookDetailsDTO> booksDto = bookMapper.mapToBookDetailsDTO(books);
+    return new PageImpl<>(booksDto, pageable, booksDto.size());
+  }
+
   @Transactional
   public void deleteById(Integer id) {
     if (!bookRepository.existsById(id)) {
-      throw new BookNotFoundException(String.format(BookConstant.NOT_FOUND_MESSAGE, id));
+      throw new BookNotFoundException(String.format(BookConstant.NOT_FOUND, id));
     }
     bookRepository.deleteById(id);
   }
@@ -78,13 +81,31 @@ public class BookService {
         bookRepository
             .findById(id)
             .orElseThrow(
-                () -> new BookNotFoundException(String.format(BookConstant.NOT_FOUND_MESSAGE, id)));
+                () -> new BookNotFoundException(String.format(BookConstant.NOT_FOUND, id)));
     if (image != null && !image.isEmpty()) {
       var imageUrl = cloudinaryUtils.uploadFile(image, book.getImageName(), BOOKS_FOLDER_NAME);
       book.setImageUrl(imageUrl);
     }
-    bookMapper.mapBookUpdateToBook(bookUpdate, book);
+    bookMapper.mapToBook(bookUpdate, book);
     bookRepository.save(book);
     return findById(id);
+  }
+
+  @Transactional(isolation = REPEATABLE_READ)
+  public void updateBookStatusById(Integer id, String status) {
+    if (!bookRepository.existsById(id)) {
+      throw new BookNotFoundException(String.format(BookConstant.NOT_FOUND, id));
+    }
+    bookRepository.updateStatusById(id, BookStatus.findStatus(status));
+  }
+
+  private void uploadImageIfPresent(MultipartFile image, Book book) {
+    if (image == null || image.isEmpty()) {
+      return;
+    }
+    String imageName = UUID.randomUUID().toString();
+    book.setImageName(imageName);
+    String imageUrl = cloudinaryUtils.uploadFile(image, imageName, BOOKS_FOLDER_NAME);
+    book.setImageUrl(imageUrl);
   }
 }
