@@ -7,7 +7,7 @@ import com.teamchallenge.bookti.book.Book;
 import com.teamchallenge.bookti.book.BookDetailsDTO;
 import com.teamchallenge.bookti.book.BookSaveDTO;
 import com.teamchallenge.bookti.book.BookUpdateReq;
-import com.teamchallenge.bookti.user.User;
+import java.util.List;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
@@ -22,10 +22,11 @@ public interface BookMapper {
   @Mapping(target = "imageName", ignore = true)
   @Mapping(target = "imageUrl", ignore = true)
   @Mapping(target = "owner", ignore = true)
-  void mapBookUpdateToBook(BookUpdateReq bookUpdate, @MappingTarget Book book);
+  void mapToBook(BookUpdateReq bookUpdate, @MappingTarget Book book);
+  
+  Book mapToBook(BookSaveDTO bookSaveDTO);
 
-  @Mapping(target = "id", ignore = true)
-  Book mapBookSaveDtoAndUserToBook(BookSaveDTO bookSaveDTO, User user);
+  BookDetailsDTO mapToBookDetailsDTO(Book book);
 
-  BookDetailsDTO mapBookToBookDetailsDTO(Book book);
+  List<BookDetailsDTO> mapToBookDetailsDTO(List<Book> books);
 }
