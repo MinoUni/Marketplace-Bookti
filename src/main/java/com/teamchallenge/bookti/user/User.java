@@ -2,6 +2,7 @@ package com.teamchallenge.bookti.user;
 
 import com.teamchallenge.bookti.book.Book;
 import com.teamchallenge.bookti.review.UserReview;
+import com.teamchallenge.bookti.subscription.Subscription;
 import jakarta.persistence.CascadeType;
 import com.teamchallenge.bookti.security.Role;
 import jakarta.persistence.Column;
@@ -109,6 +110,14 @@ public class User {
       joinColumns = {@JoinColumn(name = "user_id", referencedColumnName = "id")},
       inverseJoinColumns = {@JoinColumn(name = "book_id", referencedColumnName = "id")})
   private Set<Book> wishlist;
+
+  @ToString.Exclude
+  @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+  private Set<Subscription> subscriptions;
+
+  @ToString.Exclude
+  @OneToMany(mappedBy = "subscriber", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+  private Set<Subscription> subscriber;
 
   @Override
   public final boolean equals(Object obj) {
