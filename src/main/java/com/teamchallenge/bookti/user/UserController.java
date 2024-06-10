@@ -29,6 +29,8 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
+
 @RestController
 @Tag(name = "User")
 @RequiredArgsConstructor
@@ -160,5 +162,13 @@ class UserController {
   public ResponseEntity<AppResponse> deleteBookFromWishlist(
       @PathVariable Integer userId, @RequestParam("bookId") Integer bookId) {
     return ResponseEntity.ok(userService.deleteBookFromWishlist(userId, bookId));
+  }
+
+  @Operation()
+  @GetMapping(value = "/new", produces = APPLICATION_JSON_VALUE)
+  @PreAuthorize(
+            "isAuthenticated() and hasRole('ROLE_USER')")
+  public ResponseEntity<List<UserProfileDTO>> findAllNewUsers (){
+      return ResponseEntity.ok(userService.findAllNewUsers());
   }
 }

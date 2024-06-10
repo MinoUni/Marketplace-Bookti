@@ -24,6 +24,8 @@ import com.teamchallenge.bookti.user.password.PasswordResetTokenRepository;
 import com.teamchallenge.bookti.utils.CloudinaryUtils;
 import com.teamchallenge.bookti.utils.ItemSet;
 
+import java.time.LocalDate;
+import java.util.List;
 import java.util.UUID;
 
 import lombok.RequiredArgsConstructor;
@@ -234,6 +236,15 @@ public class UserService {
         userRepository.save(user);
         return new AppResponse(
                 HttpStatus.OK.value(), format("Book with id <{0}> removed from wishlist.", bookId));
+    }
+
+    public List<UserProfileDTO> findAllNewUsers() {
+        LocalDate toDate = LocalDate.now();
+        LocalDate fromDate = toDate.minusWeeks(2L);
+
+        List<UserProfileDTO> listOfNewUsers = userRepository.findAllNewUsers(fromDate, toDate);
+
+        return listOfNewUsers;
     }
 
     /**

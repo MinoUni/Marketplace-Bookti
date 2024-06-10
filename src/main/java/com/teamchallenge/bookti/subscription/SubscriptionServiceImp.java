@@ -42,16 +42,16 @@ public class SubscriptionServiceImp implements SubscriptionService {
 
     @Transactional
     @Override
-    public String save(Integer userId, Integer subscriId) {
+    public String save(Integer userId, Integer subscriberId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException(String.format(UserConstant.NOT_FOUND_MESSAGE, userId)));
 
-        User userSubscriber = userRepository.findById(subscriId)
-                .orElseThrow(() -> new UserNotFoundException(String.format("User Subscriber with id <{%d}> not found.", subscriId)));
+        User userSubscriber = userRepository.findById(subscriberId)
+                .orElseThrow(() -> new UserNotFoundException(String.format("Subscriber with id <{%d}> not found.", subscriberId)));
 
-        if (checkIfUserIsSubscribed(userId, subscriId)) {
-            log.info("SubscriptionServiceImp::save. Throw UserNotFoundException with message (You are already subscribed to user with id <{}>)", subscriId);
-            throw new UserNotFoundException(String.format("You are already subscribed to user with id <{%d}>.", subscriId));
+        if (checkIfUserIsSubscribed(userId, subscriberId)) {
+            log.info("SubscriptionServiceImp::save. Throw UserNotFoundException with message (You are already subscribed to user with id <{}>)", subscriberId);
+            throw new UserNotFoundException(String.format("You are already subscribed to user with id <{%d}>.", subscriberId));
         }
         Subscription newSubscription = Subscription.builder()
                 .user(user)
@@ -66,8 +66,8 @@ public class SubscriptionServiceImp implements SubscriptionService {
     }
 
     @Override
-    public Boolean checkIfUserIsSubscribed(Integer userId, Integer subscriId) {
-        return subscriptionRepository.checkIfUserIsSubscribed(userId, subscriId).isPresent();
+    public Boolean checkIfUserIsSubscribed(Integer userId, Integer subscriberId) {
+        return subscriptionRepository.checkIfUserIsSubscribed(userId, subscriberId).isPresent();
     }
 
     @Transactional
