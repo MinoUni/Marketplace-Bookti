@@ -42,7 +42,7 @@ public interface UserRepository extends JpaRepository<User, Integer> {
               u.location, u.avatarUrl, u.displayEmail, u.displayTelegram)
             from User u
             where u.creationDate between :fromDate and :toDate
-            order by u.fullName
+            order by u.creationDate
           """)
-  List<UserProfileDTO> findAllNewUsers(@Param("fromDate")LocalDate fromDate, @Param("toDate")LocalDate toDate);
+  List<UserProfileDTO> findAllNewUsers(@Param("fromDate") LocalDate fromDate, @Param("toDate") LocalDate toDate);
 }

@@ -1,6 +1,7 @@
 package com.teamchallenge.bookti.subscription;
 
 import com.teamchallenge.bookti.constant.UserConstant;
+import com.teamchallenge.bookti.exception.subscription.SubscriptionException;
 import com.teamchallenge.bookti.exception.user.UserNotFoundException;
 import com.teamchallenge.bookti.user.User;
 import com.teamchallenge.bookti.user.UserRepository;
@@ -167,10 +168,10 @@ class SubscriptionServiceImpTest {
         when(userRepository.findById(subscriberId)).thenReturn(Optional.ofNullable(subscriber));
         when(subscriptionRepository.checkIfUserIsSubscribed(userId, subscriberId)).thenReturn(Optional.ofNullable(subscription));
 
-        UserNotFoundException errorIfUserIsSubscribed = assertThrows(UserNotFoundException.class,
+        SubscriptionException errorIfUserIsSubscribed = assertThrows(SubscriptionException.class,
                 () -> subscriptionService.save(userId, subscriberId));
 
-        assertEquals(String.format("You are already subscribed to user with id <{%d}>.", subscriberId), errorIfUserIsSubscribed.getMessage());
+        assertEquals(String.format("You are already subscribed to user with id <{%d}>. Or you can't subscribe to yourself.", subscriberId), errorIfUserIsSubscribed.getMessage());
 
         verify(userRepository, times(5)).findById(any());
         verify(subscriptionRepository, times(0)).save(any());

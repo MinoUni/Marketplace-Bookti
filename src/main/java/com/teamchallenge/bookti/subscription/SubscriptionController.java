@@ -92,9 +92,10 @@ public class SubscriptionController {
     @GetMapping
     @PreAuthorize("isAuthenticated() and hasRole('ROLE_USER')")
     public ResponseEntity<List<UserSubscriptionDTO>> findAllUserSubscriptionById(@RequestParam("userId") Integer userId) {
+        List<UserSubscriptionDTO> response = subscriptionService.findAllUserSubscriptionById(userId);
         log.info(
                 "SubscriptionController::findAllUserSubscriptionById - Get /subscriptions - return list or empty list, received review to user: {}.", userId);
-        return ResponseEntity.ok(subscriptionService.findAllUserSubscriptionById(userId));
+        return ResponseEntity.ok(response);
     }
 
     @Operation(

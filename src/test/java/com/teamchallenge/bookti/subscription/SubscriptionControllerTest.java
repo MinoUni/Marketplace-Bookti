@@ -1,5 +1,6 @@
 package com.teamchallenge.bookti.subscription;
 
+import com.teamchallenge.bookti.constant.UserConstant;
 import com.teamchallenge.bookti.security.AuthorizedUser;
 import com.teamchallenge.bookti.user.User;
 import com.teamchallenge.bookti.user.UserRepository;
@@ -11,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -130,6 +132,26 @@ class SubscriptionControllerTest {
     }
 
     @Test
+    @DisplayName("When calling get /subscription, expect that request  are invalid (userId are not correct)" +
+            "then response with ErrorResponse.class and status code 404")
+    @WithMockUser(username = "user", roles = {"USER"})
+    void testMethodFindAllUserReceivedReviewsById() throws Exception {
+        Integer userId = user.getId() + 100;
+
+        when(userRepository.existsById(userId)).thenReturn(Boolean.FALSE);
+
+        mockMvc.perform(get("/subscriptions")
+                        .header(HttpHeaders.AUTHORIZATION, accessToken)
+                        .param("userId", userId.toString()))
+                .andExpect(status().isNotFound())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.message").value(String.format(UserConstant.NOT_FOUND_MESSAGE, userId)));
+
+        verify(subscriptionRepository, times(0)).findAllUserSubscriptionById(userId);
+        verify(userRepository, times(1)).existsById(any());
+    }
+
+    @Test
     @DisplayName("When calling post /subscription, expect that request is valid and we add new subscription," +
             "then response with successfully message and status code 201")
     @WithMockUser(username = "user", roles = {"USER"})
@@ -155,6 +177,82 @@ class SubscriptionControllerTest {
 
         verify(subscriptionRepository, times(1)).save(any());
         verify(userRepository, times(2)).findById(any());
+    }
+
+    @Test
+    @DisplayName("When calling post /subscription, expect that request  are invalid (userId and subscriberId are not correct)" +
+            "then response with ErrorResponse.class and status code 404")
+    @WithMockUser(username = "user", roles = {"USER"})
+    void testExceptionInMethodSave() throws Exception {
+        Integer userId = user.getId();
+        Integer subscriberId = subscriber.getId();
+        Integer notExistSubscriberId = subscriberId + 100;
+        Integer notExistUserId = userId + 200;
+
+        authorizedUser.setId(notExistUserId);
+        SecurityContextHolder.getContext().setAuthentication(
+                new UsernamePasswordAuthenticationToken(authorizedUser, "password", authorizedUser.getAuthorities())
+        );
+
+        mockMvc.perform(post("/subscriptions")
+                        .header(HttpHeaders.AUTHORIZATION, accessToken)
+                        .param("subscriberId", subscriberId.toString()))
+                .andExpect(status().isNotFound())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.message").value(String.format(UserConstant.NOT_FOUND_MESSAGE, notExistUserId)))
+                .andExpect(jsonPath("status_code").value(HttpStatus.NOT_FOUND.value()));
+
+        authorizedUser.setId(userId);
+        when(userRepository.findById(userId)).thenReturn(Optional.ofNullable(user));
+
+        mockMvc.perform(post("/subscriptions")
+                        .header(HttpHeaders.AUTHORIZATION, accessToken)
+                        .param("subscriberId", notExistSubscriberId.toString()))
+                .andExpect(status().isNotFound())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.message").value(String.format("Subscriber with id <{%d}> not found.", notExistSubscriberId)))
+                .andExpect(jsonPath("status_code").value(HttpStatus.NOT_FOUND.value()));
+
+        verify(subscriptionRepository, times(0)).save(any());
+        verify(userRepository, times(3)).findById(any());
+    }
+
+    @Test
+    @DisplayName("When calling post /subscription, expect that request  are invalid (user is are already subscribed or he try subscribe to itself)" +
+            "then response with ErrorResponse.class and status code 400")
+    @WithMockUser(username = "user", roles = {"USER"})
+    void testExceptionCheckSubscribedInMethodSave() throws Exception {
+        Integer userId = user.getId();
+        Integer subscriberId = subscriber.getId();
+        authorizedUser.setId(userId);
+        SecurityContextHolder.getContext().setAuthentication(
+                new UsernamePasswordAuthenticationToken(authorizedUser, "password", authorizedUser.getAuthorities())
+        );
+
+        when(userRepository.findById(subscriberId)).thenReturn(Optional.ofNullable(subscriber));
+        when(userRepository.findById(userId)).thenReturn(Optional.ofNullable(user));
+        when(subscriptionRepository.checkIfUserIsSubscribed(userId, subscriberId)).thenReturn(Optional.ofNullable(subscription));
+
+        mockMvc.perform(post("/subscriptions")
+                        .header(HttpHeaders.AUTHORIZATION, accessToken)
+                        .param("subscriberId", subscriberId.toString()))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.message")
+                        .value(String.format("You are already subscribed to user with id <{%d}>. Or you can't subscribe to yourself.", subscriberId)))
+                .andExpect(jsonPath("status_code").value(HttpStatus.BAD_REQUEST.value()));
+
+        mockMvc.perform(post("/subscriptions")
+                        .header(HttpHeaders.AUTHORIZATION, accessToken)
+                        .param("subscriberId", userId.toString()))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.message")
+                        .value(String.format("You are already subscribed to user with id <{%d}>. Or you can't subscribe to yourself.", userId)))
+                .andExpect(jsonPath("status_code").value(HttpStatus.BAD_REQUEST.value()));
+
+        verify(subscriptionRepository, times(0)).save(any());
+        verify(subscriptionRepository, times(1)).checkIfUserIsSubscribed(any(), any());
     }
 
     @Test
@@ -199,5 +297,22 @@ class SubscriptionControllerTest {
 
         verify(subscriptionRepository, times(1)).existsById(any());
         verify(subscriptionRepository, times(1)).deleteById(any());
+    }
+
+    @Test
+    @DisplayName("When calling delete /subscription, expect that request are invalid (subscriptionId is not exists)" +
+            " then response with ErrorResponse.class and status code 401")
+    @WithMockUser(username = "user", roles = {"USER"})
+    void testExceptionInMethodDeleteById() throws Exception {
+        Integer subscriptionId = subscription.getId()+100;
+
+        mockMvc.perform(delete("/subscriptions/{subscriptionId}", subscriptionId)
+                        .header(HttpHeaders.AUTHORIZATION, accessToken))
+                .andExpect(status().isNotFound())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.message").value(String.format("Subscription with id [%d] not found.", subscriptionId)));
+
+        verify(subscriptionRepository, times(1)).existsById(any());
+        verify(subscriptionRepository, times(0)).deleteById(any());
     }
 }

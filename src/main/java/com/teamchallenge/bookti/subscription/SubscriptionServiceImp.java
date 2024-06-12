@@ -1,6 +1,7 @@
 package com.teamchallenge.bookti.subscription;
 
 import com.teamchallenge.bookti.constant.UserConstant;
+import com.teamchallenge.bookti.exception.subscription.SubscriptionException;
 import com.teamchallenge.bookti.exception.user.UserNotFoundException;
 import com.teamchallenge.bookti.mapper.UserMapper;
 import com.teamchallenge.bookti.user.User;
@@ -8,6 +9,7 @@ import com.teamchallenge.bookti.user.UserRepository;
 import com.teamchallenge.bookti.user.dto.UserSubscriptionDTO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -49,9 +51,11 @@ public class SubscriptionServiceImp implements SubscriptionService {
         User userSubscriber = userRepository.findById(subscriberId)
                 .orElseThrow(() -> new UserNotFoundException(String.format("Subscriber with id <{%d}> not found.", subscriberId)));
 
-        if (checkIfUserIsSubscribed(userId, subscriberId)) {
-            log.info("SubscriptionServiceImp::save. Throw UserNotFoundException with message (You are already subscribed to user with id <{}>)", subscriberId);
-            throw new UserNotFoundException(String.format("You are already subscribed to user with id <{%d}>.", subscriberId));
+        if (userId.equals(subscriberId) || checkIfUserIsSubscribed(userId, subscriberId)) {
+            log.info("SubscriptionServiceImp::save. Throw UserNotFoundException with message (You are already subscribed to user with id <{}>. Or you can't subscribe to yourself.)", subscriberId);
+            throw new SubscriptionException(
+                    String.format("You are already subscribed to user with id <{%d}>. Or you can't subscribe to yourself.", subscriberId),
+                    HttpStatus.BAD_REQUEST);
         }
         Subscription newSubscription = Subscription.builder()
                 .user(user)
@@ -74,8 +78,10 @@ public class SubscriptionServiceImp implements SubscriptionService {
     @Override
     public String deleteById(Integer subscriptionId) {
         if (!subscriptionRepository.existsById(subscriptionId)) {
-            log.info("SubscriptionServiceImp::deleteById. Throw UserNotFoundException with NOT_FOUND_MESSAGE. subscriptionId: {}", subscriptionId);
-            throw new UserNotFoundException(String.format("Subscription with id [%d] not found.", subscriptionId));
+            log.info("SubscriptionServiceImp::deleteById. Throw SubscriptionException with NOT FOUND MESSAGE. subscriptionId: {}", subscriptionId);
+            throw new SubscriptionException(
+                    String.format("Subscription with id [%d] not found.", subscriptionId),
+                    HttpStatus.NOT_FOUND);
         }
 
         subscriptionRepository.deleteById(subscriptionId);

@@ -12,13 +12,13 @@ import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 import com.teamchallenge.bookti.dto.ErrorResponse;
 import com.teamchallenge.bookti.exception.book.BookException;
 import com.teamchallenge.bookti.exception.book.BookNotFoundException;
+import com.teamchallenge.bookti.exception.subscription.SubscriptionException;
 import com.teamchallenge.bookti.exception.user.PasswordIsNotMatchesException;
 import com.teamchallenge.bookti.exception.user.PasswordResetTokenIsExpiredException;
 import com.teamchallenge.bookti.exception.user.PasswordResetTokenNotFoundException;
 import com.teamchallenge.bookti.exception.user.RefreshTokenAlreadyRevokedException;
 import com.teamchallenge.bookti.exception.user.UserAlreadyExistsException;
 import com.teamchallenge.bookti.exception.user.UserNotFoundException;
-import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -29,7 +29,6 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.validation.ObjectError;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -179,5 +178,11 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
   public ResponseEntity<ErrorResponse> handleBookException(BookException e) {
     ErrorResponse errorResponse =  new ErrorResponse(BAD_REQUEST.value(), e.getMessage());
     return ResponseEntity.status(BAD_REQUEST).body(errorResponse);
+  }
+
+  @ExceptionHandler(SubscriptionException.class)
+  public ResponseEntity<ErrorResponse> handleUserNotFoundException(SubscriptionException e) {
+    ErrorResponse errorResponse = new ErrorResponse(e.getHttpStatus().value(), e.getMessage());
+    return ResponseEntity.status(e.getHttpStatus()).body(errorResponse);
   }
 }
