@@ -25,8 +25,8 @@ import org.springframework.context.annotation.Configuration;
             version = "1.0",
             contact = @Contact(name = "MinoUni", url = "https://github.com/MinoUni")),
     servers = {
-      @Server(url = "http://localhost:8080", description = "Local dev ENV"),
-      @Server(url = "https://bookti-spring-backend.onrender.com", description = "Prod ENV")
+      @Server(url = "http://localhost:8080/api/v1", description = "Local dev ENV"),
+      @Server(url = "https://bookti-spring-backend.onrender.com/api/v1", description = "Prod ENV")
     },
     security = {@SecurityRequirement(name = "bearerAuth")})
 @SecuritySchemes(
