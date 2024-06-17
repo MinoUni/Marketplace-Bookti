@@ -28,19 +28,19 @@ import lombok.ToString;
 @Builder
 public class Subscription {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Integer id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.AUTO)
+  private Integer id;
 
-    @Column(name = "status")
-    @Enumerated(EnumType.STRING)
-    private SubscriptionStatus status;
+  @Column(name = "status")
+  @Enumerated(EnumType.STRING)
+  private SubscriptionStatus status;
 
-    @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+  @ManyToOne
+  @JoinColumn(name = "user_id", nullable = false)
+  private User user;
 
-    @ManyToOne
-    @JoinColumn(name = "subscri_id", nullable = false)
-    private User subscriber;
+  @ManyToOne
+  @JoinColumn(name = "subscri_id", nullable = false)
+  private User subscriber;
 }

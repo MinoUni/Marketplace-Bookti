@@ -10,15 +10,15 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class UserSubscriptionDTO {
 
-    private Integer subscriptionId;
+  private Integer subscriptionId;
 
-    private Integer userId;
+  private Integer userId;
 
-    private String fullName;
+  private String fullName;
 
-    private String location;
+  private String location;
 
-    private String avatarUrl;
+  private String avatarUrl;
 
-    private SubscriptionStatus status;
+  private SubscriptionStatus status;
 }

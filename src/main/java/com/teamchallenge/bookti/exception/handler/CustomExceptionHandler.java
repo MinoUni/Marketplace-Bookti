@@ -181,7 +181,7 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
   }
 
   @ExceptionHandler(SubscriptionException.class)
-  public ResponseEntity<ErrorResponse> handleUserNotFoundException(SubscriptionException e) {
+  public ResponseEntity<ErrorResponse> handleUserSubscriptionException(SubscriptionException e) {
     ErrorResponse errorResponse = new ErrorResponse(e.getHttpStatus().value(), e.getMessage());
     return ResponseEntity.status(e.getHttpStatus()).body(errorResponse);
   }

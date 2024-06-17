@@ -1,24 +1,5 @@
 package com.teamchallenge.bookti.subscription;
 
-import com.teamchallenge.bookti.constant.UserConstant;
-import com.teamchallenge.bookti.exception.subscription.SubscriptionException;
-import com.teamchallenge.bookti.exception.user.UserNotFoundException;
-import com.teamchallenge.bookti.user.User;
-import com.teamchallenge.bookti.user.UserRepository;
-import com.teamchallenge.bookti.user.dto.UserSubscriptionDTO;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-
-import java.math.BigDecimal;
-import java.util.List;
-import java.util.Optional;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -29,189 +10,228 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.teamchallenge.bookti.constant.UserConstant;
+import com.teamchallenge.bookti.exception.subscription.SubscriptionException;
+import com.teamchallenge.bookti.exception.user.UserNotFoundException;
+import com.teamchallenge.bookti.user.User;
+import com.teamchallenge.bookti.user.UserRepository;
+import com.teamchallenge.bookti.user.dto.UserSubscriptionDTO;
+import java.math.BigDecimal;
+import java.util.List;
+import java.util.Optional;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+
 @ExtendWith(MockitoExtension.class)
 @SpringBootTest
 class SubscriptionServiceImpTest {
 
-    @MockBean
-    private UserRepository userRepository;
-    @MockBean
-    private SubscriptionRepository subscriptionRepository;
-    @Autowired
-    private SubscriptionServiceImp subscriptionService;
+  @MockBean
+  private UserRepository userRepository;
+  @MockBean
+  private SubscriptionRepository subscriptionRepository;
+  @Autowired
+  private SubscriptionServiceImp subscriptionService;
 
-    private User user;
-    private User subscriber;
-    private Subscription subscription;
+  private User user;
+  private User subscriber;
+  private Subscription subscription;
 
-    @BeforeEach
-    void createObjects() {
-        user = User
-                .builder()
-                .id(1)
-                .fullName("Saria Darkoff")
-                .email("abc@gmail.com")
-                .rating(BigDecimal.valueOf(3.5D))
-                .password("Password1")
-                .location("city")
-                .build();
+  @BeforeEach
+  void createObjects() {
+    user =
+        User.builder()
+            .id(1)
+            .fullName("Saria Darkoff")
+            .email("abc@gmail.com")
+            .rating(BigDecimal.valueOf(3.5D))
+            .password("Password1")
+            .location("city")
+            .build();
 
-        subscriber = User
-                .builder()
-                .id(2)
-                .fullName("Peter Berger")
-                .email("abcdd@gmail.com")
-                .rating(BigDecimal.valueOf(3.2D))
-                .password("Password1")
-                .location("city")
-                .build();
+    subscriber =
+        User.builder()
+            .id(2)
+            .fullName("Peter Berger")
+            .email("abcdd@gmail.com")
+            .rating(BigDecimal.valueOf(3.2D))
+            .password("Password1")
+            .location("city")
+            .build();
 
-        subscription = Subscription
-                .builder()
-                .id(1)
-                .user(user)
-                .subscriber(subscriber)
-                .status(SubscriptionStatus.SUBSCRIBED)
-                .build();
+    subscription =
+        Subscription.builder()
+            .id(1)
+            .user(user)
+            .subscriber(subscriber)
+            .status(SubscriptionStatus.SUBSCRIBED)
+            .build();
+  }
 
+  @Test
+  @DisplayName("Test SubscriptionServiceImp method findAllUserSubscriptionById")
+  void testMethodFindAllUserSubscriptionById() {
+    User secondSubscriber =
+        User.builder()
+            .id(3)
+            .fullName("Amiya Shiro")
+            .email("abcdda@gmail.com")
+            .rating(BigDecimal.valueOf(3.2D))
+            .password("Password1")
+            .location("city")
+            .build();
 
-    }
+    Subscription secondSubscription =
+        Subscription.builder()
+            .id(2)
+            .user(user)
+            .subscriber(secondSubscriber)
+            .status(SubscriptionStatus.SUBSCRIBED)
+            .build();
 
-    @Test
-    @DisplayName("Test SubscriptionServiceImp method findAllUserSubscriptionById")
-    void testMethodFindAllUserSubscriptionById() {
-        User secondSubscriber = User
-                .builder()
-                .id(3)
-                .fullName("Amiya Shiro")
-                .email("abcdda@gmail.com")
-                .rating(BigDecimal.valueOf(3.2D))
-                .password("Password1")
-                .location("city")
-                .build();
+    Integer userId = user.getId();
+    List<Subscription> subscriptionList = List.of(subscription, secondSubscription);
 
-        Subscription secondSubscription = Subscription
-                .builder()
-                .id(2)
-                .user(user)
-                .subscriber(secondSubscriber)
-                .status(SubscriptionStatus.SUBSCRIBED)
-                .build();
+    when(userRepository.existsById(userId)).thenReturn(true);
+    when(subscriptionRepository.findAllUserSubscriptionById(userId)).thenReturn(subscriptionList);
 
-        Integer userId = user.getId();
-        List<Subscription> subscriptionList = List.of(subscription, secondSubscription);
+    List<UserSubscriptionDTO> userSubscriptions =
+        subscriptionService.findAllUserSubscriptionById(userId);
 
-        when(userRepository.existsById(userId)).thenReturn(true);
-        when(subscriptionRepository.findAllUserSubscriptionById(userId)).thenReturn(subscriptionList);
+    assertFalse(userSubscriptions.isEmpty());
+    assertEquals(2, userSubscriptions.size());
+  }
 
-        List<UserSubscriptionDTO> userSubscriptions = subscriptionService.findAllUserSubscriptionById(userId);
+  @Test
+  @DisplayName("Test SubscriptionServiceImp exception in method findAllUserSubscriptionById.")
+  void testExceptionInMethodFindAllUserSubscriptionById() {
+    Integer userIdNotExist = user.getId() + 100;
 
-        assertFalse(userSubscriptions.isEmpty());
-        assertEquals(2, userSubscriptions.size());
-    }
+    UserNotFoundException errorIfUserIdIsNotExist =
+        assertThrows(
+            UserNotFoundException.class,
+            () -> subscriptionService.findAllUserSubscriptionById(userIdNotExist));
 
-    @Test
-    @DisplayName("Test SubscriptionServiceImp exception in method findAllUserSubscriptionById.")
-    void testExceptionInMethodFindAllUserSubscriptionById() {
-        Integer userIdNotExist = user.getId() + 100;
+    assertEquals(
+        String.format(UserConstant.NOT_FOUND_MESSAGE, userIdNotExist),
+        errorIfUserIdIsNotExist.getMessage());
 
-        UserNotFoundException errorIfUserIdIsNotExist = assertThrows(UserNotFoundException.class,
-                () -> subscriptionService.findAllUserSubscriptionById(userIdNotExist));
+    verify(userRepository, times(1)).existsById(any());
+    verify(subscriptionRepository, times(0)).findAllUserSubscriptionById(any());
+  }
 
-        assertEquals(String.format(UserConstant.NOT_FOUND_MESSAGE, userIdNotExist), errorIfUserIdIsNotExist.getMessage());
+  @Test
+  @DisplayName("Test SubscriptionServiceImp method save")
+  void testMethodSave() {
+    Integer userId = user.getId();
+    Integer subscriberId = subscriber.getId();
 
-        verify(userRepository, times(1)).existsById(any());
-        verify(subscriptionRepository, times(0)).findAllUserSubscriptionById(any());
-    }
+    when(userRepository.findById(userId)).thenReturn(Optional.ofNullable(user));
+    when(userRepository.findById(subscriberId)).thenReturn(Optional.ofNullable(subscriber));
+    when(subscriptionRepository.checkIfUserIsSubscribed(userId, subscriberId))
+        .thenReturn(Optional.empty());
+    when(subscriptionRepository.save(any())).thenReturn(subscription);
 
-    @Test
-    @DisplayName("Test SubscriptionServiceImp method save")
-    void testMethodSave() {
-        Integer userId = user.getId();
-        Integer subscriberId = subscriber.getId();
+    String result = subscriptionService.save(userId, subscriberId);
 
-        when(userRepository.findById(userId)).thenReturn(Optional.ofNullable(user));
-        when(userRepository.findById(subscriberId)).thenReturn(Optional.ofNullable(subscriber));
-        when(subscriptionRepository.checkIfUserIsSubscribed(userId, subscriberId)).thenReturn(Optional.empty());
-        when(subscriptionRepository.save(any())).thenReturn(subscription);
+    assertFalse(result.isEmpty());
+    assertEquals("Your subscription was successfully", result);
 
-        String result = subscriptionService.save(userId, subscriberId);
+    verify(userRepository, times(2)).findById(any());
+    verify(subscriptionRepository, times(1)).checkIfUserIsSubscribed(any(), any());
+    verify(subscriptionRepository, times(1)).save(any());
+  }
 
-        assertFalse(result.isEmpty());
-        assertEquals("Your subscription was successfully", result);
+  @Test
+  @DisplayName("Test SubscriptionServiceImp exception in method save.")
+  void testExceptionInMethodSave() {
+    Integer userId = user.getId();
+    Integer subscriberId = subscriber.getId();
+    Integer userIdNotExist = user.getId() + 100;
+    Integer subscriberIdNotExist = subscriber.getId() + 100;
 
-        verify(userRepository, times(2)).findById(any());
-        verify(subscriptionRepository, times(1)).checkIfUserIsSubscribed(any(), any());
-        verify(subscriptionRepository, times(1)).save(any());
-    }
+    UserNotFoundException errorIfUserIdIsNotExist =
+        assertThrows(
+            UserNotFoundException.class,
+            () -> subscriptionService.save(userIdNotExist, subscriberId));
 
-    @Test
-    @DisplayName("Test SubscriptionServiceImp exception in method save.")
-    void testExceptionInMethodSave() {
-        Integer userId = user.getId();
-        Integer subscriberId = subscriber.getId();
-        Integer userIdNotExist = user.getId() + 100;
-        Integer subscriberIdNotExist = subscriber.getId() + 100;
+    assertEquals(
+        String.format(UserConstant.NOT_FOUND_MESSAGE, userIdNotExist),
+        errorIfUserIdIsNotExist.getMessage());
 
-        UserNotFoundException errorIfUserIdIsNotExist = assertThrows(UserNotFoundException.class,
-                () -> subscriptionService.save(userIdNotExist, subscriberId));
+    when(userRepository.findById(userId)).thenReturn(Optional.ofNullable(user));
 
-        assertEquals(String.format(UserConstant.NOT_FOUND_MESSAGE, userIdNotExist), errorIfUserIdIsNotExist.getMessage());
+    UserNotFoundException errorIfSubscriberIdIsNotExist =
+        assertThrows(
+            UserNotFoundException.class,
+            () -> subscriptionService.save(userId, subscriberIdNotExist));
 
-        when(userRepository.findById(userId)).thenReturn(Optional.ofNullable(user));
+    assertEquals(
+        String.format("Subscriber with id <{%d}> not found.", subscriberIdNotExist),
+        errorIfSubscriberIdIsNotExist.getMessage());
 
-        UserNotFoundException errorIfSubscriberIdIsNotExist = assertThrows(UserNotFoundException.class,
-                () -> subscriptionService.save(userId, subscriberIdNotExist));
+    when(userRepository.findById(subscriberId)).thenReturn(Optional.ofNullable(subscriber));
+    when(subscriptionRepository.checkIfUserIsSubscribed(userId, subscriberId))
+        .thenReturn(Optional.ofNullable(subscription));
 
-        assertEquals(String.format("Subscriber with id <{%d}> not found.", subscriberIdNotExist), errorIfSubscriberIdIsNotExist.getMessage());
+    SubscriptionException errorIfUserIsSubscribed =
+        assertThrows(
+            SubscriptionException.class, () -> subscriptionService.save(userId, subscriberId));
 
-        when(userRepository.findById(subscriberId)).thenReturn(Optional.ofNullable(subscriber));
-        when(subscriptionRepository.checkIfUserIsSubscribed(userId, subscriberId)).thenReturn(Optional.ofNullable(subscription));
+    assertEquals(
+        String.format(
+            "You are already subscribed to user with id <{%d}>. Or you can't subscribe to yourself.",
+            subscriberId),
+        errorIfUserIsSubscribed.getMessage());
 
-        SubscriptionException errorIfUserIsSubscribed = assertThrows(SubscriptionException.class,
-                () -> subscriptionService.save(userId, subscriberId));
+    verify(userRepository, times(5)).findById(any());
+    verify(subscriptionRepository, times(0)).save(any());
+  }
 
-        assertEquals(String.format("You are already subscribed to user with id <{%d}>. Or you can't subscribe to yourself.", subscriberId), errorIfUserIsSubscribed.getMessage());
+  @Test
+  @DisplayName("Test SubscriptionServiceImp method checkIfUserIsSubscribed")
+  void testMethodCheckIfUserIsSubscribed() {
+    Integer userId = user.getId();
+    Integer subscriberId = subscriber.getId();
+    Integer subscriberIdNotSubscribed = subscriber.getId() + 100;
 
-        verify(userRepository, times(5)).findById(any());
-        verify(subscriptionRepository, times(0)).save(any());
-    }
+    when(subscriptionRepository.checkIfUserIsSubscribed(userId, subscriberId))
+        .thenReturn(Optional.ofNullable(subscription));
+    when(subscriptionRepository.checkIfUserIsSubscribed(userId, subscriberIdNotSubscribed))
+        .thenReturn(Optional.empty());
 
-    @Test
-    @DisplayName("Test SubscriptionServiceImp method checkIfUserIsSubscribed")
-    void testMethodCheckIfUserIsSubscribed() {
-        Integer userId = user.getId();
-        Integer subscriberId = subscriber.getId();
-        Integer subscriberIdNotSB = subscriber.getId() + 100;
+    Boolean userIsSubscribed = subscriptionService.checkIfUserIsSubscribed(userId, subscriberId);
 
-        when(subscriptionRepository.checkIfUserIsSubscribed(userId, subscriberId)).thenReturn(Optional.ofNullable(subscription));
-        when(subscriptionRepository.checkIfUserIsSubscribed(userId, subscriberIdNotSB)).thenReturn(Optional.empty());
+    assertTrue(userIsSubscribed);
 
-        Boolean userIsSubscribed = subscriptionService.checkIfUserIsSubscribed(userId, subscriberId);
+    Boolean userIsNotSubscribed =
+        subscriptionService.checkIfUserIsSubscribed(userId, subscriberIdNotSubscribed);
 
-        assertTrue(userIsSubscribed);
+    assertFalse(userIsNotSubscribed);
 
-        Boolean userIsNotSubscribed = subscriptionService.checkIfUserIsSubscribed(userId, subscriberIdNotSB);
+    verify(subscriptionRepository, times(2)).checkIfUserIsSubscribed(any(), any());
+  }
 
-        assertFalse(userIsNotSubscribed);
+  @Test
+  @DisplayName("Test SubscriptionServiceImp method deleteById")
+  void testMethodDeleteById() {
+    Integer subscriptionId = subscription.getId();
 
-        verify(subscriptionRepository, times(2)).checkIfUserIsSubscribed(any(), any());
-    }
+    when(subscriptionRepository.existsById(subscriptionId)).thenReturn(Boolean.TRUE);
+    doNothing().when(subscriptionRepository).deleteById(subscriptionId);
 
-    @Test
-    @DisplayName("Test SubscriptionServiceImp method deleteById")
-    void testMethodDeleteById() {
-        Integer subscriptionId = subscription.getId();
+    String result = subscriptionService.deleteById(subscriptionId);
 
-        when(subscriptionRepository.existsById(subscriptionId)).thenReturn(Boolean.TRUE);
-        doNothing().when(subscriptionRepository).deleteById(subscriptionId);
+    assertFalse(result.isEmpty());
+    assertEquals("Subscription was deleted successfully", result);
 
-        String result = subscriptionService.deleteById(subscriptionId);
-
-        assertFalse(result.isEmpty());
-        assertEquals("Subscription was deleted successfully", result);
-
-        verify(subscriptionRepository, times(1)).existsById(any());
-        verify(subscriptionRepository, times(1)).deleteById(any());
-    }
+    verify(subscriptionRepository, times(1)).existsById(any());
+    verify(subscriptionRepository, times(1)).deleteById(any());
+  }
 }
