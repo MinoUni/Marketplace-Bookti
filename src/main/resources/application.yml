@@ -87,6 +87,6 @@ application:
     - /swagger-ui/*
     - /swagger-ui.html
     - /authorize/**
-    - /reviews/user/{userId}/received
+    - /reviews
   cors:
     origins: https://marketplace-bookti.vercel.app,http://localhost:5173

@@ -104,11 +104,11 @@ public class UserReviewServiceImp implements UserReviewService {
   public String deleteById(Integer reviewId) {
     if (!userReviewRepository.existsById(reviewId)) {
       log.info("Throw UserNotFoundException with NOT_FOUND_MESSAGE. reviewId: {}", reviewId);
-      throw new UserNotFoundException(String.format(ReviewConstant.NOT_FOUND, reviewId));
+      throw new UserNotFoundException(String.format(ReviewConstant.NOT_FOUND_MESSAGE, reviewId));
     }
     userReviewRepository.deleteById(reviewId);
     log.info(
-        "From UserReviewServiceImp method - delete - deleted User Review from review id: {}.",
+        "From UserReviewServiceImp method - deleteById - deleted User Review from review id: {}.",
         reviewId);
 
     return "Review was deleted successfully";
