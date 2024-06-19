@@ -37,7 +37,8 @@ public class UserReviewServiceImp implements UserReviewService {
     }
     List<UserReview> userReviewList = userReviewRepository.findAllUserReceivedReviewsById(userId);
     log.info(
-        "UserReviewServiceImp::findAllUserReceivedReviewsById - return list or empty list, received review to user: {}.",
+        "UserReviewServiceImp::findAllUserReceivedReviewsById -"
+            + "return list or empty list, received review to user: {}.",
         userId);
 
     return userReviewList;
@@ -51,7 +52,8 @@ public class UserReviewServiceImp implements UserReviewService {
     }
     List<UserReview> userReviewList = userReviewRepository.findAllUserLeftReviewById(userId);
     log.info(
-        "UserReviewServiceImp::findAllUserLeftReviewById - return list or empty list, received review to user: {}.",
+        "UserReviewServiceImp::findAllUserLeftReviewById -"
+            + "return list or empty list, received review to user: {}.",
         userId);
     return userReviewList;
   }
