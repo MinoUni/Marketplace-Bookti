@@ -16,23 +16,23 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class UserDTO {
-    
-    private Integer id;
 
-    private String fullName;
+  private Integer id;
 
-    private String email;
+  private String fullName;
 
-    @JsonFormat(shape = STRING, pattern = "yyyy-MM-dd")
-    private LocalDate creationDate;
+  private String email;
 
-    private String location;
+  @JsonFormat(shape = STRING, pattern = "yyyy-MM-dd")
+  private LocalDate creationDate;
 
-    private Boolean displayEmail;
+  private String location;
 
-    private String telegramId;
+  private Boolean displayEmail;
 
-    private Boolean displayTelegram;
+  private String telegramId;
 
-    private String avatarUrl;
+  private Boolean displayTelegram;
+
+  private String avatarUrl;
 }

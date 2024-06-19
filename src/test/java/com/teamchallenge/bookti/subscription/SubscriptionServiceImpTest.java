@@ -186,7 +186,7 @@ class SubscriptionServiceImpTest {
 
     assertEquals(
         String.format(
-            "You are already subscribed to user with id <{%d}>. Or you can't subscribe to yourself.",
+            "Already subscribed on <{%d}>, or attempt to subscribe to himself.",
             subscriberId),
         errorIfUserIsSubscribed.getMessage());
 

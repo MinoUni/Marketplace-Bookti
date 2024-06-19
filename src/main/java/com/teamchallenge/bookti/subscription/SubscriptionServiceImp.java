@@ -61,8 +61,8 @@ public class SubscriptionServiceImp implements SubscriptionService {
                       "SubscriptionServiceImp::save. Throw UserNotFoundException with message"
                           + " (User with id <{}> not found.)",
                       userId);
-                    return new UserNotFoundException(
-                        String.format(UserConstant.NOT_FOUND_MESSAGE, userId));
+                  return new UserNotFoundException(
+                      String.format(UserConstant.NOT_FOUND_MESSAGE, userId));
                 });
 
     User userSubscriber =
@@ -74,19 +74,18 @@ public class SubscriptionServiceImp implements SubscriptionService {
                       "SubscriptionServiceImp::save. Throw UserNotFoundException with message"
                           + " (Subscriber with id <{}> not found.)",
                       subscriberId);
-                    return new UserNotFoundException(
-                        String.format("Subscriber with id <{%d}> not found.", subscriberId));
+                  return new UserNotFoundException(
+                      String.format("Subscriber with id <{%d}> not found.", subscriberId));
                 });
 
     if (userId.equals(subscriberId) || checkIfUserIsSubscribed(userId, subscriberId)) {
       log.info(
-          "SubscriptionServiceImp::save. Throw UserNotFoundException with message"
-              + " (You are already subscribed to user with id <{}>. Or you can't subscribe to yourself.)",
+          "SubscriptionServiceImp::save - Throw UserNotFoundException with message"
+              + "Already subscribed on <{}>, or attempt to subscribe to himself.",
           subscriberId);
       throw new SubscriptionException(
           String.format(
-              "You are already subscribed to user with id <{%d}>. Or you can't subscribe to yourself.",
-              subscriberId),
+              "Already subscribed on <{%d}>, or attempt to subscribe to himself.", subscriberId),
           HttpStatus.BAD_REQUEST);
     }
     Subscription newSubscription =
