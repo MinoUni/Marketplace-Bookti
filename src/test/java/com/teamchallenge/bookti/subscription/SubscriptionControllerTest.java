@@ -282,7 +282,7 @@ class SubscriptionControllerTest {
             jsonPath("$.message")
                 .value(
                     String.format(
-                        "You are already subscribed to user with id <{%d}>. Or you can't subscribe to yourself.",
+                        "Already subscribed on <{%d}>, or attempt to subscribe to himself.",
                         subscriberId)))
         .andExpect(jsonPath("status_code").value(HttpStatus.BAD_REQUEST.value()));
 
@@ -297,7 +297,7 @@ class SubscriptionControllerTest {
             jsonPath("$.message")
                 .value(
                     String.format(
-                        "You are already subscribed to user with id <{%d}>. Or you can't subscribe to yourself.",
+                        "Already subscribed on <{%d}>, or attempt to subscribe to himself.",
                         userId)))
         .andExpect(jsonPath("status_code").value(HttpStatus.BAD_REQUEST.value()));
 
