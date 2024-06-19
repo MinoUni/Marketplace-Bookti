@@ -72,7 +72,7 @@ class ReviewController {
       @RequestParam("userId") Integer userId) {
     List<UserReview> response = userReviewService.findAllUserReceivedReviewsById(userId);
     log.info(
-        "From ReviewController method findAllUserReceivedReviewsById  - /reviews/ - return user reviews. ");
+        "ReviewController::findAllUserReceivedReviewsById - /reviews/ - return user reviews.");
     return ResponseEntity.status(HttpStatus.OK).body(response);
   }
 
@@ -199,7 +199,7 @@ class ReviewController {
     String responseMessage = userReviewService.deleteById(reviewId);
     AppResponse response = new AppResponse(OK.value(), responseMessage);
     log.info(
-        "From ReviewController method delete - /reviews/{reviewId} - delete a review about the user {}",
+        "ReviewController::deleteById - /reviews/{reviewId} - delete a review about the user {}",
         reviewId);
 
     return ResponseEntity.status(HttpStatus.OK).body(response);

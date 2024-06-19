@@ -2,8 +2,9 @@ package com.teamchallenge.bookti.user;
 
 import com.teamchallenge.bookti.book.Book;
 import com.teamchallenge.bookti.review.UserReview;
-import jakarta.persistence.CascadeType;
 import com.teamchallenge.bookti.security.Role;
+import com.teamchallenge.bookti.subscription.Subscription;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -17,7 +18,6 @@ import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Objects;
@@ -72,7 +72,7 @@ public class User {
   private String location;
 
   @Builder.Default
-  @Column(columnDefinition = "DECIMAL(10,1) DEFAULT 0.0" )
+  @Column(columnDefinition = "DECIMAL(10,1) DEFAULT 0.0")
   private BigDecimal rating = BigDecimal.ZERO;
 
   @Column(name = "telegram_id", length = 32)
@@ -109,6 +109,14 @@ public class User {
       joinColumns = {@JoinColumn(name = "user_id", referencedColumnName = "id")},
       inverseJoinColumns = {@JoinColumn(name = "book_id", referencedColumnName = "id")})
   private Set<Book> wishlist;
+
+  @ToString.Exclude
+  @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+  private Set<Subscription> subscriptions;
+
+  @ToString.Exclude
+  @OneToMany(mappedBy = "subscriber", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+  private Set<Subscription> subscriber;
 
   @Override
   public final boolean equals(Object obj) {

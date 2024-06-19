@@ -12,7 +12,6 @@ import com.teamchallenge.bookti.user.User;
 import com.teamchallenge.bookti.user.UserRepository;
 import com.teamchallenge.bookti.user.dto.UserDTO;
 import com.teamchallenge.bookti.utils.CloudinaryUtils;
-
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;

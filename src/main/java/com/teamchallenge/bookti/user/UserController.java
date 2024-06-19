@@ -14,6 +14,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -139,7 +140,7 @@ class UserController {
   public ResponseEntity<UserProfileDTO> updatePartially(
       @PathVariable Integer id,
       @Parameter(description = USER_UPDATE_REQ_SCHEMA, required = true) @RequestPart("user_update")
-      UserUpdateDto userUpdateInfo,
+          UserUpdateDto userUpdateInfo,
       @RequestPart(value = "image", required = false) final MultipartFile image) {
     return ResponseEntity.ok(userService.updateUserInfo(id, userUpdateInfo, image));
   }
@@ -160,5 +161,12 @@ class UserController {
   public ResponseEntity<AppResponse> deleteBookFromWishlist(
       @PathVariable Integer userId, @RequestParam("bookId") Integer bookId) {
     return ResponseEntity.ok(userService.deleteBookFromWishlist(userId, bookId));
+  }
+
+  @Operation()
+  @GetMapping(value = "/new", produces = APPLICATION_JSON_VALUE)
+  @PreAuthorize("isAuthenticated() and hasRole('ROLE_USER')")
+  public ResponseEntity<List<UserProfileDTO>> findAllNewUsers() {
+    return ResponseEntity.ok(userService.findAllNewUsers());
   }
 }

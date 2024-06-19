@@ -37,7 +37,8 @@ public class UserReviewServiceImp implements UserReviewService {
     }
     List<UserReview> userReviewList = userReviewRepository.findAllUserReceivedReviewsById(userId);
     log.info(
-        "UserReviewServiceImp::findAllUserReceivedReviewsById - return list or empty list, received review to user: {}.",
+        "UserReviewServiceImp::findAllUserReceivedReviewsById -"
+            + "return list or empty list, received review to user: {}.",
         userId);
 
     return userReviewList;
@@ -51,7 +52,8 @@ public class UserReviewServiceImp implements UserReviewService {
     }
     List<UserReview> userReviewList = userReviewRepository.findAllUserLeftReviewById(userId);
     log.info(
-        "UserReviewServiceImp::findAllUserLeftReviewById - return list or empty list, received review to user: {}.",
+        "UserReviewServiceImp::findAllUserLeftReviewById -"
+            + "return list or empty list, received review to user: {}.",
         userId);
     return userReviewList;
   }
@@ -104,11 +106,11 @@ public class UserReviewServiceImp implements UserReviewService {
   public String deleteById(Integer reviewId) {
     if (!userReviewRepository.existsById(reviewId)) {
       log.info("Throw UserNotFoundException with NOT_FOUND_MESSAGE. reviewId: {}", reviewId);
-      throw new UserNotFoundException(String.format(ReviewConstant.NOT_FOUND, reviewId));
+      throw new UserNotFoundException(String.format(ReviewConstant.NOT_FOUND_MESSAGE, reviewId));
     }
     userReviewRepository.deleteById(reviewId);
     log.info(
-        "From UserReviewServiceImp method - delete - deleted User Review from review id: {}.",
+        "From UserReviewServiceImp method - deleteById - deleted User Review from review id: {}.",
         reviewId);
 
     return "Review was deleted successfully";
