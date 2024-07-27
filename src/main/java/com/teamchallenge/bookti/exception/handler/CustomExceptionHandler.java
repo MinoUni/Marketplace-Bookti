@@ -10,6 +10,7 @@ import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 
 import com.teamchallenge.bookti.dto.ErrorResponse;
+import com.teamchallenge.bookti.exception.AuthorizedException;
 import com.teamchallenge.bookti.exception.book.BookException;
 import com.teamchallenge.bookti.exception.book.BookNotFoundException;
 import com.teamchallenge.bookti.exception.subscription.SubscriptionException;
@@ -176,12 +177,18 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
 
   @ExceptionHandler(BookException.class)
   public ResponseEntity<ErrorResponse> handleBookException(BookException e) {
-    ErrorResponse errorResponse =  new ErrorResponse(BAD_REQUEST.value(), e.getMessage());
+    ErrorResponse errorResponse = new ErrorResponse(BAD_REQUEST.value(), e.getMessage());
     return ResponseEntity.status(BAD_REQUEST).body(errorResponse);
   }
 
   @ExceptionHandler(SubscriptionException.class)
   public ResponseEntity<ErrorResponse> handleUserSubscriptionException(SubscriptionException e) {
+    ErrorResponse errorResponse = new ErrorResponse(e.getHttpStatus().value(), e.getMessage());
+    return ResponseEntity.status(e.getHttpStatus()).body(errorResponse);
+  }
+
+  @ExceptionHandler(AuthorizedException.class)
+  public ResponseEntity<ErrorResponse> handleAuthorizedException(AuthorizedException e) {
     ErrorResponse errorResponse = new ErrorResponse(e.getHttpStatus().value(), e.getMessage());
     return ResponseEntity.status(e.getHttpStatus()).body(errorResponse);
   }

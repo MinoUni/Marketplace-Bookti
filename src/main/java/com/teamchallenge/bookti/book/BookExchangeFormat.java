@@ -7,7 +7,8 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum BookExchangeFormat {
   GIFT("gift"),
-  EXCHANGE("exchange");
+  EXCHANGE("exchange"),
+  INTERESTED("interested");
 
   private final String format;
 }

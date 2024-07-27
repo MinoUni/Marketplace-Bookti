@@ -89,8 +89,10 @@ public class UserService {
                 () -> new UserNotFoundException(format("User with id <{0}> not found.", id)));
     var books = bookRepository.getAllUserBooks(id);
     var wishlist = bookRepository.getUserWishlist(id);
+    var listInterestedMeBooks =  bookRepository.getUserInterestedBookList(id);
     user.setBooks(new ItemSet<>(books));
     user.setWishlist(new ItemSet<>(wishlist));
+    user.setListInterestedMeBooks(new ItemSet<>(listInterestedMeBooks));
     return user;
   }
 

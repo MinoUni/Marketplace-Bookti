@@ -51,7 +51,7 @@ public interface BookRepository extends JpaRepository<Book, Integer> {
           b.id, b.title, b.author, b.language, b.imageUrl)
         FROM Book b
         INNER JOIN b.owner u
-        WHERE u.id = :user_id
+        WHERE u.id = :user_id and b.exchangeFormat != 'interested'
       """)
   Set<BookProfileDTO> getAllUserBooks(@Param("user_id") Integer userId);
 
@@ -61,9 +61,19 @@ public interface BookRepository extends JpaRepository<Book, Integer> {
           b.id, b.title, b.author, b.language, b.imageUrl)
         FROM Book b
         INNER JOIN b.candidates u
-        WHERE u.id = :user_id
+        WHERE u.id = :user_id and b.exchangeFormat != 'interested'
       """)
   Set<BookProfileDTO> getUserWishlist(@Param("user_id") Integer userId);
+
+  @Query(
+      """
+        SELECT new com.teamchallenge.bookti.book.BookProfileDTO(
+          b.id, b.title, b.author, b.language, b.imageUrl)
+        FROM Book b
+        INNER JOIN b.owner u
+        WHERE u.id = :user_id and b.exchangeFormat = 'interested'
+      """)
+  Set<BookProfileDTO> getUserInterestedBookList(@Param("user_id") Integer userId);
 
   @Modifying
   @Query("UPDATE Book b SET b.status = :status WHERE b.id = :id")

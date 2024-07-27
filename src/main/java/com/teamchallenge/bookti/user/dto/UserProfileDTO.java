@@ -42,6 +42,8 @@ public class UserProfileDTO {
 
   private ItemSet<BookProfileDTO> wishlist;
 
+  private ItemSet<BookProfileDTO> listInterestedMeBooks;
+
   public UserProfileDTO(
       Integer id,
       String email,

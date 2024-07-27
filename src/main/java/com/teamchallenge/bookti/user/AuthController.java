@@ -7,7 +7,9 @@ import static org.springframework.security.authentication.UsernamePasswordAuthen
 import com.teamchallenge.bookti.dto.AppResponse;
 import com.teamchallenge.bookti.dto.ErrorResponse;
 import com.teamchallenge.bookti.exception.user.RefreshTokenAlreadyRevokedException;
+import com.teamchallenge.bookti.security.AuthorizedUser;
 import com.teamchallenge.bookti.security.jwt.TokenManager;
+import com.teamchallenge.bookti.security.oauth2.GoogleOAuthService;
 import com.teamchallenge.bookti.user.dto.TokenPair;
 import com.teamchallenge.bookti.user.dto.UserLoginDto;
 import com.teamchallenge.bookti.user.dto.UserSaveDto;
@@ -22,9 +24,13 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+
+import java.io.IOException;
 import java.text.MessageFormat;
 import java.time.LocalDateTime;
 import java.util.UUID;
+
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -37,11 +43,14 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtAut
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @Tag(name = "Authentication & Authorization")
 @RequestMapping("/authorize")
+// delete @Slf4j
+@Slf4j
 class AuthController {
 
   private final UserService userService;
@@ -49,6 +58,7 @@ class AuthController {
   private final AuthenticationManager authenticationManager;
   private final JwtAuthenticationProvider refreshTokenProvider;
   private final EmailUtils emailUtils;
+  private final GoogleOAuthService googleOAuthService;
 
   public AuthController(
       UserService userService,
@@ -56,12 +66,14 @@ class AuthController {
       AuthenticationManager authenticationManager,
       EmailUtils emailUtils,
       @Qualifier("jwtRefreshTokenAuthenticationProvider")
-          JwtAuthenticationProvider refreshTokenProvider) {
+          JwtAuthenticationProvider refreshTokenProvider,
+      GoogleOAuthService googleOAuthService) {
     this.userService = userService;
     this.tokenManager = tokenManager;
     this.authenticationManager = authenticationManager;
     this.emailUtils = emailUtils;
     this.refreshTokenProvider = refreshTokenProvider;
+    this.googleOAuthService = googleOAuthService;
   }
 
   @Operation(
@@ -149,6 +161,47 @@ class AuthController {
             new UsernamePasswordAuthenticationToken(
                 credentials.getEmail(), credentials.getPassword()));
     return ResponseEntity.status(HttpStatus.OK)
+        .contentType(APPLICATION_JSON)
+        .body(tokenManager.generateTokenPair(authentication));
+  }
+
+  @Operation(
+      summary = "User google login",
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Login successful",
+            content = {
+              @Content(
+                  mediaType = APPLICATION_JSON_VALUE,
+                  schema = @Schema(implementation = TokenPair.class))
+            }),
+        @ApiResponse(
+            responseCode = "401",
+            description = "Invalid user credentials",
+            content = {
+              @Content(
+                  mediaType = APPLICATION_JSON_VALUE,
+                  schema = @Schema(implementation = ErrorResponse.class))
+            }),
+        @ApiResponse(
+            responseCode = "500",
+            description = "INTERNAL_SERVER_ERROR",
+            content = {
+              @Content(
+                  mediaType = APPLICATION_JSON_VALUE,
+                  schema = @Schema(implementation = ErrorResponse.class))
+            })
+      })
+  @PostMapping(path = "/login/oauth/google")
+  public ResponseEntity<TokenPair> googleAuth(@RequestParam("accessToken") String accessToken)
+      throws IOException {
+    log.info("RequestParam accessToken : {}", accessToken);
+    AuthorizedUser authorizedUser = googleOAuthService.googleLogin(accessToken);
+    Authentication authentication =
+        authenticated(
+            authorizedUser, authorizedUser.getPassword(), authorizedUser.getAuthorities());
+    return ResponseEntity.status(HttpStatus.CREATED)
         .contentType(APPLICATION_JSON)
         .body(tokenManager.generateTokenPair(authentication));
   }
@@ -295,7 +348,7 @@ class AuthController {
     var user = userService.findUserByEmail(mailResetPasswordRequest.getEmail());
     String token = UUID.randomUUID().toString();
     userService.createPasswordResetTokenForUser(user, token);
-    emailUtils.sendResetPasswordEmail(token, user);
+    //    emailUtils.sendResetPasswordEmail(token, user);
     return ResponseEntity.status(HttpStatus.OK)
         .body(new MailResetPasswordResponse(LocalDateTime.now(), String.valueOf(user.getId())));
   }

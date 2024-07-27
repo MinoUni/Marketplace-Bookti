@@ -3,7 +3,6 @@ package com.teamchallenge.bookti.subscription;
 import static org.springframework.http.HttpStatus.CREATED;
 import static org.springframework.http.HttpStatus.OK;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
-
 import com.teamchallenge.bookti.dto.AppResponse;
 import com.teamchallenge.bookti.dto.ErrorResponse;
 import com.teamchallenge.bookti.security.AuthorizedUser;
@@ -177,58 +176,59 @@ public class SubscriptionController {
   @Operation(
       summary = "Delete a subscription to user",
       responses = {
-          @ApiResponse(
-              responseCode = "200",
-              description = "User subscription deleted",
-              content = {
-                  @Content(
-                      mediaType = APPLICATION_JSON_VALUE,
-                      schema = @Schema(implementation = AppResponse.class))
-              }),
-          @ApiResponse(
-              responseCode = "400",
-              description = "Bad request or Validation failed",
-              content = {
-                  @Content(
-                      mediaType = APPLICATION_JSON_VALUE,
-                      schema = @Schema(implementation = ErrorResponse.class))
-              }),
-          @ApiResponse(
-              responseCode = "401",
-              description = "UNAUTHORIZED",
-              content = {
-                  @Content(
-                      mediaType = APPLICATION_JSON_VALUE,
-                      schema = @Schema(implementation = ErrorResponse.class))
-              }),
-          @ApiResponse(
-              responseCode = "403",
-              description = "ACCESS_DENIED",
-              content = {
-                  @Content(
-                      mediaType = APPLICATION_JSON_VALUE,
-                      schema = @Schema(implementation = ErrorResponse.class))
-              }),
-          @ApiResponse(
-              responseCode = "404",
-              description = "NOT_FOUND",
-              content = {
-                  @Content(
-                      mediaType = APPLICATION_JSON_VALUE,
-                      schema = @Schema(implementation = ErrorResponse.class))
-              }),
-          @ApiResponse(
-              responseCode = "500",
-              description = "INTERNAL_SERVER_ERROR",
-              content = {
-                  @Content(
-                      mediaType = APPLICATION_JSON_VALUE,
-                      schema = @Schema(implementation = ErrorResponse.class))
-              })
+        @ApiResponse(
+            responseCode = "200",
+            description = "User subscription deleted",
+            content = {
+              @Content(
+                  mediaType = APPLICATION_JSON_VALUE,
+                  schema = @Schema(implementation = AppResponse.class))
+            }),
+        @ApiResponse(
+            responseCode = "400",
+            description = "Bad request or Validation failed",
+            content = {
+              @Content(
+                  mediaType = APPLICATION_JSON_VALUE,
+                  schema = @Schema(implementation = ErrorResponse.class))
+            }),
+        @ApiResponse(
+            responseCode = "401",
+            description = "UNAUTHORIZED",
+            content = {
+              @Content(
+                  mediaType = APPLICATION_JSON_VALUE,
+                  schema = @Schema(implementation = ErrorResponse.class))
+            }),
+        @ApiResponse(
+            responseCode = "403",
+            description = "ACCESS_DENIED",
+            content = {
+              @Content(
+                  mediaType = APPLICATION_JSON_VALUE,
+                  schema = @Schema(implementation = ErrorResponse.class))
+            }),
+        @ApiResponse(
+            responseCode = "404",
+            description = "NOT_FOUND",
+            content = {
+              @Content(
+                  mediaType = APPLICATION_JSON_VALUE,
+                  schema = @Schema(implementation = ErrorResponse.class))
+            }),
+        @ApiResponse(
+            responseCode = "500",
+            description = "INTERNAL_SERVER_ERROR",
+            content = {
+              @Content(
+                  mediaType = APPLICATION_JSON_VALUE,
+                  schema = @Schema(implementation = ErrorResponse.class))
+            })
       })
   @DeleteMapping("/{subscriptionId}")
   @PreAuthorize("isAuthenticated() and hasRole('ROLE_USER')")
-  public ResponseEntity<AppResponse> deleteById(@PathVariable("subscriptionId") Integer subscriptionId) {
+  public ResponseEntity<AppResponse> deleteById(
+      @PathVariable("subscriptionId") Integer subscriptionId) {
     String responseMessage = subscriptionService.deleteById(subscriptionId);
     AppResponse response = new AppResponse(OK.value(), responseMessage);
     log.info(

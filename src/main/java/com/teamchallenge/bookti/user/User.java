@@ -82,6 +82,9 @@ public class User {
   @Enumerated(EnumType.STRING)
   private Role role;
 
+  @Column
+  private String socialIdentifier;
+
   @Builder.Default
   @Column(name = "display_email")
   private Boolean displayEmail = Boolean.FALSE;
